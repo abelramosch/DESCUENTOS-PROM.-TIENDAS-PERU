@@ -1,47 +1,92 @@
-# ChapaAlToque PE — Radar Diario de Precios Históricos y Ofertas Reales
+# ChapaAlToque PE — Radar Diario de Precios Históricos y Ofertas Reales en Perú
 
-Web App estilo **SteamDB + Compy.pe** diseñada para rastrear el **historial diario de precios** en tiendas del Perú y detectar **qué productos en verdad conviene comprar** (separando verdaderos mínimos históricos de descuentos inflados).
+[![Demo en Vivo](https://img.shields.io/badge/Demo%20en%20Vivo-ChapaAlToque%20PE-D92638?style=for-the-badge)](https://abelramosch.github.io/chapaaltoque/)
+[![Actualización Diaria](https://github.com/abelramosch/chapaaltoque/actions/workflows/daily-scrape.yml/badge.svg)](https://github.com/abelramosch/chapaaltoque/actions/workflows/daily-scrape.yml)
+[![Node.js](https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## Funcionalidades principales
+Aplicación web estilo **SteamDB + Compy.pe** que registra diariamente el **historial de precios en más de 20 tiendas del Perú** y calcula automáticamente **qué productos en verdad conviene comprar**, diferenciando mínimos históricos reales de descuentos inflados.
 
-- **21 tiendas peruanas conectadas en vivo**:
-  - **Retail & Supermercados**: Falabella, Tottus, PlazaVea, Oechsle, Promart, Wong, Metro, Coolbox, Carsa, Shopstar, Estilos, Hiraoka, Tai Loy.
-  - **Tiendas Oficiales y Especializadas**: Sony Store PE, Xiaomi Perú, Triathlon Sport, Footloose, Casaideas, Aruma.
-  - **Tecnología / PC Perú**: Infotec Perú, CyC Computer (con conversión automática USD → S/ usando tipo de cambio del día).
-- **Seguimiento de cualquier tienda por URL**: Pega el enlace de cualquier producto de Perú y el extractor universal (VTEX / Falabella SSR / Schema.org JSON-LD / OpenGraph) guarda su precio y construye su curva histórica día a día.
-- **Motor de Veredicto "¿Conviene comprar?" (Deal Score 0–100)**:
-  - Calcula **Mínimo Histórico (ATL)**, **Máximo Histórico (ATH)**, **Mediana Habitual**, **Promedio 30 días** y **caída en 24h**.
-  - **Detector de descuentos inflados**: alerta cuando una tienda muestra un gran porcentaje tachado, pero el precio real no bajó respecto a su mediana histórica.
-  - Captura precios con **Tarjeta CMR / Tarjeta Oh!** cuando están disponibles.
-- **Actualización al entrar + Automatización diaria gratis**:
-  - Botón **«Actualizar hoy»** en vivo con barra de progreso en tiempo real (Server-Sent Events) al ejecutarlo con `npm start`.
-  - **GitHub Actions** (`.github/workflows/daily-scrape.yml`) configurado para actualizar automáticamente todos los días a las **7:00 AM (hora Lima)**, guardar el historial en `data/history.json` y desplegar la web en **GitHub Pages**.
-- **Comparador Multi-Tienda en Vivo**: busca cualquier producto en tiempo real en todas las tiendas conectadas, ordena de menor a mayor precio en soles (S/) y permite seguir su historial con un clic.
-- **Mi Lista & Alertas de Precio Objetivo**: guarda productos con estrella, define tu precio meta (ej. *"avísame si baja de S/ 1,200"*) y añade búsquedas automáticas diarias.
+> **Pruébala ahora mismo (sin instalar nada):**  
+> 👉 **https://abelramosch.github.io/chapaaltoque/**
 
-## Inicio rápido local
+---
+
+## Características principales
+
+- **21 tiendas peruanas monitoreadas diariamente**:
+  - **Retail y supermercados**: Falabella, Tottus, PlazaVea, Oechsle, Promart, Wong, Metro, Coolbox, Carsa, Shopstar, Estilos, Hiraoka y Tai Loy (con detección de precios **CMR / Tarjeta Oh!**).
+  - **Tiendas oficiales y especializadas**: Sony Store PE, Xiaomi Perú, Triathlon Sport, Footloose, Casaideas y Aruma.
+  - **Tecnología / PC Perú**: Infotec Perú y CyC Computer (conversión automática **USD → S/** con tipo de cambio actualizado).
+- **Motor de veredicto "¿Conviene comprar?" (Deal Score 0–100)**:
+  - Calcula **Mínimo Histórico (ATL)**, **Máximo Histórico (ATH)**, **Mediana habitual**, **Promedio 30 días** y **variación 24h**.
+  - **Detector de descuentos inflados**: alerta cuando una tienda muestra un gran porcentaje tachado pero el precio real no ha bajado respecto a su historial.
+  - **Gráficos SVG interactivos** sin librerías pesadas + mini sparklines en la tabla.
+- **Filtros precisos por Tienda, Marca, Categoría y Veredicto**:
+  - Clasificación automática de **marcas reconocidas** y agrupación ordenada de marcas menos conocidas bajo **Marcas genéricas**.
+  - Vista **Tabla densa (SteamDB)** y vista **Tarjetas (Compy)**, en modo claro y oscuro.
+- **Mi Lista privada y alertas de precio objetivo**:
+  - Guarda productos en tu navegador (`localStorage`), define un precio meta en soles (`S/`) y añade o quita productos desde el buscador rápido.
+- **Actualización diaria 100% automatizada + disparo manual**:
+  - **GitHub Actions** actualiza los precios todos los días a las **7:00 AM (hora de Lima)**, guarda el histórico en `data/history.json` y despliega en **GitHub Pages**.
+  - Botón **«Actualizar hoy»** con estado en vivo, recarga sin caché y disparo en 1 clic vía GitHub Actions API (o escaneo en vivo por SSE al correrlo localmente).
+- **Modo servidor local completo (`npm start`)**:
+  - Comparador multi-tienda en tiempo real en todas las tiendas conectadas y seguimiento de cualquier URL de tienda peruana (VTEX, Falabella SSR, Schema.org JSON-LD y OpenGraph).
+
+---
+
+## Arquitectura del proyecto
+
+```text
+chapaaltoque/
+├── .github/workflows/daily-scrape.yml   # Cron diario 7 AM Lima + despliegue automático en Pages
+├── config/
+│   ├── stores.js                        # Registro de 21 tiendas peruanas y sus motores
+│   └── watch-queries.json               # Categorías y búsquedas monitoreadas diariamente
+├── scraper/
+│   ├── adapters/                        # Motores VTEX, Falabella SSR, PrestaShop, Magento y URL universal
+│   ├── analyzer.js                      # Inteligencia de precios (ATL, mediana, Deal Score, inflados)
+│   ├── live-search.js                   # Comparador multi-tienda concurrente
+│   ├── storage.js                       # Persistencia atómica JSON + sincronización compacta
+│   └── run-daily.js                     # Pipeline CLI diario
+├── server/index.js                      # Servidor HTTP nativo Node 22 (API + SSE en vivo)
+├── public/                              # Frontend Vanilla HTML/CSS/JS + gráficos SVG puros
+├── data/                                # Base histórica diaria (catalog.json, history.json, meta.json)
+└── tests/analyzer.test.js               # Pruebas unitarias (node:test)
+```
+
+---
+
+## Ejecutar localmente
 
 Requisitos: **Node.js 20+** (probado en Node 22).
 
 ```bash
+git clone https://github.com/abelramosch/chapaaltoque.git
+cd chapaaltoque
 npm install
 npm start
 ```
 
-Abre `http://localhost:3000` en tu navegador.
-
-### Comandos útiles
-
 | Comando | Descripción |
 | :--- | :--- |
-| `npm start` | Inicia la Web App y API local en `http://localhost:3000` |
-| `npm run scrape` | Ejecuta la actualización completa diaria de las 21 tiendas peruanas |
-| `npm run scrape:quick` | Actualización rápida (1 consulta por categoría, ~10 segundos) |
-| `npm test` | Ejecuta las pruebas unitarias del analizador histórico y parsers |
+| `npm start` | Inicia la app y API local en `http://localhost:3000` |
+| `npm run scrape` | Actualiza el catálogo completo de las 21 tiendas peruanas |
+| `npm run scrape:quick` | Actualización rápida (1 consulta por categoría, ~10s) |
+| `npm test` | Ejecuta las pruebas unitarias del analizador y parsers |
 
-## Activar actualización diaria automática en GitHub Pages
+---
 
-1. En tu repositorio de GitHub ve a **Settings → Pages**.
-2. En **Build and deployment → Source**, elige **GitHub Actions**.
-3. En **Settings → Actions → General → Workflow permissions**, activa **Read and write permissions** (para que el bot pueda guardar el historial diario en `data/`).
-4. Ve a la pestaña **Actions → Actualización Diaria de Precios Perú** y haz clic en **Run workflow** (luego correrá automáticamente cada mañana a las 7:00 AM hora de Lima).
+## Evaluar, opinar o contribuir
+
+¿Probaste **ChapaAlToque PE** y tienes feedback, ideas o quieres sugerir una tienda peruana?
+
+- **Deja tu evaluación o comentario** en [GitHub Discussions](https://github.com/abelramosch/chapaaltoque/discussions).
+- **Sugiere una tienda o reporta un error** abriendo un [Issue](https://github.com/abelramosch/chapaaltoque/issues/new/choose).
+- Si te pareció útil, una ⭐ en el repositorio ayuda a que más personas lo descubran.
+
+---
+
+## Licencia
+
+Distribuido bajo licencia [MIT](LICENSE).

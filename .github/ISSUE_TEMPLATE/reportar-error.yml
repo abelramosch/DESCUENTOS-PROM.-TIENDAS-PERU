@@ -1,0 +1,24 @@
+name: Reportar error o precio incorrecto
+description: Ayúdanos a mejorar reportando un fallo visual, de scraping o un precio desactualizado
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: input
+    id: tienda
+    attributes:
+      label: Tienda o sección afectada
+      placeholder: "Ej. Falabella, Mi Lista, Filtro de marcas..."
+    validations:
+      required: true
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: ¿Qué ocurrió?
+      placeholder: Explica brevemente el error y qué esperabas ver...
+    validations:
+      required: true
+  - type: input
+    id: enlace
+    attributes:
+      label: Enlace del producto (opcional)
+      placeholder: "https://..."

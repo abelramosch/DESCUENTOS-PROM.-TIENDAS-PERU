@@ -1,0 +1,28 @@
+name: Sugerir nueva tienda o mejora
+description: Propón una tienda peruana, categoría o nueva función para ChapaAlToque PE
+title: "[Sugerencia] "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: tipo
+    attributes:
+      label: Tipo de sugerencia
+      options:
+        - Agregar nueva tienda de Perú
+        - Agregar nueva categoría o marca
+        - Mejora de interfaz / experiencia
+        - Otra idea
+    validations:
+      required: true
+  - type: input
+    id: tienda_url
+    attributes:
+      label: Nombre o enlace de la tienda (si aplica)
+      placeholder: "Ej. https://www.ejemplo.com.pe"
+  - type: textarea
+    id: detalle
+    attributes:
+      label: ¿Qué te gustaría que agreguemos?
+      placeholder: Describe tu idea o qué productos te gustaría rastrear...
+    validations:
+      required: true

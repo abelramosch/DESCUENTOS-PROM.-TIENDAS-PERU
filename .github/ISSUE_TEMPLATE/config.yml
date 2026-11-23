@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Probar ChapaAlToque PE en vivo
+    url: https://abelramosch.github.io/chapaaltoque/
+    about: Abre la aplicación web desplegada en GitHub Pages
+  - name: Opiniones, evaluación y feedback (Discussions)
+    url: https://github.com/abelramosch/chapaaltoque/discussions
+    about: Comparte tu evaluación del proyecto, preguntas o comentarios generales
