@@ -1,16 +1,16 @@
 {
-  "lastUpdatedAt": "2026-11-23T22:27:23.244Z",
+  "lastUpdatedAt": "2026-11-23T22:56:57.732Z",
   "lastUpdatedDate": "2026-11-23",
-  "elapsedMs": 42858,
+  "elapsedMs": 47101,
   "usdToPen": 3.443,
-  "totalProducts": 3590,
+  "totalProducts": 3626,
   "activeStores": 29,
   "totalConfiguredStores": 30,
   "allTimeLows": 0,
   "droppedToday": 0,
-  "fakeDiscounts": 445,
-  "bugazosCount": 19,
-  "groupsCount": 474,
+  "fakeDiscounts": 443,
+  "bugazosCount": 22,
+  "groupsCount": 470,
   "storesStatus": {
     "falabella": {
       "id": "falabella",
@@ -21,7 +21,7 @@
       "failedJobs": 0,
       "productsFetched": 365,
       "lastError": null,
-      "catalogCount": 448
+      "catalogCount": 460
     },
     "tottus": {
       "id": "tottus",
@@ -32,7 +32,7 @@
       "failedJobs": 0,
       "productsFetched": 193,
       "lastError": null,
-      "catalogCount": 211
+      "catalogCount": 216
     },
     "plazavea": {
       "id": "plazavea",
@@ -41,9 +41,9 @@
       "currency": "PEN",
       "okJobs": 45,
       "failedJobs": 0,
-      "productsFetched": 331,
+      "productsFetched": 332,
       "lastError": null,
-      "catalogCount": 343
+      "catalogCount": 344
     },
     "oechsle": {
       "id": "oechsle",
@@ -87,7 +87,7 @@
       "failedJobs": 0,
       "productsFetched": 145,
       "lastError": null,
-      "catalogCount": 157
+      "catalogCount": 158
     },
     "coolbox": {
       "id": "coolbox",
@@ -118,9 +118,9 @@
       "currency": "PEN",
       "okJobs": 40,
       "failedJobs": 0,
-      "productsFetched": 293,
+      "productsFetched": 294,
       "lastError": null,
-      "catalogCount": 313
+      "catalogCount": 314
     },
     "estilos": {
       "id": "estilos",
@@ -292,11 +292,11 @@
       "name": "Hiraoka",
       "engine": "magento",
       "currency": "PEN",
-      "okJobs": 0,
-      "failedJobs": 29,
-      "productsFetched": 0,
+      "okJobs": 6,
+      "failedJobs": 23,
+      "productsFetched": 20,
       "lastError": "HTTP 403",
-      "catalogCount": 1
+      "catalogCount": 17
     },
     "tailoy": {
       "id": "tailoy",
@@ -336,10 +336,10 @@
       "name": "CyC Computer",
       "engine": "prestashop",
       "currency": "USD",
-      "okJobs": 15,
-      "failedJobs": 0,
-      "productsFetched": 86,
-      "lastError": null,
+      "okJobs": 0,
+      "failedJobs": 15,
+      "productsFetched": 0,
+      "lastError": "HTTP 403",
       "catalogCount": 91
     }
   }
