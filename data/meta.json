@@ -1,203 +1,291 @@
 {
-  "lastUpdatedAt": "2026-11-23T22:02:59.440Z",
+  "lastUpdatedAt": "2026-11-23T22:27:23.244Z",
   "lastUpdatedDate": "2026-11-23",
-  "elapsedMs": 38443,
+  "elapsedMs": 42858,
   "usdToPen": 3.443,
-  "totalProducts": 1841,
-  "activeStores": 21,
-  "totalConfiguredStores": 22,
+  "totalProducts": 3590,
+  "activeStores": 29,
+  "totalConfiguredStores": 30,
   "allTimeLows": 0,
   "droppedToday": 0,
-  "fakeDiscounts": 283,
-  "bugazosCount": 3,
-  "groupsCount": 253,
+  "fakeDiscounts": 445,
+  "bugazosCount": 19,
+  "groupsCount": 474,
   "storesStatus": {
     "falabella": {
       "id": "falabella",
       "name": "Falabella",
       "engine": "falabella",
       "currency": "PEN",
-      "okJobs": 24,
+      "okJobs": 49,
       "failedJobs": 0,
-      "productsFetched": 210,
+      "productsFetched": 365,
       "lastError": null,
-      "catalogCount": 268
+      "catalogCount": 448
     },
     "tottus": {
       "id": "tottus",
       "name": "Tottus",
       "engine": "falabella",
       "currency": "PEN",
-      "okJobs": 15,
+      "okJobs": 33,
       "failedJobs": 0,
-      "productsFetched": 106,
+      "productsFetched": 193,
       "lastError": null,
-      "catalogCount": 110
+      "catalogCount": 211
     },
     "plazavea": {
       "id": "plazavea",
       "name": "PlazaVea",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 21,
+      "okJobs": 45,
       "failedJobs": 0,
-      "productsFetched": 186,
+      "productsFetched": 331,
       "lastError": null,
-      "catalogCount": 176
+      "catalogCount": 343
     },
     "oechsle": {
       "id": "oechsle",
       "name": "Oechsle",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 17,
+      "okJobs": 36,
       "failedJobs": 0,
-      "productsFetched": 154,
+      "productsFetched": 274,
       "lastError": null,
-      "catalogCount": 156
+      "catalogCount": 290
     },
     "promart": {
       "id": "promart",
       "name": "Promart",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 13,
+      "okJobs": 32,
       "failedJobs": 0,
-      "productsFetched": 112,
+      "productsFetched": 220,
       "lastError": null,
-      "catalogCount": 111
+      "catalogCount": 228
     },
     "wong": {
       "id": "wong",
       "name": "Wong",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 15,
+      "okJobs": 33,
       "failedJobs": 0,
-      "productsFetched": 94,
+      "productsFetched": 150,
       "lastError": null,
-      "catalogCount": 97
+      "catalogCount": 165
     },
     "metro": {
       "id": "metro",
       "name": "Metro",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 15,
+      "okJobs": 33,
       "failedJobs": 0,
-      "productsFetched": 95,
+      "productsFetched": 145,
       "lastError": null,
-      "catalogCount": 96
+      "catalogCount": 157
     },
     "coolbox": {
       "id": "coolbox",
       "name": "Coolbox",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 14,
+      "okJobs": 28,
       "failedJobs": 0,
-      "productsFetched": 129,
+      "productsFetched": 203,
       "lastError": null,
-      "catalogCount": 127
+      "catalogCount": 206
     },
     "carsa": {
       "id": "carsa",
       "name": "Carsa",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 16,
+      "okJobs": 29,
       "failedJobs": 0,
-      "productsFetched": 141,
+      "productsFetched": 222,
       "lastError": null,
-      "catalogCount": 127
+      "catalogCount": 216
     },
     "shopstar": {
       "id": "shopstar",
       "name": "Shopstar",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 19,
+      "okJobs": 40,
       "failedJobs": 0,
-      "productsFetched": 165,
+      "productsFetched": 293,
       "lastError": null,
-      "catalogCount": 167
+      "catalogCount": 313
     },
     "estilos": {
       "id": "estilos",
       "name": "Estilos",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 14,
+      "okJobs": 27,
       "failedJobs": 0,
-      "productsFetched": 111,
+      "productsFetched": 179,
       "lastError": null,
-      "catalogCount": 114
+      "catalogCount": 192
     },
     "sony": {
       "id": "sony",
       "name": "Sony Store PE",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 7,
+      "okJobs": 11,
       "failedJobs": 0,
-      "productsFetched": 41,
+      "productsFetched": 61,
       "lastError": null,
-      "catalogCount": 40
+      "catalogCount": 61
     },
     "xiaomi": {
       "id": "xiaomi",
       "name": "Xiaomi Perú",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 13,
-      "failedJobs": 1,
-      "productsFetched": 13,
-      "lastError": "This operation was aborted",
-      "catalogCount": 20
+      "okJobs": 27,
+      "failedJobs": 0,
+      "productsFetched": 28,
+      "lastError": null,
+      "catalogCount": 27
     },
     "triathlon": {
       "id": "triathlon",
       "name": "Triathlon Sport",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 2,
+      "okJobs": 4,
       "failedJobs": 0,
       "productsFetched": 16,
       "lastError": null,
-      "catalogCount": 16
+      "catalogCount": 18
     },
     "footloose": {
       "id": "footloose",
       "name": "Footloose",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 2,
+      "okJobs": 4,
       "failedJobs": 0,
-      "productsFetched": 16,
+      "productsFetched": 14,
       "lastError": null,
-      "catalogCount": 16
+      "catalogCount": 23
     },
     "casaideas": {
       "id": "casaideas",
       "name": "Casaideas",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 4,
+      "okJobs": 8,
       "failedJobs": 0,
-      "productsFetched": 16,
+      "productsFetched": 29,
       "lastError": null,
-      "catalogCount": 16
+      "catalogCount": 31
     },
     "aruma": {
       "id": "aruma",
       "name": "Aruma",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 1,
+      "okJobs": 3,
       "failedJobs": 0,
-      "productsFetched": 8,
+      "productsFetched": 7,
       "lastError": null,
       "catalogCount": 8
+    },
+    "oster": {
+      "id": "oster",
+      "name": "Oster Perú",
+      "engine": "vtex",
+      "currency": "PEN",
+      "okJobs": 18,
+      "failedJobs": 0,
+      "productsFetched": 35,
+      "lastError": null,
+      "catalogCount": 26
+    },
+    "electrolux": {
+      "id": "electrolux",
+      "name": "Electrolux Perú",
+      "engine": "vtex",
+      "currency": "PEN",
+      "okJobs": 18,
+      "failedJobs": 0,
+      "productsFetched": 74,
+      "lastError": null,
+      "catalogCount": 71
+    },
+    "paraiso": {
+      "id": "paraiso",
+      "name": "Paraíso Perú",
+      "engine": "vtex",
+      "currency": "PEN",
+      "okJobs": 8,
+      "failedJobs": 0,
+      "productsFetched": 9,
+      "lastError": null,
+      "catalogCount": 9
+    },
+    "makro": {
+      "id": "makro",
+      "name": "Makro Perú",
+      "engine": "vtex",
+      "currency": "PEN",
+      "okJobs": 21,
+      "failedJobs": 0,
+      "productsFetched": 73,
+      "lastError": null,
+      "catalogCount": 73
+    },
+    "cassinelli": {
+      "id": "cassinelli",
+      "name": "Cassinelli",
+      "engine": "vtex",
+      "currency": "PEN",
+      "okJobs": 18,
+      "failedJobs": 0,
+      "productsFetched": 29,
+      "lastError": null,
+      "catalogCount": 29
+    },
+    "topitop": {
+      "id": "topitop",
+      "name": "Topitop",
+      "engine": "vtex",
+      "currency": "PEN",
+      "okJobs": 4,
+      "failedJobs": 0,
+      "productsFetched": 7,
+      "lastError": null,
+      "catalogCount": 7
+    },
+    "renzocosta": {
+      "id": "renzocosta",
+      "name": "Renzo Costa",
+      "engine": "vtex",
+      "currency": "PEN",
+      "okJobs": 4,
+      "failedJobs": 0,
+      "productsFetched": 20,
+      "lastError": null,
+      "catalogCount": 20
+    },
+    "miniso": {
+      "id": "miniso",
+      "name": "Miniso Perú",
+      "engine": "vtex",
+      "currency": "PEN",
+      "okJobs": 19,
+      "failedJobs": 0,
+      "productsFetched": 61,
+      "lastError": null,
+      "catalogCount": 61
     },
     "hiraoka": {
       "id": "hiraoka",
@@ -205,7 +293,7 @@
       "engine": "magento",
       "currency": "PEN",
       "okJobs": 0,
-      "failedJobs": 16,
+      "failedJobs": 29,
       "productsFetched": 0,
       "lastError": "HTTP 403",
       "catalogCount": 1
@@ -215,22 +303,22 @@
       "name": "Tai Loy",
       "engine": "magento",
       "currency": "PEN",
-      "okJobs": 11,
+      "okJobs": 27,
       "failedJobs": 0,
-      "productsFetched": 70,
+      "productsFetched": 149,
       "lastError": null,
-      "catalogCount": 62
+      "catalogCount": 145
     },
     "infotec": {
       "id": "infotec",
       "name": "Infotec Perú",
       "engine": "prestashop",
       "currency": "PEN",
-      "okJobs": 9,
+      "okJobs": 19,
       "failedJobs": 0,
-      "productsFetched": 60,
+      "productsFetched": 111,
       "lastError": null,
-      "catalogCount": 60
+      "catalogCount": 120
     },
     "sercoplus": {
       "id": "sercoplus",
@@ -248,11 +336,11 @@
       "name": "CyC Computer",
       "engine": "prestashop",
       "currency": "USD",
-      "okJobs": 0,
-      "failedJobs": 7,
-      "productsFetched": 0,
-      "lastError": "HTTP 403",
-      "catalogCount": 53
+      "okJobs": 15,
+      "failedJobs": 0,
+      "productsFetched": 86,
+      "lastError": null,
+      "catalogCount": 91
     }
   }
 }

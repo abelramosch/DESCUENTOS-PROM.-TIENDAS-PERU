@@ -178,7 +178,41 @@ const KNOWN_BRAND_ALIASES = {
   moschino: 'Moschino',
   nautica: 'Nautica',
   antonio: 'Antonio Banderas',
-  'antonio banderas': 'Antonio Banderas'
+  'antonio banderas': 'Antonio Banderas',
+  remington: 'Remington',
+  babyliss: 'BaByliss',
+  wahl: 'Wahl',
+  gama: 'GA.MA',
+  'ga.ma': 'GA.MA',
+  dyson: 'Dyson',
+
+  // Hogar, Cocina, Moda, Viaje & Supermercado Perú
+  rotoplas: 'Rotoplas',
+  sole: 'Sole',
+  record: 'Record',
+  tramontina: 'Tramontina',
+  imusa: 'Imusa',
+  brother: 'Brother',
+  topitop: 'Topitop',
+  'renzo costa': 'Renzo Costa',
+  miniso: 'Miniso',
+  samsonite: 'Samsonite',
+  totto: 'Totto',
+  porta: 'Porta',
+  segway: 'Segway',
+  ninebot: 'Segway',
+  monark: 'Monark',
+  oxford: 'Oxford',
+  'johnnie walker': 'Johnnie Walker',
+  chivas: 'Chivas Regal',
+  'chivas regal': 'Chivas Regal',
+  baileys: 'Baileys',
+  altomayo: 'Altomayo',
+  nescafe: 'Nescafé',
+  ricocan: 'Ricocan',
+  canbo: 'Canbo',
+  pedigree: 'Pedigree',
+  purina: 'Purina'
 };
 
 function normalizeBrandText(str) {
@@ -375,9 +409,11 @@ async function loadInitialData() {
       { id: 'audio', label: 'Audio' },
       { id: 'gaming', label: 'Gaming' },
       { id: 'electro', label: 'Electrodomésticos' },
-      { id: 'hogar', label: 'Hogar & Herramientas' },
-      { id: 'deporte', label: 'Calzado & Deporte' },
-      { id: 'belleza', label: 'Perfumes & Belleza' },
+      { id: 'hogar', label: 'Hogar & Ferretería' },
+      { id: 'deporte', label: 'Deporte & Movilidad' },
+      { id: 'moda', label: 'Moda & Viajes' },
+      { id: 'belleza', label: 'Belleza & Cuidado' },
+      { id: 'supermercado', label: 'Supermercado & Licores' },
       { id: 'personal', label: 'Mi Seguimiento' }
     ];
   }
@@ -1809,7 +1845,8 @@ function watchGitHubRunUntilDeployed(prevUpdatedAt, startedMs = Date.now()) {
             setProgressBar(true, 18, 'En cola en GitHub Actions...');
           } else if (run.status === 'in_progress') {
             const est = Math.min(78, 28 + ticks * 4);
-            setProgressBar(true, est, 'Escaneando 21 tiendas de Perú y publicando cambios...');
+            const storeCount = state.meta?.activeStores || 29;
+            setProgressBar(true, est, `Escaneando ${storeCount} tiendas de Perú y publicando cambios...`);
           } else if (run.status === 'completed') {
             if (run.conclusion === 'success') {
               setProgressBar(true, 92, 'Escaneo listo · esperando propagación de GitHub Pages...');
@@ -1844,7 +1881,8 @@ function watchGitHubRunUntilDeployed(prevUpdatedAt, startedMs = Date.now()) {
 
 function startLocalDailyScrape(quick = false) {
   closeUpdateModal();
-  setProgressBar(true, 4, `Conectando con las 21 tiendas de Perú (${quick ? 'modo rápido' : 'modo completo'})...`);
+  const storeCount = state.meta?.activeStores || 29;
+  setProgressBar(true, 4, `Conectando con las ${storeCount} tiendas de Perú (${quick ? 'modo rápido' : 'modo completo'})...`);
 
   const es = new EventSource(`/api/scrape/stream${quick ? '?quick=1' : ''}`);
 
@@ -2472,7 +2510,7 @@ const TOUR_STEPS = [
     selector: null,
     title: '¡Bienvenido a ChapaAlToque PE!',
     body: `
-      <p>Monitoreamos <strong>precios históricos reales</strong> en <strong>21 tiendas del Perú</strong> para que sepas qué descuentos son verdaderos y cuáles están inflados.</p>
+      <p>Monitoreamos <strong>precios históricos reales</strong> en <strong>29 tiendas del Perú</strong> para que sepas qué descuentos son verdaderos y cuáles están inflados.</p>
       <p>Te mostramos en 30 segundos cómo aprovechar cada sección. Si ya conoces la página, puedes saltarla ahora mismo.</p>
     `,
     nextLabel: 'Empezar guía →',

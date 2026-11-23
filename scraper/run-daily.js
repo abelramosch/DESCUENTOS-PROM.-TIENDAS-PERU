@@ -133,7 +133,7 @@ export async function runDailyScrape(options = {}) {
     message: `Iniciando actualización de ${enabledStores.length} tiendas en Perú (${jobs.length} consultas)...`
   });
 
-  await runWithConcurrency(jobs, 8, async (job) => {
+  await runWithConcurrency(jobs, 12, async (job) => {
     try {
       if (job.type === 'search') {
         const items = await searchSingleStore(job.store, job.query, job.limit, job.category);

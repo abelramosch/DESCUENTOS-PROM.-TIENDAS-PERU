@@ -17,7 +17,7 @@ export const STORES = [
     accent: '#AAD500',
     badgeBg: '#ECFCCB',
     badgeText: '#3F6212',
-    specialties: ['tecnologia', 'televisores', 'celulares', 'electro', 'gaming', 'deporte', 'hogar', 'belleza'],
+    specialties: ['tecnologia', 'televisores', 'celulares', 'electro', 'gaming', 'deporte', 'hogar', 'belleza', 'moda'],
     enabled: true
   },
   {
@@ -32,7 +32,7 @@ export const STORES = [
     accent: '#76B82A',
     badgeBg: '#ECFDF5',
     badgeText: '#166534',
-    specialties: ['televisores', 'electro', 'hogar', 'tecnologia'],
+    specialties: ['televisores', 'electro', 'hogar', 'tecnologia', 'supermercado'],
     enabled: true
   },
 
@@ -48,7 +48,7 @@ export const STORES = [
     accent: '#E30613',
     badgeBg: '#FEE2E2',
     badgeText: '#991B1B',
-    specialties: ['tecnologia', 'televisores', 'celulares', 'electro', 'gaming', 'hogar'],
+    specialties: ['tecnologia', 'televisores', 'celulares', 'electro', 'gaming', 'hogar', 'supermercado', 'moda'],
     enabled: true
   },
   {
@@ -62,7 +62,7 @@ export const STORES = [
     accent: '#D91A2A',
     badgeBg: '#FFE4E6',
     badgeText: '#9F1239',
-    specialties: ['tecnologia', 'televisores', 'celulares', 'electro', 'deporte', 'belleza'],
+    specialties: ['tecnologia', 'televisores', 'celulares', 'electro', 'deporte', 'belleza', 'moda'],
     enabled: true
   },
   {
@@ -76,7 +76,7 @@ export const STORES = [
     accent: '#F97316',
     badgeBg: '#FFEDD5',
     badgeText: '#9A3412',
-    specialties: ['hogar', 'electro', 'tecnologia'],
+    specialties: ['hogar', 'electro', 'tecnologia', 'deporte'],
     enabled: true
   },
   {
@@ -90,7 +90,7 @@ export const STORES = [
     accent: '#DC2626',
     badgeBg: '#FEF2F2',
     badgeText: '#B91C1C',
-    specialties: ['televisores', 'electro', 'tecnologia', 'hogar'],
+    specialties: ['televisores', 'electro', 'tecnologia', 'hogar', 'supermercado'],
     enabled: true
   },
   {
@@ -104,7 +104,7 @@ export const STORES = [
     accent: '#CA8A04',
     badgeBg: '#FEF9C3',
     badgeText: '#854D0E',
-    specialties: ['televisores', 'electro', 'tecnologia', 'hogar'],
+    specialties: ['televisores', 'electro', 'tecnologia', 'hogar', 'supermercado'],
     enabled: true
   },
   {
@@ -118,7 +118,7 @@ export const STORES = [
     accent: '#E11D48',
     badgeBg: '#FFF1F2',
     badgeText: '#BE123C',
-    specialties: ['tecnologia', 'audio', 'celulares', 'gaming', 'televisores'],
+    specialties: ['tecnologia', 'audio', 'celulares', 'gaming', 'televisores', 'deporte'],
     enabled: true
   },
   {
@@ -146,7 +146,7 @@ export const STORES = [
     accent: '#0284C7',
     badgeBg: '#E0F2FE',
     badgeText: '#075985',
-    specialties: ['tecnologia', 'audio', 'celulares', 'electro', 'gaming', 'deporte'],
+    specialties: ['tecnologia', 'audio', 'celulares', 'electro', 'gaming', 'deporte', 'moda'],
     enabled: true
   },
   {
@@ -160,7 +160,7 @@ export const STORES = [
     accent: '#B91C1C',
     badgeBg: '#FEE2E2',
     badgeText: '#991B1B',
-    specialties: ['televisores', 'electro', 'celulares', 'hogar'],
+    specialties: ['televisores', 'electro', 'celulares', 'hogar', 'moda'],
     enabled: true
   },
 
@@ -249,6 +249,118 @@ export const STORES = [
     specialties: ['belleza'],
     enabled: true
   },
+  {
+    id: 'oster',
+    name: 'Oster Perú',
+    domain: 'www.oster.com.pe',
+    baseUrl: 'https://www.oster.com.pe',
+    engine: 'vtex',
+    currency: 'PEN',
+    cardName: null,
+    accent: '#C8102E',
+    badgeBg: '#FEE2E2',
+    badgeText: '#991B1B',
+    specialties: ['electro', 'hogar'],
+    enabled: true
+  },
+  {
+    id: 'electrolux',
+    name: 'Electrolux Perú',
+    domain: 'www.electrolux.com.pe',
+    baseUrl: 'https://www.electrolux.com.pe',
+    engine: 'vtex',
+    currency: 'PEN',
+    cardName: null,
+    accent: '#041E50',
+    badgeBg: '#DBEAFE',
+    badgeText: '#1E3A8A',
+    specialties: ['electro', 'hogar'],
+    enabled: true
+  },
+  {
+    id: 'paraiso',
+    name: 'Paraíso Perú',
+    domain: 'www.paraiso-peru.com',
+    baseUrl: 'https://www.paraiso-peru.com',
+    engine: 'vtex',
+    currency: 'PEN',
+    cardName: null,
+    accent: '#1D4ED8',
+    badgeBg: '#DBEAFE',
+    badgeText: '#1E40AF',
+    specialties: ['hogar'],
+    enabled: true
+  },
+  {
+    id: 'makro',
+    name: 'Makro Perú',
+    domain: 'www.makro.plazavea.com.pe',
+    baseUrl: 'https://www.makro.plazavea.com.pe',
+    engine: 'vtex',
+    currency: 'PEN',
+    cardName: 'Tarjeta Oh!',
+    accent: '#DC2626',
+    badgeBg: '#FEE2E2',
+    badgeText: '#991B1B',
+    specialties: ['supermercado', 'electro', 'hogar'],
+    enabled: true
+  },
+  {
+    id: 'cassinelli',
+    name: 'Cassinelli',
+    domain: 'www.cassinelli.com',
+    baseUrl: 'https://www.cassinelli.com',
+    engine: 'vtex',
+    currency: 'PEN',
+    cardName: null,
+    accent: '#B45309',
+    badgeBg: '#FEF3C7',
+    badgeText: '#92400E',
+    specialties: ['hogar', 'electro'],
+    enabled: true
+  },
+  {
+    id: 'topitop',
+    name: 'Topitop',
+    domain: 'www.topitop.pe',
+    baseUrl: 'https://www.topitop.pe',
+    engine: 'vtex',
+    currency: 'PEN',
+    cardName: null,
+    accent: '#111827',
+    badgeBg: '#F3F4F6',
+    badgeText: '#111827',
+    specialties: ['moda'],
+    enabled: true
+  },
+  {
+    id: 'renzocosta',
+    name: 'Renzo Costa',
+    domain: 'www.renzocosta.com',
+    baseUrl: 'https://www.renzocosta.com',
+    engine: 'vtex',
+    currency: 'PEN',
+    cardName: null,
+    accent: '#78350F',
+    badgeBg: '#FEF3C7',
+    badgeText: '#78350F',
+    specialties: ['moda'],
+    enabled: true
+  },
+  {
+    id: 'miniso',
+    name: 'Miniso Perú',
+    domain: 'www.miniso.pe',
+    baseUrl: 'https://www.miniso.pe',
+    engine: 'vtex',
+    currency: 'PEN',
+    cardName: null,
+    accent: '#E11D48',
+    badgeBg: '#FFE4E6',
+    badgeText: '#9F1239',
+    specialties: ['hogar', 'moda', 'audio', 'belleza'],
+    enabled: true
+  },
 
   // === Electro & Retail Magento Perú ===
   {
@@ -276,7 +388,7 @@ export const STORES = [
     accent: '#15803D',
     badgeBg: '#DCFCE7',
     badgeText: '#166534',
-    specialties: ['tecnologia', 'gaming', 'hogar'],
+    specialties: ['tecnologia', 'gaming', 'hogar', 'moda'],
     enabled: true
   },
 
@@ -347,8 +459,10 @@ export const CATEGORIES = [
   { id: 'audio', label: 'Audio' },
   { id: 'gaming', label: 'Gaming' },
   { id: 'electro', label: 'Electrodomésticos' },
-  { id: 'hogar', label: 'Hogar & Herramientas' },
-  { id: 'deporte', label: 'Calzado & Deporte' },
-  { id: 'belleza', label: 'Perfumes & Belleza' },
+  { id: 'hogar', label: 'Hogar & Ferretería' },
+  { id: 'deporte', label: 'Deporte & Movilidad' },
+  { id: 'moda', label: 'Moda & Viajes' },
+  { id: 'belleza', label: 'Belleza & Cuidado' },
+  { id: 'supermercado', label: 'Supermercado & Licores' },
   { id: 'personal', label: 'Mi Seguimiento' }
 ];

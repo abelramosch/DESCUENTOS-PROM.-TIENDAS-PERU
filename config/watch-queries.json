@@ -2,47 +2,124 @@
   "categories": [
     {
       "category": "tecnologia",
-      "queries": ["laptop", "monitor gamer", "ssd nvme", "tablet"],
-      "limitPerStore": 10
+      "queries": [
+        "laptop",
+        "monitor gamer",
+        "ssd nvme",
+        "tablet",
+        "tarjeta de video rtx",
+        "impresora multifuncional",
+        "teclado mecanico",
+        "mouse gamer",
+        "router wifi",
+        "proyector"
+      ],
+      "limitPerStore": 8
     },
     {
       "category": "televisores",
-      "queries": ["televisor smart tv 4k", "televisor oled qled"],
+      "queries": [
+        "televisor smart tv 4k",
+        "televisor oled qled"
+      ],
       "limitPerStore": 10
     },
     {
       "category": "celulares",
-      "queries": ["celular smartphone", "iphone samsung galaxy", "smartwatch reloj inteligente"],
-      "limitPerStore": 10
+      "queries": [
+        "celular smartphone",
+        "iphone samsung galaxy",
+        "smartwatch reloj inteligente"
+      ],
+      "limitPerStore": 9
     },
     {
       "category": "audio",
-      "queries": ["audifonos bluetooth", "parlante bluetooth"],
-      "limitPerStore": 8
+      "queries": [
+        "audifonos bluetooth",
+        "parlante bluetooth",
+        "barra de sonido soundbar",
+        "microfono"
+      ],
+      "limitPerStore": 7
     },
     {
       "category": "gaming",
-      "queries": ["playstation 5", "nintendo switch", "silla gamer"],
-      "limitPerStore": 8
+      "queries": [
+        "playstation 5",
+        "nintendo switch",
+        "xbox",
+        "mando control gamer",
+        "silla gamer"
+      ],
+      "limitPerStore": 7
     },
     {
       "category": "electro",
-      "queries": ["freidora de aire", "refrigeradora", "lavadora", "microondas", "cafetera"],
-      "limitPerStore": 8
+      "queries": [
+        "freidora de aire",
+        "refrigeradora",
+        "lavadora",
+        "microondas",
+        "cafetera",
+        "cocina",
+        "licuadora",
+        "horno electrico",
+        "terma",
+        "ventilador aire acondicionado"
+      ],
+      "limitPerStore": 7
     },
     {
       "category": "hogar",
-      "queries": ["almohada", "colchon", "taladro inalambrico", "aspiradora robot"],
-      "limitPerStore": 8
+      "queries": [
+        "almohada",
+        "colchon",
+        "silla ergonomica escritorio",
+        "taladro inalambrico",
+        "hidrolavadora",
+        "aspiradora robot",
+        "juego de ollas",
+        "parrilla"
+      ],
+      "limitPerStore": 7
     },
     {
       "category": "deporte",
-      "queries": ["zapatillas running", "zapatillas urbanas"],
-      "limitPerStore": 8
+      "queries": [
+        "zapatillas running",
+        "zapatillas urbanas",
+        "bicicleta",
+        "scooter electrico"
+      ],
+      "limitPerStore": 7
+    },
+    {
+      "category": "moda",
+      "queries": [
+        "maleta de viaje",
+        "mochila porta laptop",
+        "casaca",
+        "billetera cartera"
+      ],
+      "limitPerStore": 7
     },
     {
       "category": "belleza",
-      "queries": ["perfume eau de parfum"],
+      "queries": [
+        "perfume eau de parfum",
+        "secadora plancha cabello",
+        "afeitadora electrica"
+      ],
+      "limitPerStore": 7
+    },
+    {
+      "category": "supermercado",
+      "queries": [
+        "whisky vino",
+        "cafe",
+        "comida perro gato"
+      ],
       "limitPerStore": 8
     }
   ]
