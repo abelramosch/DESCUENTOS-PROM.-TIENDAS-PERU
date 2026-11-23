@@ -16180,5 +16180,32 @@
       "cardPrice": 129.9,
       "inStock": true
     }
+  ],
+  "falabella:159533140": [
+    {
+      "date": "2026-11-23",
+      "price": 1518,
+      "listPrice": 1999,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:159559798": [
+    {
+      "date": "2026-11-23",
+      "price": 1518,
+      "listPrice": 1999,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:152014299": [
+    {
+      "date": "2026-11-23",
+      "price": 319,
+      "listPrice": 499,
+      "cardPrice": null,
+      "inStock": true
+    }
   ]
 }
