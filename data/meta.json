@@ -1,9 +1,9 @@
 {
-  "lastUpdatedAt": "2026-11-23T16:28:17.740Z",
+  "lastUpdatedAt": "2026-11-23T16:53:26.957Z",
   "lastUpdatedDate": "2026-11-23",
-  "elapsedMs": 19441,
+  "elapsedMs": 18636,
   "usdToPen": 3.443,
-  "totalProducts": 1275,
+  "totalProducts": 1286,
   "activeStores": 21,
   "totalConfiguredStores": 22,
   "allTimeLows": 0,
@@ -19,7 +19,7 @@
       "failedJobs": 0,
       "productsFetched": 158,
       "lastError": null,
-      "catalogCount": 150
+      "catalogCount": 161
     },
     "tottus": {
       "id": "tottus",
@@ -39,7 +39,7 @@
       "currency": "PEN",
       "okJobs": 15,
       "failedJobs": 0,
-      "productsFetched": 134,
+      "productsFetched": 133,
       "lastError": null,
       "catalogCount": 128
     },
@@ -202,9 +202,9 @@
       "name": "Hiraoka",
       "engine": "magento",
       "currency": "PEN",
-      "okJobs": 1,
-      "failedJobs": 11,
-      "productsFetched": 1,
+      "okJobs": 0,
+      "failedJobs": 12,
+      "productsFetched": 0,
       "lastError": "HTTP 403",
       "catalogCount": 1
     },
@@ -246,10 +246,10 @@
       "name": "CyC Computer",
       "engine": "prestashop",
       "currency": "USD",
-      "okJobs": 5,
-      "failedJobs": 0,
-      "productsFetched": 38,
-      "lastError": null,
+      "okJobs": 0,
+      "failedJobs": 5,
+      "productsFetched": 0,
+      "lastError": "HTTP 403",
       "catalogCount": 37
     }
   }
