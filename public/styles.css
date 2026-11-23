@@ -2168,6 +2168,148 @@ html, body {
 }
 
 /* ==========================================================================
+   Interactive Onboarding Guided Tour
+   ========================================================================== */
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: rgba(15, 23, 42, 0.56);
+  transition: background 0.2s ease;
+}
+
+.tour-overlay[hidden] {
+  display: none;
+}
+
+.tour-overlay.has-spotlight {
+  background: transparent;
+}
+
+.tour-spotlight {
+  position: fixed;
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.58), 0 0 0 3px var(--accent);
+  pointer-events: none;
+  transition: top 0.24s ease, left 0.24s ease, width 0.24s ease, height 0.24s ease;
+  z-index: 121;
+}
+
+.tour-card {
+  position: fixed;
+  z-index: 122;
+  width: min(410px, calc(100vw - 24px));
+  background: var(--bg-surface);
+  color: var(--ink-primary);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 18px 20px;
+  transition: top 0.22s ease, left 0.22s ease, transform 0.22s ease;
+}
+
+.tour-card.centered {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.tour-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tour-step-counter {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.tour-skip-btn {
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+}
+
+.tour-skip-btn:hover {
+  color: var(--ink-primary);
+}
+
+.tour-title {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.tour-body {
+  font-size: 0.86rem;
+  color: var(--ink-secondary);
+  line-height: 1.5;
+}
+
+.tour-body p {
+  margin: 0 0 8px;
+}
+
+.tour-body p:last-child {
+  margin-bottom: 0;
+}
+
+.tour-body ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tour-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 14px 0 12px;
+}
+
+.tour-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--border-strong);
+  transition: width 0.2s ease, background 0.2s ease;
+}
+
+.tour-dot.active {
+  width: 20px;
+  background: var(--accent);
+}
+
+.tour-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .tour-card:not(.centered) {
+    top: auto !important;
+    left: 12px !important;
+    right: 12px !important;
+    bottom: 14px !important;
+    width: auto !important;
+    transform: none !important;
+  }
+}
+
+/* ==========================================================================
    Responsive Breakpoints
    ========================================================================== */
 @media (max-width: 900px) {

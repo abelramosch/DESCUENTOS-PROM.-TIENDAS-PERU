@@ -313,6 +313,8 @@ async function init() {
   const sharedId = new URLSearchParams(window.location.search).get('p');
   if (sharedId && state.catalog.some((p) => p.id === sharedId)) {
     openProductDrawer(sharedId);
+  } else {
+    maybeStartFirstVisitTour();
   }
 }
 
@@ -2398,13 +2400,250 @@ function bindEvents() {
     });
   });
 
+  // Onboarding Guided Tour controls
+  document.getElementById('open-tour-btn')?.addEventListener('click', () => startTour(0));
+  document.getElementById('tour-next-btn')?.addEventListener('click', () => {
+    if (tourIndex < TOUR_STEPS.length - 1) {
+      tourIndex += 1;
+      renderTourStep();
+    } else {
+      closeTour(true);
+    }
+  });
+  document.getElementById('tour-prev-btn')?.addEventListener('click', () => {
+    if (tourIndex > 0) {
+      tourIndex -= 1;
+      renderTourStep();
+    }
+  });
+  document.getElementById('tour-skip-btn')?.addEventListener('click', () => closeTour(true));
+  document.getElementById('tour-skip-inline-btn')?.addEventListener('click', () => closeTour(true));
+  window.addEventListener('resize', () => {
+    if (tourActive) positionTourElements();
+  });
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeProductDrawer();
       closeTrackModal();
       closeUpdateModal();
+      if (tourActive) closeTour(true);
     }
   });
+}
+
+// ============================================================================
+// Interactive Onboarding Guided Tour (First Visit + Replay via "?")
+// ============================================================================
+const TOUR_DONE_KEY = 'chapaaltoque_pe_tour_done_v1';
+let tourActive = false;
+let tourIndex = 0;
+
+const TOUR_STEPS = [
+  {
+    selector: null,
+    title: '¡Bienvenido a ChapaAlToque PE!',
+    body: `
+      <p>Monitoreamos <strong>precios históricos reales</strong> en <strong>21 tiendas del Perú</strong> para que sepas qué descuentos son verdaderos y cuáles están inflados.</p>
+      <p>Te mostramos en 30 segundos cómo aprovechar cada sección. Si ya conoces la página, puedes saltarla ahora mismo.</p>
+    `,
+    nextLabel: 'Empezar guía →',
+    showInlineSkip: true
+  },
+  {
+    selector: '.tabs-list',
+    tab: 'deals',
+    title: 'Secciones principales',
+    body: `
+      <ul>
+        <li><strong>Mejores Ofertas:</strong> ranking general según <em>Deal Score</em> real.</li>
+        <li><strong>⚡ Bugazos:</strong> liquidaciones extremas o posibles errores de precio.</li>
+        <li><strong>Anti-Cyber:</strong> separa rebajas reales de precios inflados antes de oferta.</li>
+        <li><strong>Multi-Tienda:</strong> compara el mismo modelo entre distintas tiendas peruanas.</li>
+      </ul>
+    `
+  },
+  {
+    selector: '.cards-wallet-row',
+    tab: 'deals',
+    title: '¿Qué tarjetas bancarias tienes?',
+    body: `
+      <p>Marca si tienes <strong>CMR</strong>, <strong>Tarjeta Oh!</strong>, <strong>Cencosud</strong> o <strong>Interbank</strong>.</p>
+      <p>Toda la web recalculará precios, ordenamientos y comparativas con el <strong>precio real que tú pagarías</strong>.</p>
+    `
+  },
+  {
+    selector: '.filter-row-controls',
+    tab: 'deals',
+    title: 'Filtra por Tienda, Marca y Veredicto',
+    body: `
+      <p>Filtra por tienda peruana, elige entre <strong>Marcas reconocidas</strong> o <strong>Marcas genéricas</strong>, fija tu presupuesto máximo en soles (S/) y ordena por mejor compra o menor precio.</p>
+    `
+  },
+  {
+    selector: '#products-table-wrap',
+    tab: 'deals',
+    title: 'Historial, gráficos y compartir por WhatsApp',
+    body: `
+      <p>Haz clic en <strong>cualquier producto</strong> para abrir su ficha completa: gráfico de historial de precios, mínimo histórico, comparativa exacta en otras tiendas y botón para <strong>compartir por WhatsApp</strong>.</p>
+    `
+  },
+  {
+    selector: '#tab-watchlist',
+    tab: 'deals',
+    title: 'Mi Lista privada y alertas de precio',
+    body: `
+      <p>Usa la estrella (<strong>☆</strong>) o el buscador dentro de <strong>Mi Lista</strong> para guardar tus productos favoritos y ponerles un <strong>precio objetivo</strong>.</p>
+      <p>Tu lista es <strong>100% privada en tu navegador</strong> (nadie más la ve al compartir el link).</p>
+    `
+  },
+  {
+    selector: '#refresh-daily-btn',
+    tab: 'deals',
+    title: 'Actualización automática y botón «Actualizar hoy»',
+    body: `
+      <p>Los precios se actualizan solos <strong>3 veces al día</strong> (7:00 AM, 1:00 PM y 8:00 PM hora Lima).</p>
+      <p>En <strong>Actualizar hoy</strong> puedes recargar datos sin caché, disparar un escaneo nuevo al instante o activar alertas gratis en Telegram/Discord. Siempre puedes repetir esta guía desde el ícono <strong>?</strong>.</p>
+    `,
+    nextLabel: '¡Listo, empezar!'
+  }
+];
+
+function maybeStartFirstVisitTour() {
+  try {
+    if (localStorage.getItem(TOUR_DONE_KEY) === '1') return;
+  } catch {
+    return;
+  }
+  setTimeout(() => startTour(0), 450);
+}
+
+function startTour(stepIdx = 0) {
+  tourActive = true;
+  tourIndex = Math.max(0, Math.min(stepIdx, TOUR_STEPS.length - 1));
+  document.getElementById('tour-overlay').hidden = false;
+  renderTourStep();
+}
+
+function closeTour(markDone = true) {
+  tourActive = false;
+  const overlay = document.getElementById('tour-overlay');
+  const spotlight = document.getElementById('tour-spotlight');
+  if (overlay) {
+    overlay.hidden = true;
+    overlay.classList.remove('has-spotlight');
+  }
+  if (spotlight) spotlight.hidden = true;
+  if (markDone) {
+    try {
+      localStorage.setItem(TOUR_DONE_KEY, '1');
+    } catch {
+      // ignore
+    }
+  }
+}
+
+function renderTourStep() {
+  const step = TOUR_STEPS[tourIndex];
+  if (!step) return closeTour(true);
+
+  if (step.tab && state.activeTab !== step.tab) {
+    switchTab(step.tab);
+  }
+
+  setText('tour-step-counter', `Paso ${tourIndex + 1} de ${TOUR_STEPS.length}`);
+  setText('tour-title', step.title);
+  document.getElementById('tour-body').innerHTML = step.body;
+
+  const prevBtn = document.getElementById('tour-prev-btn');
+  const nextBtn = document.getElementById('tour-next-btn');
+  const inlineSkip = document.getElementById('tour-skip-inline-btn');
+
+  prevBtn.hidden = tourIndex === 0;
+  inlineSkip.hidden = !step.showInlineSkip;
+  nextBtn.textContent =
+    step.nextLabel || (tourIndex === TOUR_STEPS.length - 1 ? '¡Listo, empezar!' : 'Siguiente →');
+
+  const dotsEl = document.getElementById('tour-dots');
+  dotsEl.innerHTML = TOUR_STEPS.map(
+    (_, i) => `<span class="tour-dot ${i === tourIndex ? 'active' : ''}"></span>`
+  ).join('');
+
+  if (step.selector) {
+    const target = document.querySelector(step.selector);
+    if (target && target.offsetParent !== null) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+      setTimeout(() => {
+        if (tourActive) positionTourElements();
+      }, 220);
+      positionTourElements();
+      return;
+    }
+  }
+
+  positionTourElements();
+}
+
+function positionTourElements() {
+  const step = TOUR_STEPS[tourIndex];
+  const overlay = document.getElementById('tour-overlay');
+  const spotlight = document.getElementById('tour-spotlight');
+  const card = document.getElementById('tour-card');
+  if (!step || !overlay || !spotlight || !card) return;
+
+  const target = step.selector ? document.querySelector(step.selector) : null;
+  if (!target || target.offsetParent === null) {
+    overlay.classList.remove('has-spotlight');
+    spotlight.hidden = true;
+    card.classList.add('centered');
+    card.style.top = '';
+    card.style.left = '';
+    return;
+  }
+
+  const rect = target.getBoundingClientRect();
+  const pad = 6;
+  const spotTop = Math.max(4, rect.top - pad);
+  const spotLeft = Math.max(4, rect.left - pad);
+  const spotW = Math.min(window.innerWidth - spotLeft - 4, rect.width + pad * 2);
+  const spotH = Math.min(window.innerHeight - spotTop - 4, rect.height + pad * 2);
+
+  overlay.classList.add('has-spotlight');
+  spotlight.hidden = false;
+  spotlight.style.top = `${spotTop}px`;
+  spotlight.style.left = `${spotLeft}px`;
+  spotlight.style.width = `${spotW}px`;
+  spotlight.style.height = `${spotH}px`;
+
+  card.classList.remove('centered');
+
+  if (window.innerWidth <= 640) {
+    card.style.top = '';
+    card.style.left = '';
+    return;
+  }
+
+  const cardRect = card.getBoundingClientRect();
+  const cardW = cardRect.width || 400;
+  const cardH = cardRect.height || 230;
+  const gap = 14;
+
+  let top = spotTop + spotH + gap;
+  if (top + cardH > window.innerHeight - 12) {
+    top = spotTop - cardH - gap;
+  }
+  if (top < 12) {
+    top = Math.max(12, Math.min(window.innerHeight - cardH - 12, spotTop + 12));
+  }
+
+  let left = spotLeft;
+  if (left + cardW > window.innerWidth - 14) {
+    left = window.innerWidth - cardW - 14;
+  }
+  left = Math.max(14, left);
+
+  card.style.top = `${Math.round(top)}px`;
+  card.style.left = `${Math.round(left)}px`;
 }
 
 function getStorePillStyle(storeId) {
