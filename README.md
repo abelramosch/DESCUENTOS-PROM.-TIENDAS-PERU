@@ -3,7 +3,7 @@
 [![Demo en Vivo](https://img.shields.io/badge/Demo%20en%20Vivo-ChapaAlToque%20PE-D92638?style=for-the-badge)](https://abelramosch.github.io/chapaaltoque/)
 [![Actualización Diaria](https://github.com/abelramosch/chapaaltoque/actions/workflows/daily-scrape.yml/badge.svg)](https://github.com/abelramosch/chapaaltoque/actions/workflows/daily-scrape.yml)
 [![Node.js](https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Derechos de Autor](https://img.shields.io/badge/Derechos-Reservados-slate.svg)](#derechos-de-autor)
 
 Aplicación web estilo **SteamDB + Compy.pe** que registra diariamente el **historial de precios en más de 20 tiendas del Perú** y calcula automáticamente **qué productos en verdad conviene comprar**, diferenciando mínimos históricos reales de descuentos inflados.
 
@@ -87,6 +87,8 @@ npm start
 
 ---
 
-## Licencia
+## Derechos de autor
 
-Distribuido bajo licencia [MIT](LICENSE).
+© 2026 **abelramosch** — **Todos los derechos reservados.**
+
+El código de este repositorio es público únicamente con fines de consulta, demostración y evaluación técnica. No se autoriza su copia, redistribución, modificación ni uso comercial sin permiso expreso del autor.
