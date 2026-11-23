@@ -23,6 +23,219 @@ function detectGitHubRepo() {
 }
 
 const GH_REPO = detectGitHubRepo();
+const GENERIC_BRAND_KEY = '__generic__';
+
+/**
+ * Marcas más conocidas en el mercado peruano (normalizadas).
+ * Cualquier marca fuera de esta lista (o sin marca / "Genérico" / "Varios")
+ * se agrupa automáticamente en "Marcas genéricas".
+ */
+const KNOWN_BRAND_ALIASES = {
+  // Tech, Laptops, PC & Componentes
+  samsung: 'Samsung',
+  apple: 'Apple',
+  lenovo: 'Lenovo',
+  hp: 'HP',
+  'hewlett packard': 'HP',
+  asus: 'Asus',
+  acer: 'Acer',
+  dell: 'Dell',
+  msi: 'MSI',
+  gigabyte: 'Gigabyte',
+  asrock: 'ASRock',
+  amd: 'AMD',
+  intel: 'Intel',
+  nvidia: 'Nvidia',
+  kingston: 'Kingston',
+  'western digital': 'Western Digital',
+  wd: 'Western Digital',
+  sandisk: 'SanDisk',
+  seagate: 'Seagate',
+  crucial: 'Crucial',
+  corsair: 'Corsair',
+  logitech: 'Logitech',
+  razer: 'Razer',
+  hyperx: 'HyperX',
+  redragon: 'Redragon',
+  deepcool: 'DeepCool',
+  teros: 'Teros',
+  halion: 'Halion',
+  'tp-link': 'TP-Link',
+  'tp link': 'TP-Link',
+  tplink: 'TP-Link',
+  ugreen: 'Ugreen',
+  anker: 'Anker',
+  epson: 'Epson',
+  canon: 'Canon',
+  amazon: 'Amazon',
+
+  // TV, Audio & Gaming
+  lg: 'LG',
+  sony: 'Sony',
+  tcl: 'TCL',
+  hisense: 'Hisense',
+  philips: 'Philips',
+  panasonic: 'Panasonic',
+  jvc: 'JVC',
+  hyundai: 'Hyundai',
+  jbl: 'JBL',
+  bose: 'Bose',
+  sennheiser: 'Sennheiser',
+  skullcandy: 'Skullcandy',
+  marshall: 'Marshall',
+  beats: 'Beats',
+  harman: 'Harman Kardon',
+  'harman kardon': 'Harman Kardon',
+  nintendo: 'Nintendo',
+  playstation: 'PlayStation',
+  ps5: 'PlayStation',
+  xbox: 'Xbox',
+
+  // Celulares
+  xiaomi: 'Xiaomi',
+  redmi: 'Xiaomi',
+  poco: 'Xiaomi',
+  motorola: 'Motorola',
+  honor: 'Honor',
+  huawei: 'Huawei',
+  oppo: 'Oppo',
+  realme: 'Realme',
+  vivo: 'Vivo',
+  nokia: 'Nokia',
+
+  // Electrodomésticos & Hogar Perú
+  oster: 'Oster',
+  electrolux: 'Electrolux',
+  mabe: 'Mabe',
+  indurama: 'Indurama',
+  imaco: 'Imaco',
+  thomas: 'Thomas',
+  taurus: 'Taurus',
+  miray: 'Miray',
+  delonghi: 'DeLonghi',
+  "de'longhi": 'DeLonghi',
+  ninja: 'Ninja',
+  irobot: 'iRobot',
+  dreame: 'Dreame',
+  bosch: 'Bosch',
+  whirlpool: 'Whirlpool',
+  frigidaire: 'Frigidaire',
+  coldex: 'Coldex',
+  daewoo: 'Daewoo',
+  kitchenaid: 'KitchenAid',
+  karcher: 'Kärcher',
+  dewalt: 'DeWalt',
+  makita: 'Makita',
+  stanley: 'Stanley',
+  'black+decker': 'Black+Decker',
+  'black & decker': 'Black+Decker',
+  'black and decker': 'Black+Decker',
+  paraiso: 'Paraíso',
+  rosen: 'Rosen',
+  drimer: 'Drimer',
+  casaideas: 'Casaideas',
+
+  // Deporte & Calzado
+  adidas: 'Adidas',
+  nike: 'Nike',
+  puma: 'Puma',
+  reebok: 'Reebok',
+  'new balance': 'New Balance',
+  asics: 'Asics',
+  skechers: 'Skechers',
+  'under armour': 'Under Armour',
+  converse: 'Converse',
+  vans: 'Vans',
+  hoka: 'Hoka',
+  umbro: 'Umbro',
+  fila: 'Fila',
+  salomon: 'Salomon',
+  caterpillar: 'Caterpillar',
+  cat: 'Caterpillar',
+
+  // Perfumes & Belleza
+  'carolina herrera': 'Carolina Herrera',
+  'paco rabanne': 'Paco Rabanne',
+  rabanne: 'Paco Rabanne',
+  'calvin klein': 'Calvin Klein',
+  dior: 'Dior',
+  versace: 'Versace',
+  'hugo boss': 'Hugo Boss',
+  boss: 'Hugo Boss',
+  'giorgio armani': 'Giorgio Armani',
+  armani: 'Giorgio Armani',
+  lancome: 'Lancôme',
+  'yves saint laurent': 'Yves Saint Laurent',
+  'jean paul gaultier': 'Jean Paul Gaultier',
+  lattafa: 'Lattafa',
+  'ariana grande': 'Ariana Grande',
+  'ralph lauren': 'Ralph Lauren',
+  lacoste: 'Lacoste',
+  givenchy: 'Givenchy',
+  burberry: 'Burberry',
+  bulgari: 'Bvlgari',
+  bvlgari: 'Bvlgari',
+  moschino: 'Moschino',
+  nautica: 'Nautica',
+  antonio: 'Antonio Banderas',
+  'antonio banderas': 'Antonio Banderas'
+};
+
+function normalizeBrandText(str) {
+  return String(str || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s*-\s*/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const TITLE_BRAND_PATTERNS = Object.entries(KNOWN_BRAND_ALIASES)
+  .filter(([alias]) => alias.length >= 3 && alias !== 'cat' && alias !== 'antonio')
+  .sort((a, b) => b[0].length - a[0].length)
+  .map(([alias, canonical]) => ({
+    regex: new RegExp(`(^|[^a-z0-9])${alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z0-9]|$)`, 'i'),
+    canonical
+  }));
+
+function resolveProductBrand(product) {
+  const normRaw = normalizeBrandText(product.brand);
+  if (normRaw && KNOWN_BRAND_ALIASES[normRaw]) {
+    const label = KNOWN_BRAND_ALIASES[normRaw];
+    return { key: normalizeBrandText(label), label, isKnown: true };
+  }
+
+  // Try matching partial known alias inside raw brand (e.g. "LG ELECTRONICS", "SONY PERU")
+  if (normRaw && normRaw !== 'generico' && normRaw !== 'varios' && normRaw !== 'sin marca') {
+    for (const { regex, canonical } of TITLE_BRAND_PATTERNS) {
+      if (regex.test(normRaw)) {
+        return { key: normalizeBrandText(canonical), label: canonical, isKnown: true };
+      }
+    }
+  }
+
+  // Fallback: infer well-known brand from product title if raw brand was blank
+  if (!normRaw || normRaw === 'sin marca') {
+    const normTitle = normalizeBrandText(product.title);
+    for (const { regex, canonical } of TITLE_BRAND_PATTERNS) {
+      if (regex.test(normTitle)) {
+        return { key: normalizeBrandText(canonical), label: canonical, isKnown: true };
+      }
+    }
+  }
+
+  return { key: GENERIC_BRAND_KEY, label: 'Marcas genéricas', isKnown: false };
+}
+
+function enrichCatalogBrands(catalog) {
+  for (const p of catalog) {
+    const resolved = resolveProductBrand(p);
+    p.brandKey = resolved.key;
+    p.brandLabel = resolved.label;
+    p.isKnownBrand = resolved.isKnown;
+  }
+}
 
 const state = {
   mode: 'static', // 'server' or 'static'
@@ -44,6 +257,7 @@ const state = {
     search: '',
     category: 'all',
     store: 'all',
+    brand: 'all',
     verdict: 'all',
     sort: 'score',
     maxPrice: ''
@@ -112,6 +326,7 @@ async function loadInitialData() {
     ];
   }
 
+  enrichCatalogBrands(state.catalog);
   state.storeMap = Object.fromEntries(state.stores.map((s) => [s.id, s]));
   populateFilterOptions();
 
@@ -213,10 +428,64 @@ function populateFilterOptions() {
         return `<option value="${escapeHtml(id)}">${escapeHtml(name)} (${count})</option>`;
       })
       .join('');
+  storeSelect.value = state.filters.store;
+
+  populateBrandOptions();
+}
+
+function populateBrandOptions() {
+  const brandSelect = document.getElementById('filter-brand');
+  if (!brandSelect) return;
+
+  // Scope brand counts to the currently selected store & category for crisp UX
+  const scoped = state.catalog.filter((p) => {
+    if (state.filters.store !== 'all' && p.storeId !== state.filters.store) return false;
+    if (state.filters.category !== 'all' && p.category !== state.filters.category) return false;
+    return true;
+  });
+
+  const knownCounts = new Map();
+  let genericCount = 0;
+
+  for (const p of scoped) {
+    if (p.isKnownBrand) {
+      const entry = knownCounts.get(p.brandKey) || { key: p.brandKey, label: p.brandLabel, count: 0 };
+      entry.count += 1;
+      knownCounts.set(p.brandKey, entry);
+    } else {
+      genericCount += 1;
+    }
+  }
+
+  const sortedKnown = [...knownCounts.values()].sort(
+    (a, b) => b.count - a.count || a.label.localeCompare(b.label)
+  );
+
+  let html = `<option value="all">Todas las marcas (${sortedKnown.length + (genericCount ? 1 : 0)})</option>`;
+  if (sortedKnown.length) {
+    html += '<optgroup label="Marcas reconocidas">';
+    html += sortedKnown
+      .map((b) => `<option value="${escapeHtml(b.key)}">${escapeHtml(b.label)} (${b.count})</option>`)
+      .join('');
+    html += '</optgroup>';
+  }
+  if (genericCount > 0) {
+    html += `<optgroup label="Otras"><option value="${GENERIC_BRAND_KEY}">Marcas genéricas (${genericCount})</option></optgroup>`;
+  }
+
+  brandSelect.innerHTML = html;
+
+  // Keep selected brand if still present in options; otherwise reset to all
+  const validValues = new Set(['all', ...sortedKnown.map((b) => b.key)]);
+  if (genericCount > 0) validValues.add(GENERIC_BRAND_KEY);
+  if (!validValues.has(state.filters.brand)) {
+    state.filters.brand = 'all';
+  }
+  brandSelect.value = state.filters.brand;
 }
 
 function getFilteredProducts() {
-  const { search, category, store, verdict, sort, maxPrice } = state.filters;
+  const { search, category, store, brand, verdict, sort, maxPrice } = state.filters;
   const q = search.trim().toLowerCase();
   const maxP = Number(maxPrice) > 0 ? Number(maxPrice) : Infinity;
 
@@ -229,6 +498,7 @@ function getFilteredProducts() {
 
     if (category !== 'all' && p.category !== category) return false;
     if (store !== 'all' && p.storeId !== store) return false;
+    if (brand !== 'all' && p.brandKey !== brand) return false;
     if (p.effectivePrice > maxP) return false;
 
     if (verdict === 'buy') {
@@ -238,7 +508,7 @@ function getFilteredProducts() {
     }
 
     if (q) {
-      const hay = `${p.title} ${p.brand} ${p.storeName} ${p.sku}`.toLowerCase();
+      const hay = `${p.title} ${p.brand} ${p.brandLabel || ''} ${p.storeName} ${p.sku}`.toLowerCase();
       const terms = q.split(/\s+/).filter(Boolean);
       for (const t of terms) {
         if (!hay.includes(t)) return false;
@@ -330,6 +600,7 @@ function renderCatalog() {
     state.filters.search ||
     state.filters.category !== 'all' ||
     state.filters.store !== 'all' ||
+    state.filters.brand !== 'all' ||
     state.filters.verdict !== 'all' ||
     state.filters.maxPrice;
   document.getElementById('clear-filters-btn').hidden = !hasFilters;
@@ -707,7 +978,58 @@ function renderStoresPanel() {
   grid.querySelectorAll('[data-jump-store]').forEach((card) => {
     card.addEventListener('click', () => {
       state.filters.store = card.dataset.jumpStore;
+      state.filters.brand = 'all';
       document.getElementById('filter-store').value = state.filters.store;
+      populateBrandOptions();
+      switchTab('deals');
+    });
+  });
+
+  // Render Brands Explorer (Known Brands + Marcas genéricas)
+  const brandsGrid = document.getElementById('brands-grid');
+  if (!brandsGrid) return;
+
+  const brandMap = new Map();
+  const genericStats = { key: GENERIC_BRAND_KEY, label: 'Marcas genéricas', count: 0, deals: 0, isKnown: false };
+
+  for (const p of state.catalog) {
+    const isDeal = ['all_time_low', 'great_deal'].includes(p.stats.verdict);
+    if (p.isKnownBrand) {
+      const entry = brandMap.get(p.brandKey) || { key: p.brandKey, label: p.brandLabel, count: 0, deals: 0, isKnown: true };
+      entry.count += 1;
+      if (isDeal) entry.deals += 1;
+      brandMap.set(p.brandKey, entry);
+    } else {
+      genericStats.count += 1;
+      if (isDeal) genericStats.deals += 1;
+    }
+  }
+
+  const brandCards = [...brandMap.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+  if (genericStats.count > 0) brandCards.push(genericStats);
+
+  brandsGrid.innerHTML = brandCards
+    .map(
+      (b) => `
+      <div class="brand-card ${b.isKnown ? '' : 'brand-card-generic'}" data-jump-brand="${escapeHtml(b.key)}">
+        <span class="brand-card-name">${escapeHtml(b.label)}</span>
+        <div class="brand-card-meta mono">
+          <span>${b.count} prod.</span>
+          <span class="${b.deals > 0 ? 'positive' : ''}">${b.deals} ofertas</span>
+        </div>
+      </div>
+    `
+    )
+    .join('');
+
+  brandsGrid.querySelectorAll('[data-jump-brand]').forEach((card) => {
+    card.addEventListener('click', () => {
+      state.filters.store = 'all';
+      state.filters.category = 'all';
+      state.filters.brand = card.dataset.jumpBrand;
+      document.getElementById('filter-store').value = 'all';
+      populateFilterOptions();
+      document.getElementById('filter-brand').value = state.filters.brand;
       switchTab('deals');
     });
   });
@@ -1554,12 +1876,19 @@ function bindEvents() {
     document.querySelectorAll('#category-chips .chip-btn').forEach((b) =>
       b.classList.toggle('active', b === btn)
     );
+    populateBrandOptions();
     renderCatalog();
   });
 
   // Filter dropdowns & price
   document.getElementById('filter-store').addEventListener('change', (e) => {
     state.filters.store = e.target.value;
+    state.pageSize = 60;
+    populateBrandOptions();
+    renderCatalog();
+  });
+  document.getElementById('filter-brand').addEventListener('change', (e) => {
+    state.filters.brand = e.target.value;
     state.pageSize = 60;
     renderCatalog();
   });
@@ -1579,9 +1908,10 @@ function bindEvents() {
   });
 
   document.getElementById('clear-filters-btn').addEventListener('click', () => {
-    state.filters = { search: '', category: 'all', store: 'all', verdict: 'all', sort: 'score', maxPrice: '' };
+    state.filters = { search: '', category: 'all', store: 'all', brand: 'all', verdict: 'all', sort: 'score', maxPrice: '' };
     searchInput.value = '';
     document.getElementById('filter-store').value = 'all';
+    document.getElementById('filter-brand').value = 'all';
     document.getElementById('filter-verdict').value = 'all';
     document.getElementById('filter-sort').value = 'score';
     document.getElementById('filter-max-price').value = '';

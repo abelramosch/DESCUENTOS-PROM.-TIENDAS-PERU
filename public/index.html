@@ -169,6 +169,13 @@
           </div>
 
           <div class="filter-group">
+            <label for="filter-brand">Marca</label>
+            <select id="filter-brand">
+              <option value="all">Todas las marcas</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
             <label for="filter-verdict">Veredicto</label>
             <select id="filter-verdict">
               <option value="all">Todos los veredictos</option>
@@ -318,7 +325,7 @@
       <div id="live-search-results" class="cards-grid"></div>
     </section>
 
-    <!-- VIEW 5: PERUVIAN STORES STATUS -->
+    <!-- VIEW 5: PERUVIAN STORES & BRANDS -->
     <section id="panel-stores" class="panel" hidden>
       <div class="stores-header">
         <div>
@@ -329,6 +336,16 @@
         </div>
       </div>
       <div class="stores-grid" id="stores-grid"></div>
+
+      <div class="stores-header" style="margin-top: 32px;">
+        <div>
+          <h2>Marcas Disponibles</h2>
+          <p class="muted">
+            Haz clic en una marca reconocida o en <strong>Marcas genéricas</strong> para ver todas sus ofertas en Perú.
+          </p>
+        </div>
+      </div>
+      <div class="brands-grid" id="brands-grid"></div>
     </section>
   </main>
 
