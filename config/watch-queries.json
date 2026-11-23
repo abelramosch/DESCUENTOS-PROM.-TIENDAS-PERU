@@ -1,0 +1,49 @@
+{
+  "categories": [
+    {
+      "category": "tecnologia",
+      "queries": ["laptop", "monitor gamer", "ssd nvme"],
+      "limitPerStore": 10
+    },
+    {
+      "category": "televisores",
+      "queries": ["televisor smart tv 4k", "televisor oled qled"],
+      "limitPerStore": 10
+    },
+    {
+      "category": "celulares",
+      "queries": ["celular smartphone", "iphone samsung galaxy"],
+      "limitPerStore": 10
+    },
+    {
+      "category": "audio",
+      "queries": ["audifonos bluetooth", "parlante bluetooth"],
+      "limitPerStore": 8
+    },
+    {
+      "category": "gaming",
+      "queries": ["playstation 5", "nintendo switch"],
+      "limitPerStore": 8
+    },
+    {
+      "category": "electro",
+      "queries": ["freidora de aire", "refrigeradora", "cafetera"],
+      "limitPerStore": 8
+    },
+    {
+      "category": "hogar",
+      "queries": ["almohada", "taladro inalambrico", "aspiradora robot"],
+      "limitPerStore": 8
+    },
+    {
+      "category": "deporte",
+      "queries": ["zapatillas running", "zapatillas urbanas"],
+      "limitPerStore": 8
+    },
+    {
+      "category": "belleza",
+      "queries": ["perfume eau de parfum"],
+      "limitPerStore": 8
+    }
+  ]
+}

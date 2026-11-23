@@ -1,0 +1,75 @@
+name: Actualización Diaria de Precios Perú
+
+on:
+  schedule:
+    # Corre todos los días a las 07:00 AM hora de Lima, Perú (12:00 UTC)
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+    inputs:
+      quick:
+        description: 'Modo rápido (1 consulta por categoría)'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'daily-price-scrape'
+  cancel-in-progress: false
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ejecutar actualización de precios en tiendas de Perú
+        run: |
+          if [ "${{ github.event.inputs.quick }}" = "true" ]; then
+            npm run scrape:quick
+          else
+            npm run scrape
+          fi
+
+      - name: Guardar historial diario en el repositorio
+        run: |
+          git config user.name "PrecioReal Bot"
+          git config user.email "actions@github.com"
+          git add data/ public/data/
+          if git diff --staged --quiet; then
+            echo "Sin cambios en precios hoy."
+          else
+            DATE_PE=$(TZ="America/Lima" date +"%Y-%m-%d %H:%M")
+            git commit -m "chore(prices): actualización diaria Perú (${DATE_PE} PET)"
+            git push
+          fi
+
+      - name: Subir artefacto para GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './public'
+
+  deploy-pages:
+    needs: scrape-and-update
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

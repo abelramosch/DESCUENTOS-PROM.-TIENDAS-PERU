@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es-PE" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrecioReal Perú — Historial de Precios y Ofertas Reales en Tiendas del Perú</title>
+  <meta name="description" content="Compara precios históricos diarios en más de 20 tiendas del Perú (Falabella, PlazaVea, Oechsle, Coolbox, Promart, Wong, Metro, Hiraoka y más). Detecta mínimos históricos y descuentos inflados." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <!-- Top Navigation Header -->
+  <header class="topbar" id="topbar">
+    <div class="container topbar-inner">
+      <a href="#ofertas" class="brand" id="brand-logo" aria-label="PrecioReal Perú Inicio">
+        <span class="brand-mark" aria-hidden="true">
+          <span class="pe-band pe-red"></span>
+          <span class="pe-band pe-white"></span>
+          <span class="pe-band pe-red"></span>
+        </span>
+        <span class="brand-text">
+          <strong>PrecioReal</strong><span class="brand-country">PE</span>
+        </span>
+      </a>
+
+      <form class="global-search" id="global-search-form" role="search">
+        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
+        <input
+          type="search"
+          id="global-search-input"
+          placeholder="Buscar producto, marca o modelo (Enter para buscar en vivo en Perú)..."
+          autocomplete="off"
+        />
+        <button type="submit" class="search-submit-btn" id="global-search-btn" title="Buscar en vivo en todas las tiendas">
+          En vivo
+        </button>
+      </form>
+
+      <div class="topbar-actions">
+        <button type="button" class="btn btn-secondary" id="open-track-modal-btn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+          <span>Seguir URL</span>
+        </button>
+
+        <button type="button" class="btn btn-primary" id="refresh-daily-btn">
+          <svg class="icon-refresh" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"></path>
+            <path d="M21 3v5h-5"></path>
+          </svg>
+          <span id="refresh-daily-label">Actualizar hoy</span>
+        </button>
+
+        <button type="button" class="btn-icon" id="theme-toggle-btn" aria-label="Cambiar tema claro u oscuro" title="Cambiar tema">
+          <svg id="theme-icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+          </svg>
+          <svg id="theme-icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden>
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Scrape Progress Strip -->
+    <div class="scrape-progress-bar" id="scrape-progress-bar" hidden>
+      <div class="container scrape-progress-inner">
+        <div class="scrape-progress-info">
+          <span class="spinner" aria-hidden="true"></span>
+          <span id="scrape-progress-text">Actualizando precios en tiendas de Perú...</span>
+        </div>
+        <div class="scrape-progress-track">
+          <div class="scrape-progress-fill" id="scrape-progress-fill" style="width: 0%"></div>
+        </div>
+        <span class="mono scrape-progress-pct" id="scrape-progress-pct">0%</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <!-- Hero / Daily Briefing Strip -->
+    <section class="hero-strip" aria-labelledby="main-heading">
+      <div class="hero-copy">
+        <h1 id="main-heading">Radar de Precios Históricos en Perú</h1>
+        <p class="hero-subtitle" id="last-updated-summary">
+          Cargando registro diario de tiendas peruanas...
+        </p>
+      </div>
+
+      <div class="kpi-strip" id="kpi-strip">
+        <div class="kpi-item">
+          <span class="kpi-label">Productos</span>
+          <strong class="kpi-value mono" id="kpi-total">—</strong>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Tiendas PE</span>
+          <strong class="kpi-value mono" id="kpi-stores">—</strong>
+        </div>
+        <div class="kpi-item kpi-positive">
+          <span class="kpi-label">Conviene hoy</span>
+          <strong class="kpi-value mono" id="kpi-deals">—</strong>
+        </div>
+        <div class="kpi-item kpi-alert">
+          <span class="kpi-label">Bajaron hoy</span>
+          <strong class="kpi-value mono" id="kpi-drops">—</strong>
+        </div>
+        <div class="kpi-item kpi-warn">
+          <span class="kpi-label">Inflados</span>
+          <strong class="kpi-value mono" id="kpi-inflated">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- Primary Navigation Tabs -->
+    <nav class="tabs-bar" aria-label="Secciones principales">
+      <div class="tabs-list" role="tablist">
+        <button type="button" role="tab" class="tab-btn active" data-tab="deals" id="tab-deals" aria-selected="true">
+          Mejores Ofertas Hoy
+        </button>
+        <button type="button" role="tab" class="tab-btn" data-tab="drops" id="tab-drops" aria-selected="false">
+          Bajadas y Mínimos
+          <span class="tab-badge mono" id="badge-drops">0</span>
+        </button>
+        <button type="button" role="tab" class="tab-btn" data-tab="watchlist" id="tab-watchlist" aria-selected="false">
+          Mi Lista
+          <span class="tab-badge mono" id="badge-watchlist">0</span>
+        </button>
+        <button type="button" role="tab" class="tab-btn" data-tab="live-search" id="tab-live-search" aria-selected="false">
+          Comparador en Vivo
+        </button>
+        <button type="button" role="tab" class="tab-btn" data-tab="stores" id="tab-stores" aria-selected="false">
+          Tiendas Perú
+        </button>
+      </div>
+
+      <div class="view-controls" id="catalog-view-controls">
+        <div class="segmented" role="group" aria-label="Modo de vista">
+          <button type="button" class="seg-btn active" id="view-table-btn" data-view="table" title="Vista tabla estilo SteamDB">
+            Tabla
+          </button>
+          <button type="button" class="seg-btn" id="view-grid-btn" data-view="grid" title="Vista tarjetas estilo Compy">
+            Tarjetas
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- VIEW 1 & 2: DEALS / DROPS CATALOG -->
+    <section id="panel-catalog" class="panel">
+      <!-- Filters Toolbar -->
+      <div class="filters-panel">
+        <div class="filter-row">
+          <div class="filter-chips" id="category-chips" aria-label="Filtrar por categoría"></div>
+        </div>
+
+        <div class="filter-row filter-row-controls">
+          <div class="filter-group">
+            <label for="filter-store">Tienda</label>
+            <select id="filter-store">
+              <option value="all">Todas las tiendas</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-verdict">Veredicto</label>
+            <select id="filter-verdict">
+              <option value="all">Todos los veredictos</option>
+              <option value="buy">Solo los que convienen (ATL / Oferta)</option>
+              <option value="all_time_low">Mínimo histórico</option>
+              <option value="great_deal">Excelente / Fuerte oferta</option>
+              <option value="good_deal">Buen precio</option>
+              <option value="inflated">Descuentos inflados</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-sort">Ordenar por</label>
+            <select id="filter-sort">
+              <option value="score">Mejor compra hoy (Score)</option>
+              <option value="real_discount">Mayor descuento real</option>
+              <option value="store_discount">Mayor % descuento tienda</option>
+              <option value="drop_today">Mayor bajada de hoy</option>
+              <option value="price_asc">Menor precio (S/)</option>
+              <option value="price_desc">Mayor precio (S/)</option>
+            </select>
+          </div>
+
+          <div class="filter-group filter-price-group">
+            <label for="filter-max-price">Precio máx. (S/)</label>
+            <input type="number" id="filter-max-price" placeholder="Ej. 1500" min="1" step="50" />
+          </div>
+
+          <div class="filter-meta">
+            <span id="results-count" class="mono results-count">0 productos</span>
+            <button type="button" class="link-btn" id="clear-filters-btn" hidden>Limpiar filtros</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SteamDB-style Dense Table View -->
+      <div class="table-wrap" id="products-table-wrap">
+        <table class="deals-table" id="deals-table">
+          <thead>
+            <tr>
+              <th class="col-star" aria-label="Seguir"></th>
+              <th class="col-product">Producto</th>
+              <th class="col-store">Tienda</th>
+              <th class="col-price num">Precio Hoy</th>
+              <th class="col-discount num">Descuento</th>
+              <th class="col-min num">Mín. Histórico</th>
+              <th class="col-spark">Tendencia</th>
+              <th class="col-verdict">¿Conviene?</th>
+              <th class="col-score num">Score</th>
+            </tr>
+          </thead>
+          <tbody id="deals-table-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Compy-style Card Grid View -->
+      <div class="cards-grid" id="products-grid-wrap" hidden></div>
+
+      <!-- Pagination / Load More -->
+      <div class="load-more-wrap" id="load-more-wrap" hidden>
+        <button type="button" class="btn btn-secondary" id="load-more-btn">
+          Mostrar más productos
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="catalog-empty" hidden>
+        <h3>No hay productos que coincidan con estos filtros</h3>
+        <p>Prueba quitando un filtro o busca el producto en vivo en las tiendas de Perú.</p>
+        <button type="button" class="btn btn-primary" id="empty-live-search-btn">Buscar en vivo</button>
+      </div>
+    </section>
+
+    <!-- VIEW 3: WATCHLIST -->
+    <section id="panel-watchlist" class="panel" hidden>
+      <div class="watchlist-header">
+        <div>
+          <h2>Mi Lista de Seguimiento y Alertas</h2>
+          <p class="muted">
+            Productos que guardaste con estrella o agregaste por URL. Define tu <strong>precio objetivo</strong> para saber al instante cuándo comprar.
+          </p>
+        </div>
+        <button type="button" class="btn btn-primary" id="watchlist-add-url-btn">+ Agregar URL de tienda</button>
+      </div>
+
+      <div class="custom-queries-box">
+        <div class="custom-queries-head">
+          <h3>Búsquedas automáticas diarias</h3>
+          <form class="inline-form" id="add-query-form">
+            <input type="text" id="new-query-input" placeholder="Ej: RTX 4060, AirPods Pro, Cafetera Oster..." required />
+            <button type="submit" class="btn btn-secondary">Vigilar cada día</button>
+          </form>
+        </div>
+        <div class="query-tags" id="custom-queries-list"></div>
+      </div>
+
+      <div id="watchlist-items-wrap"></div>
+    </section>
+
+    <!-- VIEW 4: LIVE MULTI-STORE COMPARATOR -->
+    <section id="panel-live-search" class="panel" hidden>
+      <div class="live-search-box">
+        <h2>Comparador Multi-Tienda en Vivo (Perú)</h2>
+        <p class="muted">
+          Consulta en tiempo real el precio de cualquier producto en las tiendas peruanas conectadas, compáralas en soles (S/) y agrégalo a tu historial diario con un clic.
+        </p>
+        <form class="live-search-form" id="live-search-form">
+          <input
+            type="text"
+            id="live-search-input"
+            placeholder="Escribe lo que quieres comprar: Ej. PlayStation 5, iPhone 16, LG OLED 55, Freidora Oster..."
+            required
+          />
+          <button type="submit" class="btn btn-primary" id="live-search-submit">
+            Comparar tiendas ahora
+          </button>
+        </form>
+        <div class="quick-suggestions">
+          <span>Populares:</span>
+          <button type="button" class="chip-btn quick-q" data-q="PlayStation 5">PlayStation 5</button>
+          <button type="button" class="chip-btn quick-q" data-q="MacBook Air">MacBook Air</button>
+          <button type="button" class="chip-btn quick-q" data-q="LG OLED 55">LG OLED 55</button>
+          <button type="button" class="chip-btn quick-q" data-q="Sony WH-1000XM5">Sony WH-1000XM5</button>
+          <button type="button" class="chip-btn quick-q" data-q="Nintendo Switch">Nintendo Switch</button>
+          <button type="button" class="chip-btn quick-q" data-q="Freidora de aire">Freidora de aire</button>
+        </div>
+      </div>
+
+      <div id="live-search-status" class="live-status" hidden></div>
+      <div id="live-search-results" class="cards-grid"></div>
+    </section>
+
+    <!-- VIEW 5: PERUVIAN STORES STATUS -->
+    <section id="panel-stores" class="panel" hidden>
+      <div class="stores-header">
+        <div>
+          <h2>Tiendas del Perú Monitoreadas</h2>
+          <p class="muted" id="stores-meta-desc">
+            Estado de la última actualización diaria por tienda. Haz clic en cualquier tienda para ver sus productos.
+          </p>
+        </div>
+      </div>
+      <div class="stores-grid" id="stores-grid"></div>
+    </section>
+  </main>
+
+  <!-- Product Detail Slide-over Drawer (SteamDB History Experience) -->
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+  <aside class="drawer" id="product-drawer" aria-hidden="true" aria-labelledby="drawer-title">
+    <div class="drawer-header">
+      <div class="drawer-header-meta">
+        <span class="store-pill" id="drawer-store-pill">Tienda</span>
+        <span class="mono muted" id="drawer-sku"></span>
+      </div>
+      <button type="button" class="btn-icon" id="drawer-close-btn" aria-label="Cerrar detalle">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="drawer-body" id="drawer-body">
+      <div class="drawer-hero">
+        <img id="drawer-img" class="drawer-thumb" alt="" />
+        <div class="drawer-hero-info">
+          <span class="drawer-brand" id="drawer-brand"></span>
+          <h2 id="drawer-title">Cargando...</h2>
+          <div class="drawer-price-row">
+            <span class="drawer-price-now mono" id="drawer-price-now">S/ —</span>
+            <span class="drawer-price-list mono" id="drawer-price-list" hidden></span>
+            <span class="discount-tag mono" id="drawer-discount-tag" hidden></span>
+          </div>
+          <div class="drawer-card-price" id="drawer-card-price" hidden></div>
+          <div class="drawer-usd-note mono" id="drawer-usd-note" hidden></div>
+        </div>
+      </div>
+
+      <!-- Clear Buy Verdict Box -->
+      <div class="verdict-banner" id="drawer-verdict-banner">
+        <div class="verdict-banner-head">
+          <span class="verdict-pill" id="drawer-verdict-pill">Analizando</span>
+          <span class="mono verdict-score-label" id="drawer-score-label">Score —/100</span>
+        </div>
+        <p id="drawer-verdict-reason"></p>
+      </div>
+
+      <!-- Actions Bar -->
+      <div class="drawer-actions">
+        <a id="drawer-store-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+          Ir a la tienda ↗
+        </a>
+        <button type="button" class="btn btn-secondary" id="drawer-star-btn">
+          ☆ Seguir
+        </button>
+        <button type="button" class="btn btn-secondary" id="drawer-refresh-btn">
+          ↻ Actualizar precio
+        </button>
+      </div>
+
+      <!-- Price Target Alert -->
+      <div class="target-alert-box">
+        <label for="drawer-target-input">Tu precio objetivo (S/)</label>
+        <div class="target-input-row">
+          <input type="number" id="drawer-target-input" placeholder="Ej. 1299" min="1" step="10" />
+          <button type="button" class="btn btn-secondary" id="drawer-save-target-btn">Guardar alerta</button>
+        </div>
+        <p class="target-feedback" id="drawer-target-feedback"></p>
+      </div>
+
+      <!-- Historical Price Chart -->
+      <div class="chart-card">
+        <div class="chart-card-head">
+          <div>
+            <h3>Historial de Precios</h3>
+            <span class="muted small" id="drawer-history-meta"></span>
+          </div>
+          <div class="segmented small" id="chart-range-controls">
+            <button type="button" class="seg-btn" data-range="7">7D</button>
+            <button type="button" class="seg-btn" data-range="30">30D</button>
+            <button type="button" class="seg-btn" data-range="90">90D</button>
+            <button type="button" class="seg-btn active" data-range="all">Todo</button>
+          </div>
+        </div>
+        <div class="chart-container" id="drawer-chart-container"></div>
+        <div class="chart-legend">
+          <span><i class="dot dot-price"></i> Precio Internet</span>
+          <span><i class="dot dot-list"></i> Precio Lista</span>
+          <span><i class="dot dot-min"></i> Mínimo Histórico</span>
+        </div>
+      </div>
+
+      <!-- Historical Stats Grid -->
+      <div class="stats-grid" id="drawer-stats-grid">
+        <div class="stat-cell">
+          <span class="stat-label">Mínimo Histórico</span>
+          <strong class="mono stat-val positive" id="stat-min">—</strong>
+          <span class="stat-sub mono" id="stat-min-date">—</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-label">Habitual (Mediana)</span>
+          <strong class="mono stat-val" id="stat-median">—</strong>
+          <span class="stat-sub" id="stat-real-diff">—</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-label">Promedio 30d</span>
+          <strong class="mono stat-val" id="stat-avg30">—</strong>
+          <span class="stat-sub" id="stat-days">—</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-label">Máximo Histórico</span>
+          <strong class="mono stat-val" id="stat-max">—</strong>
+          <span class="stat-sub mono" id="stat-max-date">—</span>
+        </div>
+      </div>
+
+      <!-- Related in Other Peruvian Stores -->
+      <div class="related-section" id="drawer-related-section" hidden>
+        <h3>Productos similares en otras tiendas de Perú</h3>
+        <div class="related-list" id="drawer-related-list"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Add Custom URL Modal -->
+  <div class="modal-backdrop" id="track-modal-backdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="track-modal-title">
+      <div class="modal-head">
+        <h2 id="track-modal-title">Seguir cualquier producto de Perú por URL</h2>
+        <button type="button" class="btn-icon" id="close-track-modal-btn" aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <p class="muted">
+        Pega el enlace directo de cualquier producto (Falabella, PlazaVea, Oechsle, Coolbox, Promart, Hiraoka, Wong, Metro, Infotec, CyC, Sony, Xiaomi u otra tienda peruana). Extraeremos su precio hoy y guardaremos su historial cada día.
+      </p>
+      <form id="track-url-form" class="modal-form">
+        <div class="form-field">
+          <label for="track-url-input">Enlace (URL) del producto</label>
+          <input
+            type="url"
+            id="track-url-input"
+            placeholder="https://www.plazavea.com.pe/.../p"
+            required
+          />
+        </div>
+        <div class="form-field-row">
+          <div class="form-field">
+            <label for="track-category-select">Categoría</label>
+            <select id="track-category-select">
+              <option value="personal">Mi Seguimiento</option>
+              <option value="tecnologia">Laptops & PC</option>
+              <option value="televisores">Televisores</option>
+              <option value="celulares">Celulares</option>
+              <option value="audio">Audio</option>
+              <option value="gaming">Gaming</option>
+              <option value="electro">Electrodomésticos</option>
+              <option value="hogar">Hogar & Herramientas</option>
+              <option value="deporte">Calzado & Deporte</option>
+              <option value="belleza">Perfumes & Belleza</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="track-target-price">Precio objetivo opcional (S/)</label>
+            <input type="number" id="track-target-price" placeholder="Ej. 999" min="1" />
+          </div>
+        </div>
+        <div class="modal-feedback" id="track-url-feedback" hidden></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cancel-track-modal-btn">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="submit-track-url-btn">Extraer y seguir</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>
+        <strong>PrecioReal Perú</strong> · Historial diario transparente de precios en tiendas del Perú.
+        Los precios pueden variar según stock o promociones con tarjetas de cada tienda.
+      </p>
+      <p class="mono small muted" id="footer-mode-info"></p>
+    </div>
+  </footer>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
