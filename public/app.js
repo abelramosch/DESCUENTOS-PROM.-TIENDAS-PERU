@@ -6,7 +6,7 @@ const THEME_KEY = 'chapaaltoque_pe_theme';
 const GH_TOKEN_KEY = 'chapaaltoque_pe_gh_token';
 const LEGACY_GH_TOKEN_KEY = 'nadamenos_pe_gh_token';
 const WORKFLOW_FILE = 'daily-scrape.yml';
-const DEFAULT_GH_REPO = { owner: 'abelramosch', repo: 'DESCUENTOS-PROM.-TIENDAS-PERU' };
+const DEFAULT_GH_REPO = { owner: 'abelramosch', repo: 'chapaaltoque' };
 
 function detectGitHubRepo() {
   try {
