@@ -1963,6 +1963,211 @@ html, body {
 }
 
 /* ==========================================================================
+   Wallet Cards, Bugazos, Anti-Cyber & Multi-Tienda Styles
+   ========================================================================== */
+.mode-banner {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.mode-banner-copy strong {
+  display: block;
+  font-size: 0.96rem;
+  margin-bottom: 2px;
+}
+
+.mode-banner-copy p {
+  margin: 0;
+}
+
+.cards-wallet-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-hairline);
+}
+
+.wallet-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.card-chip.active {
+  background: var(--emerald);
+  color: #ffffff;
+  border-color: var(--emerald);
+}
+
+.bugazo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.69rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--amber-bg);
+  color: var(--amber);
+}
+
+.peer-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.69rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--sky-bg);
+  color: var(--sky);
+}
+
+.btn-whatsapp {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.btn-whatsapp:hover {
+  background: #15803d;
+}
+
+.cyber-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+
+.cyber-strip-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.84rem;
+}
+
+.groups-search-input {
+  height: 38px;
+  min-width: 280px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-hairline);
+  background: var(--bg-surface);
+  color: var(--ink-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+}
+
+.group-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.group-card-head {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.group-card-thumb {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  background: #ffffff;
+  border: 1px solid var(--border-hairline);
+  border-radius: 8px;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.group-card-title {
+  margin: 2px 0 6px;
+  font-size: 0.92rem;
+  line-height: 1.32;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.group-summary-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+}
+
+.group-offers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.group-offer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-hairline);
+  cursor: pointer;
+  transition: border-color 0.14s ease;
+}
+
+.group-offer-row:hover {
+  border-color: var(--accent);
+}
+
+.group-offer-row.best-offer {
+  background: var(--emerald-bg);
+}
+
+.group-offer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.group-offer-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
    Responsive Breakpoints
    ========================================================================== */
 @media (max-width: 900px) {

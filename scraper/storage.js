@@ -11,7 +11,8 @@ const FILES = {
   catalog: path.join(DATA_DIR, 'catalog.json'),
   history: path.join(DATA_DIR, 'history.json'),
   meta: path.join(DATA_DIR, 'meta.json'),
-  watchlist: path.join(DATA_DIR, 'watchlist.json')
+  watchlist: path.join(DATA_DIR, 'watchlist.json'),
+  groups: path.join(DATA_DIR, 'groups.json')
 };
 
 function ensureDirs() {
@@ -43,6 +44,10 @@ export function loadCatalog() {
   return readJsonSafe(FILES.catalog, []);
 }
 
+export function loadGroups() {
+  return readJsonSafe(FILES.groups, []);
+}
+
 export function loadMeta() {
   return readJsonSafe(FILES.meta, {
     lastUpdatedAt: null,
@@ -67,10 +72,14 @@ export function saveWatchlist(watchlist) {
   writeJsonAtomic(path.join(PUBLIC_DATA_DIR, 'watchlist.json'), watchlist, true);
 }
 
-export function saveAllData({ catalog, history, meta }) {
+export function saveAllData({ catalog, history, meta, groups = null }) {
   writeJsonAtomic(FILES.history, history);
   writeJsonAtomic(FILES.catalog, catalog);
   writeJsonAtomic(FILES.meta, meta);
+  if (groups) {
+    writeJsonAtomic(FILES.groups, groups);
+    writeJsonAtomic(path.join(PUBLIC_DATA_DIR, 'groups.json'), groups, true);
+  }
 
   // Sync compact copies into public/data for fast GitHub Pages static loading
   writeJsonAtomic(path.join(PUBLIC_DATA_DIR, 'catalog.json'), catalog, true);

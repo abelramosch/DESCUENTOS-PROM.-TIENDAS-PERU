@@ -1,157 +1,159 @@
 {
-  "lastUpdatedAt": "2026-11-23T20:35:25.097Z",
+  "lastUpdatedAt": "2026-11-23T20:43:58.512Z",
   "lastUpdatedDate": "2026-11-23",
-  "elapsedMs": 30216,
+  "elapsedMs": 29950,
   "usdToPen": 3.443,
-  "totalProducts": 1365,
+  "totalProducts": 1798,
   "activeStores": 21,
   "totalConfiguredStores": 22,
   "allTimeLows": 0,
   "droppedToday": 0,
   "fakeDiscounts": 0,
+  "bugazosCount": 56,
+  "groupsCount": 241,
   "storesStatus": {
     "falabella": {
       "id": "falabella",
       "name": "Falabella",
       "engine": "falabella",
       "currency": "PEN",
-      "okJobs": 18,
+      "okJobs": 24,
       "failedJobs": 0,
-      "productsFetched": 158,
+      "productsFetched": 210,
       "lastError": null,
-      "catalogCount": 199
+      "catalogCount": 232
     },
     "tottus": {
       "id": "tottus",
       "name": "Tottus",
       "engine": "falabella",
       "currency": "PEN",
-      "okJobs": 11,
+      "okJobs": 15,
       "failedJobs": 0,
-      "productsFetched": 72,
+      "productsFetched": 106,
       "lastError": null,
-      "catalogCount": 82
+      "catalogCount": 107
     },
     "plazavea": {
       "id": "plazavea",
       "name": "PlazaVea",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 15,
+      "okJobs": 21,
       "failedJobs": 0,
-      "productsFetched": 134,
+      "productsFetched": 186,
       "lastError": null,
-      "catalogCount": 130
+      "catalogCount": 176
     },
     "oechsle": {
       "id": "oechsle",
       "name": "Oechsle",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 13,
+      "okJobs": 17,
       "failedJobs": 0,
-      "productsFetched": 118,
+      "productsFetched": 154,
       "lastError": null,
-      "catalogCount": 116
+      "catalogCount": 156
     },
     "promart": {
       "id": "promart",
       "name": "Promart",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 9,
+      "okJobs": 13,
       "failedJobs": 0,
-      "productsFetched": 78,
+      "productsFetched": 112,
       "lastError": null,
-      "catalogCount": 78
+      "catalogCount": 111
     },
     "wong": {
       "id": "wong",
       "name": "Wong",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 11,
+      "okJobs": 15,
       "failedJobs": 0,
-      "productsFetched": 59,
+      "productsFetched": 94,
       "lastError": null,
-      "catalogCount": 61
+      "catalogCount": 96
     },
     "metro": {
       "id": "metro",
       "name": "Metro",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 11,
+      "okJobs": 15,
       "failedJobs": 0,
-      "productsFetched": 60,
+      "productsFetched": 95,
       "lastError": null,
-      "catalogCount": 59
+      "catalogCount": 96
     },
     "coolbox": {
       "id": "coolbox",
       "name": "Coolbox",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 11,
+      "okJobs": 14,
       "failedJobs": 0,
-      "productsFetched": 101,
+      "productsFetched": 129,
       "lastError": null,
-      "catalogCount": 97
+      "catalogCount": 126
     },
     "carsa": {
       "id": "carsa",
       "name": "Carsa",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 12,
+      "okJobs": 16,
       "failedJobs": 0,
-      "productsFetched": 105,
+      "productsFetched": 141,
       "lastError": null,
-      "catalogCount": 97
+      "catalogCount": 127
     },
     "shopstar": {
       "id": "shopstar",
       "name": "Shopstar",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 14,
+      "okJobs": 19,
       "failedJobs": 0,
-      "productsFetched": 121,
+      "productsFetched": 165,
       "lastError": null,
-      "catalogCount": 123
+      "catalogCount": 167
     },
     "estilos": {
       "id": "estilos",
       "name": "Estilos",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 10,
+      "okJobs": 14,
       "failedJobs": 0,
-      "productsFetched": 80,
+      "productsFetched": 111,
       "lastError": null,
-      "catalogCount": 83
+      "catalogCount": 112
     },
     "sony": {
       "id": "sony",
       "name": "Sony Store PE",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 6,
+      "okJobs": 7,
       "failedJobs": 0,
       "productsFetched": 41,
       "lastError": null,
-      "catalogCount": 38
+      "catalogCount": 40
     },
     "xiaomi": {
       "id": "xiaomi",
       "name": "Xiaomi Perú",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 9,
-      "failedJobs": 1,
-      "productsFetched": 8,
-      "lastError": "This operation was aborted",
-      "catalogCount": 11
+      "okJobs": 14,
+      "failedJobs": 0,
+      "productsFetched": 20,
+      "lastError": null,
+      "catalogCount": 20
     },
     "triathlon": {
       "id": "triathlon",
@@ -180,11 +182,11 @@
       "name": "Casaideas",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 3,
+      "okJobs": 4,
       "failedJobs": 0,
-      "productsFetched": 8,
+      "productsFetched": 16,
       "lastError": null,
-      "catalogCount": 8
+      "catalogCount": 16
     },
     "aruma": {
       "id": "aruma",
@@ -202,9 +204,9 @@
       "name": "Hiraoka",
       "engine": "magento",
       "currency": "PEN",
-      "okJobs": 0,
-      "failedJobs": 12,
-      "productsFetched": 0,
+      "okJobs": 1,
+      "failedJobs": 15,
+      "productsFetched": 1,
       "lastError": "HTTP 403",
       "catalogCount": 1
     },
@@ -213,22 +215,22 @@
       "name": "Tai Loy",
       "engine": "magento",
       "currency": "PEN",
-      "okJobs": 8,
+      "okJobs": 11,
       "failedJobs": 0,
-      "productsFetched": 56,
+      "productsFetched": 70,
       "lastError": null,
-      "catalogCount": 50
+      "catalogCount": 62
     },
     "infotec": {
       "id": "infotec",
       "name": "Infotec Perú",
       "engine": "prestashop",
       "currency": "PEN",
-      "okJobs": 7,
+      "okJobs": 9,
       "failedJobs": 0,
-      "productsFetched": 46,
+      "productsFetched": 60,
       "lastError": null,
-      "catalogCount": 46
+      "catalogCount": 60
     },
     "sercoplus": {
       "id": "sercoplus",
@@ -246,11 +248,11 @@
       "name": "CyC Computer",
       "engine": "prestashop",
       "currency": "USD",
-      "okJobs": 0,
-      "failedJobs": 5,
-      "productsFetched": 0,
-      "lastError": "HTTP 403",
-      "catalogCount": 37
+      "okJobs": 7,
+      "failedJobs": 0,
+      "productsFetched": 55,
+      "lastError": null,
+      "catalogCount": 53
     }
   }
 }

@@ -10,6 +10,7 @@ import { runDailyScrape } from '../scraper/run-daily.js';
 import { scrapeProductUrl } from '../scraper/adapters/url-scraper.js';
 import {
   loadCatalog,
+  loadGroups,
   loadHistory,
   loadMeta,
   loadWatchlist,
@@ -152,6 +153,7 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, {
         meta: loadMeta(),
         catalog: loadCatalog(),
+        groups: loadGroups(),
         watchlist: loadWatchlist(),
         stores: STORES,
         categories: CATEGORIES
@@ -162,13 +164,16 @@ const server = http.createServer(async (req, res) => {
       const id = decodeURIComponent(pathname.slice('/api/product/'.length));
       const catalog = loadCatalog();
       const history = loadHistory();
+      const groups = loadGroups();
       const product = catalog.find((p) => p.id === id);
       if (!product) {
         return sendJson(res, 404, { error: 'Producto no encontrado' });
       }
+      const group = product.groupId ? groups.find((g) => g.groupId === product.groupId) || null : null;
       return sendJson(res, 200, {
         product,
         history: history[id] || [],
+        group,
         related: findRelatedProducts(product, catalog)
       });
     }

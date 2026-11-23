@@ -122,18 +122,26 @@
     <nav class="tabs-bar" aria-label="Secciones principales">
       <div class="tabs-list" role="tablist">
         <button type="button" role="tab" class="tab-btn active" data-tab="deals" id="tab-deals" aria-selected="true">
-          Mejores Ofertas Hoy
+          Mejores Ofertas
         </button>
-        <button type="button" role="tab" class="tab-btn" data-tab="drops" id="tab-drops" aria-selected="false">
-          Bajadas y Mínimos
-          <span class="tab-badge mono" id="badge-drops">0</span>
+        <button type="button" role="tab" class="tab-btn" data-tab="bugazos" id="tab-bugazos" aria-selected="false">
+          ⚡ Bugazos
+          <span class="tab-badge mono" id="badge-bugazos">0</span>
+        </button>
+        <button type="button" role="tab" class="tab-btn" data-tab="anticyber" id="tab-anticyber" aria-selected="false">
+          Anti-Cyber
+          <span class="tab-badge mono" id="badge-anticyber">0</span>
+        </button>
+        <button type="button" role="tab" class="tab-btn" data-tab="groups" id="tab-groups" aria-selected="false">
+          Multi-Tienda
+          <span class="tab-badge mono" id="badge-groups">0</span>
         </button>
         <button type="button" role="tab" class="tab-btn" data-tab="watchlist" id="tab-watchlist" aria-selected="false">
           Mi Lista
           <span class="tab-badge mono" id="badge-watchlist">0</span>
         </button>
         <button type="button" role="tab" class="tab-btn" data-tab="live-search" id="tab-live-search" aria-selected="false">
-          Comparador en Vivo
+          En Vivo
         </button>
         <button type="button" role="tab" class="tab-btn" data-tab="stores" id="tab-stores" aria-selected="false">
           Tiendas Perú
@@ -152,12 +160,36 @@
       </div>
     </nav>
 
-    <!-- VIEW 1 & 2: DEALS / DROPS CATALOG -->
+    <!-- VIEW 1, 2 & 3: DEALS / BUGAZOS / ANTI-CYBER CATALOG -->
     <section id="panel-catalog" class="panel">
+      <!-- Context Banner for Bugazos / Anti-Cyber modes -->
+      <div class="mode-banner" id="catalog-mode-banner" hidden>
+        <div class="mode-banner-copy">
+          <strong id="catalog-mode-title"></strong>
+          <p class="small muted" id="catalog-mode-desc"></p>
+        </div>
+        <div class="filter-chips" id="anticyber-subfilters" hidden>
+          <button type="button" class="chip-btn active" data-cyber="all">Todos</button>
+          <button type="button" class="chip-btn" data-cyber="real_drop">Ofertas reales comprobadas</button>
+          <button type="button" class="chip-btn" data-cyber="cyber_trap">Trampas / Inflados</button>
+        </div>
+      </div>
+
       <!-- Filters Toolbar -->
       <div class="filters-panel">
         <div class="filter-row">
           <div class="filter-chips" id="category-chips" aria-label="Filtrar por categoría"></div>
+        </div>
+
+        <div class="filter-row cards-wallet-row">
+          <span class="wallet-label">¿Qué tarjetas tienes?</span>
+          <div class="filter-chips" id="wallet-cards-chips" aria-label="Seleccionar tus tarjetas bancarias en Perú">
+            <button type="button" class="chip-btn card-chip" data-card="CMR">CMR</button>
+            <button type="button" class="chip-btn card-chip" data-card="Tarjeta Oh!">Tarjeta Oh!</button>
+            <button type="button" class="chip-btn card-chip" data-card="Cencosud">Cencosud</button>
+            <button type="button" class="chip-btn card-chip" data-card="Interbank">Interbank</button>
+          </div>
+          <span class="small muted" id="wallet-cards-hint">Mostrando precio internet (marca tus tarjetas para ver tu precio real)</span>
         </div>
 
         <div class="filter-row filter-row-controls">
@@ -180,10 +212,11 @@
             <select id="filter-verdict">
               <option value="all">Todos los veredictos</option>
               <option value="buy">Solo los que convienen (ATL / Oferta)</option>
+              <option value="bugazo">⚡ Posibles Bugazos</option>
               <option value="all_time_low">Mínimo histórico</option>
               <option value="great_deal">Excelente / Fuerte oferta</option>
               <option value="good_deal">Buen precio</option>
-              <option value="inflated">Descuentos inflados</option>
+              <option value="inflated">Trampa Cyber / Inflados</option>
             </select>
           </div>
 
@@ -247,6 +280,26 @@
         <p>Prueba quitando un filtro o busca el producto en vivo en las tiendas de Perú.</p>
         <button type="button" class="btn btn-primary" id="empty-live-search-btn">Buscar en vivo</button>
       </div>
+    </section>
+
+    <!-- VIEW: UNIFIED MULTI-TIENDA COMPARISON (SOLOTODO STYLE) -->
+    <section id="panel-groups" class="panel" hidden>
+      <div class="watchlist-header">
+        <div>
+          <h2>Fichas Unificadas Multi-Tienda (Perú)</h2>
+          <p class="muted">
+            El mismo modelo comparado automáticamente entre 2 o más tiendas peruanas para ver al instante dónde conviene comprarlo hoy.
+          </p>
+        </div>
+        <input
+          type="search"
+          id="groups-search-input"
+          class="groups-search-input"
+          placeholder="Filtrar comparativas (ej. LG, Samsung, PlayStation, Oster)..."
+          autocomplete="off"
+        />
+      </div>
+      <div class="groups-grid" id="groups-grid"></div>
     </section>
 
     <!-- VIEW 3: WATCHLIST -->
@@ -395,11 +448,33 @@
           Ir a la tienda ↗
         </a>
         <button type="button" class="btn btn-secondary" id="drawer-star-btn">
-          ☆ Seguir
+          + Añadir a Mi Lista
+        </button>
+        <button type="button" class="btn btn-whatsapp" id="drawer-whatsapp-btn" title="Compartir oferta por WhatsApp">
+          WhatsApp
+        </button>
+        <button type="button" class="btn btn-secondary" id="drawer-copy-link-btn" title="Copiar enlace directo a este producto">
+          Copiar enlace
         </button>
         <button type="button" class="btn btn-secondary" id="drawer-refresh-btn">
           ↻ Actualizar precio
         </button>
+      </div>
+
+      <!-- Anti-Cyber 15d / 30d Strip -->
+      <div class="cyber-strip" id="drawer-cyber-strip">
+        <div class="cyber-strip-item">
+          <span class="stat-label">Anti-Cyber</span>
+          <strong id="drawer-cyber-status">—</strong>
+        </div>
+        <div class="cyber-strip-item">
+          <span class="stat-label">Vs hace 15 días</span>
+          <strong class="mono" id="drawer-delta-15d">—</strong>
+        </div>
+        <div class="cyber-strip-item">
+          <span class="stat-label">Vs hace 30 días</span>
+          <strong class="mono" id="drawer-delta-30d">—</strong>
+        </div>
       </div>
 
       <!-- Price Target Alert -->
@@ -410,6 +485,12 @@
           <button type="button" class="btn btn-secondary" id="drawer-save-target-btn">Guardar alerta</button>
         </div>
         <p class="target-feedback" id="drawer-target-feedback"></p>
+      </div>
+
+      <!-- Exact Multi-Store Comparison Table -->
+      <div class="related-section" id="drawer-group-section" hidden>
+        <h3>Comparativa exacta en otras tiendas de Perú</h3>
+        <div class="group-offers-list" id="drawer-group-list"></div>
       </div>
 
       <!-- Historical Price Chart -->
@@ -600,6 +681,18 @@
               <button type="button" class="btn btn-secondary btn-sm" id="clear-gh-token-btn" hidden>Borrar</button>
             </div>
             <p class="small muted" id="gh-token-feedback" style="margin: 6px 0 0;"></p>
+          </div>
+        </details>
+        <details class="token-setup-box">
+          <summary>Activar alertas automáticas en Telegram o Discord (gratis)</summary>
+          <div class="token-setup-body">
+            <p class="small muted">
+              Cada vez que corra el escaneo automático (7:00 AM, 1:00 PM y 8:00 PM hora Lima), ChapaAlToque PE puede enviarte los mejores bugazos y mínimos históricos a tu celular. Solo agrega estos secretos en <strong>Settings → Secrets and variables → Actions</strong> de tu repositorio:
+            </p>
+            <ul class="small muted token-steps">
+              <li><strong>Telegram</strong>: <code>TELEGRAM_BOT_TOKEN</code> (creado con <code>@BotFather</code>) y <code>TELEGRAM_CHAT_ID</code>.</li>
+              <li><strong>Discord</strong>: <code>DISCORD_WEBHOOK_URL</code> (creado en Configuración del canal → Integraciones → Webhooks).</li>
+            </ul>
           </div>
         </details>
       </div>

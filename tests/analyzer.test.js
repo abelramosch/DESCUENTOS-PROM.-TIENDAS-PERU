@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { analyzeProduct, extractMatchTokens } from '../scraper/analyzer.js';
+import { buildMultiStoreGroups } from '../scraper/grouper.js';
 import { parsePriceNumber } from '../scraper/http.js';
 import { recordPricePoint } from '../scraper/storage.js';
 
@@ -40,6 +41,7 @@ test('analyzeProduct detects true All-Time Low (mínimo histórico) with 24h dro
   assert.equal(analyzed.stats.isAllTimeLow, true);
   assert.equal(analyzed.stats.isFakeDiscount, false);
   assert.equal(analyzed.stats.verdict, 'all_time_low');
+  assert.equal(analyzed.stats.cyberStatus, 'real_drop');
   assert.equal(analyzed.stats.minPrice, 3199);
   assert.equal(analyzed.stats.minDate, '2026-11-23');
   assert.equal(analyzed.stats.delta24h, -600);
@@ -55,11 +57,10 @@ test('analyzeProduct flags fake / inflated Cyber discounts when price never actu
     title: 'Freidora de Aire 5L',
     brand: 'Oster',
     price: 299,
-    listPrice: 599, // Claims 50% off!
+    listPrice: 599,
     inStock: true
   };
 
-  // Same S/ 299 every single day -> permanent fake crossed-out listPrice
   const history = [
     { date: '2026-11-19', price: 299, listPrice: 599, inStock: true },
     { date: '2026-11-20', price: 299, listPrice: 599, inStock: true },
@@ -70,8 +71,112 @@ test('analyzeProduct flags fake / inflated Cyber discounts when price never actu
 
   const analyzed = analyzeProduct(product, history);
   assert.equal(analyzed.stats.isFakeDiscount, true);
+  assert.equal(analyzed.stats.cyberStatus, 'cyber_trap');
   assert.equal(analyzed.stats.verdict, 'inflated');
   assert.ok(analyzed.stats.dealScore <= 42);
+});
+
+test('analyzeProduct detects Anti-Cyber pre-sale price hike trap', () => {
+  const product = {
+    id: 'oechsle:777',
+    storeId: 'oechsle',
+    storeName: 'Oechsle',
+    title: 'Cafetera Espresso Oster',
+    brand: 'Oster',
+    price: 519,
+    listPrice: 799,
+    inStock: true
+  };
+
+  // Normal price ~500, jumped to 680 a week before Cyber, then "discounted" back to 519
+  const history = [
+    { date: '2026-10-20', price: 499, listPrice: 799, inStock: true },
+    { date: '2026-11-01', price: 509, listPrice: 799, inStock: true },
+    { date: '2026-11-15', price: 689, listPrice: 799, inStock: true },
+    { date: '2026-11-18', price: 689, listPrice: 799, inStock: true },
+    { date: '2026-11-23', price: 519, listPrice: 799, inStock: true }
+  ];
+
+  const analyzed = analyzeProduct(product, history);
+  assert.equal(analyzed.stats.preSaleHikeDetected, true);
+  assert.equal(analyzed.stats.cyberStatus, 'cyber_trap');
+  assert.equal(analyzed.stats.verdict, 'inflated');
+});
+
+test('analyzeProduct detects Bugazo on cross-store price anomaly and historical crash', () => {
+  const prod = {
+    id: 'plazavea:bug1',
+    storeId: 'plazavea',
+    storeName: 'PlazaVea',
+    title: 'Consola PlayStation 5 Slim',
+    brand: 'Sony',
+    price: 1199,
+    listPrice: 2499,
+    inStock: true
+  };
+
+  const crossStoreAnalyzed = analyzeProduct(
+    prod,
+    [{ date: '2026-11-23', price: 1199, listPrice: 2499, inStock: true }],
+    { groupId: 'grp:gaming:1', peerCount: 3, peerMinPrice: 1199, peerMedianPrice: 2399 }
+  );
+  assert.equal(crossStoreAnalyzed.stats.isBugazo, true);
+  assert.equal(crossStoreAnalyzed.stats.bugazoType, 'cross_store');
+
+  const crashAnalyzed = analyzeProduct(prod, [
+    { date: '2026-11-20', price: 2399, listPrice: 2499, inStock: true },
+    { date: '2026-11-22', price: 2399, listPrice: 2499, inStock: true },
+    { date: '2026-11-23', price: 1199, listPrice: 2499, inStock: true }
+  ]);
+  assert.equal(crashAnalyzed.stats.isBugazo, true);
+  assert.equal(crashAnalyzed.stats.bugazoType, 'historical_crash');
+});
+
+test('buildMultiStoreGroups unifies identical models across Peruvian stores and excludes accessories', () => {
+  const sampleCatalog = [
+    {
+      id: 'falabella:1',
+      storeId: 'falabella',
+      storeName: 'Falabella',
+      title: 'Televisor LG OLED 55" 4K Smart TV OLED55C4PSA',
+      brand: 'LG',
+      category: 'televisores',
+      price: 3899,
+      listPrice: 4999,
+      url: 'https://falabella.com.pe/1'
+    },
+    {
+      id: 'plazavea:2',
+      storeId: 'plazavea',
+      storeName: 'PlazaVea',
+      title: 'Televisor LG 55 pulgadas OLED55C4PSA 4K UHD',
+      brand: 'LG',
+      category: 'televisores',
+      price: 3499,
+      listPrice: 4999,
+      url: 'https://plazavea.com.pe/2'
+    },
+    {
+      id: 'coolbox:3',
+      storeId: 'coolbox',
+      storeName: 'Coolbox',
+      title: 'Control remoto para Televisor LG OLED55C4PSA',
+      brand: 'LG',
+      category: 'televisores',
+      price: 79,
+      listPrice: 99,
+      url: 'https://coolbox.pe/3'
+    }
+  ];
+
+  const { groups, productGroupMeta } = buildMultiStoreGroups(sampleCatalog);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].storeCount, 2);
+  assert.equal(groups[0].minPrice, 3499);
+  assert.equal(groups[0].savingsPen, 400);
+  assert.ok(productGroupMeta.has('falabella:1'));
+  assert.ok(productGroupMeta.has('plazavea:2'));
+  assert.ok(!productGroupMeta.has('coolbox:3'));
 });
 
 test('recordPricePoint deduplicates same-day scrapes and appends new dates in order', () => {

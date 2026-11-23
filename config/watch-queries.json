@@ -2,7 +2,7 @@
   "categories": [
     {
       "category": "tecnologia",
-      "queries": ["laptop", "monitor gamer", "ssd nvme"],
+      "queries": ["laptop", "monitor gamer", "ssd nvme", "tablet"],
       "limitPerStore": 10
     },
     {
@@ -12,7 +12,7 @@
     },
     {
       "category": "celulares",
-      "queries": ["celular smartphone", "iphone samsung galaxy"],
+      "queries": ["celular smartphone", "iphone samsung galaxy", "smartwatch reloj inteligente"],
       "limitPerStore": 10
     },
     {
@@ -22,17 +22,17 @@
     },
     {
       "category": "gaming",
-      "queries": ["playstation 5", "nintendo switch"],
+      "queries": ["playstation 5", "nintendo switch", "silla gamer"],
       "limitPerStore": 8
     },
     {
       "category": "electro",
-      "queries": ["freidora de aire", "refrigeradora", "cafetera"],
+      "queries": ["freidora de aire", "refrigeradora", "lavadora", "microondas", "cafetera"],
       "limitPerStore": 8
     },
     {
       "category": "hogar",
-      "queries": ["almohada", "taladro inalambrico", "aspiradora robot"],
+      "queries": ["almohada", "colchon", "taladro inalambrico", "aspiradora robot"],
       "limitPerStore": 8
     },
     {

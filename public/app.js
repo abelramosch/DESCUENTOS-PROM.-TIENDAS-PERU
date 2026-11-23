@@ -237,33 +237,65 @@ function enrichCatalogBrands(catalog) {
   }
 }
 
+const WALLET_CARDS_KEY = 'chapaaltoque_pe_cards_v1';
+
+function loadUserCards() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(WALLET_CARDS_KEY) || '[]');
+    return Array.isArray(raw) ? raw : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveUserCards() {
+  try {
+    localStorage.setItem(WALLET_CARDS_KEY, JSON.stringify(state.userCards));
+  } catch {
+    // ignore
+  }
+}
+
+function getUserPrice(p) {
+  if (p.cardPrice && p.cardName && state.userCards.includes(p.cardName)) {
+    return { price: Number(p.cardPrice), usingCard: true, cardName: p.cardName };
+  }
+  return { price: Number(p.price), usingCard: false, cardName: null };
+}
+
 const state = {
   mode: 'static', // 'server' or 'static'
   meta: null,
   catalog: [],
+  groups: [],
+  groupMap: {},
   historyCache: {},
   stores: [],
   storeMap: {},
   categories: [],
   watchlist: { urls: [], customQueries: [], starredIds: [], targetPrices: {} },
+  userCards: loadUserCards(),
   isUpdating: false,
   ghPollTimer: null,
 
   // UI state
-  activeTab: 'deals', // deals | drops | watchlist | live-search | stores
+  activeTab: 'deals', // deals | bugazos | anticyber | groups | watchlist | live-search | stores
   viewMode: 'table',  // table | grid
   pageSize: 60,
+  groupsQuery: '',
   filters: {
     search: '',
     category: 'all',
     store: 'all',
     brand: 'all',
     verdict: 'all',
+    cyber: 'all',
     sort: 'score',
     maxPrice: ''
   },
   selectedProduct: null,
   selectedHistory: [],
+  selectedGroup: null,
   chartRange: 'all'
 };
 
@@ -272,9 +304,28 @@ const state = {
 // ============================================================================
 async function init() {
   initTheme();
+  renderWalletCardsUi();
   bindEvents();
   await loadInitialData();
   renderAll();
+
+  // Auto-open shared product link (?p=<productId>)
+  const sharedId = new URLSearchParams(window.location.search).get('p');
+  if (sharedId && state.catalog.some((p) => p.id === sharedId)) {
+    openProductDrawer(sharedId);
+  }
+}
+
+function renderWalletCardsUi() {
+  document.querySelectorAll('#wallet-cards-chips .card-chip').forEach((btn) => {
+    btn.classList.toggle('active', state.userCards.includes(btn.dataset.card));
+  });
+  const hint = document.getElementById('wallet-cards-hint');
+  if (hint) {
+    hint.textContent = state.userCards.length
+      ? `Aplicando precios con: ${state.userCards.join(', ')}`
+      : 'Mostrando precio internet (marca tus tarjetas para ver tu precio real)';
+  }
 }
 
 async function loadInitialData() {
@@ -287,6 +338,7 @@ async function loadInitialData() {
       const payload = await dataRes.json();
       state.meta = payload.meta;
       state.catalog = payload.catalog || [];
+      state.groups = payload.groups || [];
       state.watchlist = payload.watchlist || state.watchlist;
       state.stores = payload.stores || [];
       state.categories = payload.categories || [];
@@ -295,14 +347,16 @@ async function loadInitialData() {
     }
   } catch {
     state.mode = 'static';
-    const [catalog, meta, history] = await Promise.all([
+    const [catalog, meta, history, groups] = await Promise.all([
       fetchJsonSafe(`./data/catalog.json?${cacheBust}`, []),
       fetchJsonSafe(`./data/meta.json?${cacheBust}`, {}),
-      fetchJsonSafe(`./data/history.json?${cacheBust}`, {})
+      fetchJsonSafe(`./data/history.json?${cacheBust}`, {}),
+      fetchJsonSafe(`./data/groups.json?${cacheBust}`, [])
     ]);
     state.catalog = catalog;
     state.meta = meta;
     state.historyCache = history;
+    state.groups = Array.isArray(groups) ? groups : [];
     // En modo web pública (GitHub Pages), Mi Lista es 100% personal por navegador
     state.watchlist = loadLocalWatchlist();
     state.stores = Object.values(meta?.storesStatus || {}).map((s) => ({
@@ -328,6 +382,7 @@ async function loadInitialData() {
 
   enrichCatalogBrands(state.catalog);
   state.storeMap = Object.fromEntries(state.stores.map((s) => [s.id, s]));
+  state.groupMap = Object.fromEntries(state.groups.map((g) => [g.groupId, g]));
   populateFilterOptions();
 
   const footerMode = document.getElementById('footer-mode-info');
@@ -485,24 +540,33 @@ function populateBrandOptions() {
 }
 
 function getFilteredProducts() {
-  const { search, category, store, brand, verdict, sort, maxPrice } = state.filters;
+  const { search, category, store, brand, verdict, cyber, sort, maxPrice } = state.filters;
   const q = search.trim().toLowerCase();
   const maxP = Number(maxPrice) > 0 ? Number(maxPrice) : Infinity;
 
   let list = state.catalog.filter((p) => {
-    if (state.activeTab === 'drops') {
-      const isDropOrAtl =
-        p.stats.delta24h < 0 || p.stats.isAllTimeLow || p.stats.verdict === 'great_deal';
-      if (!isDropOrAtl) return false;
+    if (state.activeTab === 'bugazos') {
+      if (!p.stats.isBugazo) return false;
+    } else if (state.activeTab === 'anticyber') {
+      if (cyber === 'real_drop' && p.stats.cyberStatus !== 'real_drop' && !['all_time_low', 'great_deal'].includes(p.stats.verdict)) {
+        return false;
+      }
+      if (cyber === 'cyber_trap' && p.stats.cyberStatus !== 'cyber_trap' && !p.stats.isFakeDiscount) {
+        return false;
+      }
     }
 
     if (category !== 'all' && p.category !== category) return false;
     if (store !== 'all' && p.storeId !== store) return false;
     if (brand !== 'all' && p.brandKey !== brand) return false;
-    if (p.effectivePrice > maxP) return false;
+
+    const uPrice = getUserPrice(p).price;
+    if (uPrice > maxP) return false;
 
     if (verdict === 'buy') {
       if (!['all_time_low', 'great_deal', 'good_deal'].includes(p.stats.verdict)) return false;
+    } else if (verdict === 'bugazo') {
+      if (!p.stats.isBugazo) return false;
     } else if (verdict !== 'all' && p.stats.verdict !== verdict) {
       return false;
     }
@@ -519,6 +583,11 @@ function getFilteredProducts() {
 
   // Sort
   list.sort((a, b) => {
+    if (state.activeTab === 'bugazos' && sort === 'score') {
+      const rank = (t) => (t === 'historical_crash' ? 3 : t === 'cross_store' ? 2 : 1);
+      const diff = rank(b.stats.bugazoType) - rank(a.stats.bugazoType);
+      if (diff !== 0) return diff;
+    }
     switch (sort) {
       case 'real_discount':
         return (b.stats.realDiscountPct || b.stats.storeDiscountPct) - (a.stats.realDiscountPct || a.stats.storeDiscountPct);
@@ -527,9 +596,9 @@ function getFilteredProducts() {
       case 'drop_today':
         return a.stats.delta24hPct - b.stats.delta24hPct || b.stats.dealScore - a.stats.dealScore;
       case 'price_asc':
-        return a.effectivePrice - b.effectivePrice;
+        return getUserPrice(a).price - getUserPrice(b).price;
       case 'price_desc':
-        return b.effectivePrice - a.effectivePrice;
+        return getUserPrice(b).price - getUserPrice(a).price;
       case 'score':
       default:
         return b.stats.dealScore - a.stats.dealScore || b.stats.storeDiscountPct - a.stats.storeDiscountPct;
@@ -554,7 +623,9 @@ function renderKpis() {
     ['all_time_low', 'great_deal'].includes(p.stats.verdict)
   ).length;
   const droppedToday = state.catalog.filter((p) => p.stats.delta24h < 0 || p.stats.isAllTimeLow).length;
-  const inflated = state.catalog.filter((p) => p.stats.isFakeDiscount).length;
+  const inflated = state.catalog.filter((p) => p.stats.isFakeDiscount || p.stats.cyberStatus === 'cyber_trap').length;
+  const bugazos = state.catalog.filter((p) => p.stats.isBugazo).length;
+  const realCyber = state.catalog.filter((p) => p.stats.cyberStatus === 'real_drop' || p.stats.cyberStatus === 'cyber_trap').length;
 
   setText('kpi-total', total.toLocaleString('es-PE'));
   setText('kpi-stores', activeStores);
@@ -562,7 +633,9 @@ function renderKpis() {
   setText('kpi-drops', droppedToday.toLocaleString('es-PE'));
   setText('kpi-inflated', inflated.toLocaleString('es-PE'));
 
-  setText('badge-drops', droppedToday);
+  setText('badge-bugazos', bugazos);
+  setText('badge-anticyber', realCyber || inflated);
+  setText('badge-groups', state.groups.length);
   setText('badge-watchlist', getWatchlistProducts().length);
 
   const summary = document.getElementById('last-updated-summary');
@@ -572,26 +645,51 @@ function renderKpis() {
       dateStyle: 'medium',
       timeStyle: 'short'
     });
-    summary.textContent = `Última actualización: ${formatted} · ${activeStores} tiendas activas en Perú · Tipo de cambio ref. S/ ${state.meta.usdToPen || '3.75'}`;
+    summary.textContent = `Última actualización: ${formatted} · ${activeStores} tiendas activas · ${state.groups.length} comparativas multi-tienda · T.C. S/ ${state.meta.usdToPen || '3.75'}`;
   } else {
     summary.textContent = 'Haz clic en "Actualizar hoy" para descargar los precios del día en Perú.';
   }
 }
 
 function renderActivePanel() {
-  const isCatalog = state.activeTab === 'deals' || state.activeTab === 'drops';
+  const isCatalog = ['deals', 'bugazos', 'anticyber'].includes(state.activeTab);
   document.getElementById('panel-catalog').hidden = !isCatalog;
   document.getElementById('catalog-view-controls').hidden = !isCatalog;
+  document.getElementById('panel-groups').hidden = state.activeTab !== 'groups';
   document.getElementById('panel-watchlist').hidden = state.activeTab !== 'watchlist';
   document.getElementById('panel-live-search').hidden = state.activeTab !== 'live-search';
   document.getElementById('panel-stores').hidden = state.activeTab !== 'stores';
 
   if (isCatalog) renderCatalog();
+  if (state.activeTab === 'groups') renderGroupsPanel();
   if (state.activeTab === 'watchlist') renderWatchlist();
   if (state.activeTab === 'stores') renderStoresPanel();
 }
 
 function renderCatalog() {
+  const banner = document.getElementById('catalog-mode-banner');
+  const subCyber = document.getElementById('anticyber-subfilters');
+  if (state.activeTab === 'bugazos') {
+    banner.hidden = false;
+    subCyber.hidden = true;
+    setText('catalog-mode-title', '⚡ Detector de Posibles Bugazos y Liquidaciones Extremas');
+    setText(
+      'catalog-mode-desc',
+      'Productos con caídas ≥ 45% vs historial, ≥ 40% más baratos que otras tiendas peruanas con el mismo modelo, o liquidaciones extremas (≥ 55%).'
+    );
+  } else if (state.activeTab === 'anticyber') {
+    banner.hidden = false;
+    subCyber.hidden = false;
+    setText('catalog-mode-title', '🕵️ Verificador Anti-Cyber Falso (Hoy vs 15d / 30d)');
+    setText(
+      'catalog-mode-desc',
+      'Separa descuentos reales comprobados en el historial de subidas previas o precios lista inflados antes de Cyber / Black Friday.'
+    );
+  } else {
+    banner.hidden = true;
+    subCyber.hidden = true;
+  }
+
   const filtered = getFilteredProducts();
   const visible = filtered.slice(0, state.pageSize);
 
@@ -644,8 +742,9 @@ function renderTableRows(items) {
     .map((p) => {
       const s = p.stats;
       const isStarred = starredSet.has(p.id);
+      const uPrice = getUserPrice(p);
       const targetPrice = targets[p.id];
-      const targetHit = targetPrice && p.effectivePrice <= targetPrice;
+      const targetHit = targetPrice && uPrice.price <= targetPrice;
       const storeStyle = getStorePillStyle(p.storeId);
       const scoreColor = getScoreColor(s.dealScore);
 
@@ -665,10 +764,22 @@ function renderTableRows(items) {
             ? `<span class="delta-line mono negative">▲ +${formatPen(s.delta24h)} hoy</span>`
             : '';
 
+      const priceCellHtml = uPrice.usingCard
+        ? `
+          <span class="price-now mono positive">${formatPen(uPrice.price)}</span>
+          <span class="price-card-mini mono">Tu ${escapeHtml(uPrice.cardName)}</span>
+          <span class="price-old mono">${formatPen(p.price)}</span>
+        `
+        : `
+          <span class="price-now mono">${formatPen(p.price)}</span>
+          ${p.cardPrice ? `<span class="price-card-mini mono">${escapeHtml(p.cardName || 'Tarjeta')}: ${formatPen(p.cardPrice)}</span>` : ''}
+          ${p.listPrice > p.price ? `<span class="price-old mono">${formatPen(p.listPrice)}</span>` : ''}
+        `;
+
       return `
         <tr data-product-id="${escapeHtml(p.id)}">
           <td>
-            <button type="button" class="star-btn ${isStarred ? 'starred' : ''}" data-star-id="${escapeHtml(p.id)}" title="${isStarred ? 'Quitar de Mi Lista' : 'Guardar en Mi Lista'}">
+            <button type="button" class="star-btn ${isStarred ? 'starred' : ''}" data-star-id="${escapeHtml(p.id)}" title="${isStarred ? 'Quitar de Mi Lista' : 'Añadir a Mi Lista'}">
               ${isStarred ? '★' : '☆'}
             </button>
           </td>
@@ -680,6 +791,8 @@ function renderTableRows(items) {
                 <span class="prod-sub">
                   ${p.brand ? `<span>${escapeHtml(p.brand)}</span>` : ''}
                   ${p.originalCurrency === 'USD' ? `<span class="mono">(US$ ${p.originalPrice})</span>` : ''}
+                  ${s.isBugazo ? `<span class="bugazo-tag">⚡ Bugazo</span>` : ''}
+                  ${p.peerCount >= 2 ? `<span class="peer-badge">En ${p.peerCount} tiendas</span>` : ''}
                   ${targetHit ? `<span class="target-hit-badge">¡Meta ≤ ${formatPen(targetPrice)}!</span>` : ''}
                 </span>
               </div>
@@ -689,11 +802,7 @@ function renderTableRows(items) {
             <span class="store-pill" style="${storeStyle}">${escapeHtml(p.storeName)}</span>
           </td>
           <td class="num">
-            <div class="price-stack">
-              <span class="price-now mono">${formatPen(p.price)}</span>
-              ${p.cardPrice ? `<span class="price-card-mini mono">${escapeHtml(p.cardName || 'Tarjeta')}: ${formatPen(p.cardPrice)}</span>` : ''}
-              ${p.listPrice > p.price ? `<span class="price-old mono">${formatPen(p.listPrice)}</span>` : ''}
-            </div>
+            <div class="price-stack">${priceCellHtml}</div>
           </td>
           <td class="num">
             ${discountHtml}
@@ -737,8 +846,9 @@ function renderCards(container, items, isLiveSearch = false) {
       };
       const isStarred = starredSet.has(p.id);
       const storeStyle = getStorePillStyle(p.storeId);
+      const uPrice = getUserPrice(p);
       const targetPrice = targets[p.id];
-      const targetHit = targetPrice && (p.effectivePrice || p.price) <= targetPrice;
+      const targetHit = targetPrice && uPrice.price <= targetPrice;
 
       return `
         <article class="deal-card" ${isLiveSearch ? '' : `data-product-id="${escapeHtml(p.id)}"`}>
@@ -756,14 +866,24 @@ function renderCards(container, items, isLiveSearch = false) {
           <div class="card-body">
             <div class="card-brand-row">
               <span class="small muted">${escapeHtml(p.brand || p.storeName)}</span>
-              ${s.storeDiscountPct > 0 ? `<span class="discount-tag mono">-${s.storeDiscountPct}%</span>` : ''}
+              <div style="display:flex;gap:4px;align-items:center;">
+                ${s.isBugazo ? `<span class="bugazo-tag">⚡</span>` : ''}
+                ${p.peerCount >= 2 ? `<span class="peer-badge">${p.peerCount} tiendas</span>` : ''}
+                ${s.storeDiscountPct > 0 ? `<span class="discount-tag mono">-${s.storeDiscountPct}%</span>` : ''}
+              </div>
             </div>
             <h3 class="card-title">${escapeHtml(p.title)}</h3>
             ${targetHit ? `<span class="target-hit-badge">¡Llegó a tu meta ≤ ${formatPen(targetPrice)}!</span>` : ''}
             <div class="card-price-block">
               <div>
-                <div class="price-now mono">${formatPen(p.price)}</div>
-                ${p.cardPrice ? `<div class="price-card-mini mono">${escapeHtml(p.cardName || 'Tarjeta')}: ${formatPen(p.cardPrice)}</div>` : ''}
+                <div class="price-now mono ${uPrice.usingCard ? 'positive' : ''}">${formatPen(uPrice.price)}</div>
+                ${
+                  uPrice.usingCard
+                    ? `<div class="price-card-mini mono">Tu ${escapeHtml(uPrice.cardName)} (int. ${formatPen(p.price)})</div>`
+                    : p.cardPrice
+                      ? `<div class="price-card-mini mono">${escapeHtml(p.cardName || 'Tarjeta')}: ${formatPen(p.cardPrice)}</div>`
+                      : ''
+                }
                 ${p.listPrice > p.price ? `<div class="price-old mono">${formatPen(p.listPrice)}</div>` : ''}
               </div>
               ${!isLiveSearch ? renderSparkline(p.sparkline, 74, 24) : ''}
@@ -802,6 +922,86 @@ function renderCards(container, items, isLiveSearch = false) {
       });
     });
   }
+}
+
+// ============================================================================
+// Unified Multi-Tienda Comparison Panel (SoloTodo / Compy Style)
+// ============================================================================
+function renderGroupsPanel() {
+  const grid = document.getElementById('groups-grid');
+  if (!grid) return;
+
+  const q = state.groupsQuery.trim().toLowerCase();
+  const terms = q.split(/\s+/).filter(Boolean);
+
+  const filtered = state.groups.filter((g) => {
+    if (!terms.length) return true;
+    const hay = `${g.title} ${g.brand} ${g.offers.map((o) => o.storeName).join(' ')}`.toLowerCase();
+    return terms.every((t) => hay.includes(t));
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <h3>No hay comparativas multi-tienda con ese filtro</h3>
+        <p>Prueba otra palabra clave (ej. Samsung, LG, PlayStation, Oster).</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = filtered
+    .slice(0, 80)
+    .map((g) => {
+      // Re-sort offers respecting user's wallet cards
+      const offers = [...g.offers]
+        .map((o) => ({ ...o, userPrice: getUserPrice(o) }))
+        .sort((a, b) => a.userPrice.price - b.userPrice.price);
+
+      const minP = offers[0].userPrice.price;
+      const maxP = offers[offers.length - 1].userPrice.price;
+      const diffPen = Math.max(0, maxP - minP);
+
+      return `
+        <article class="group-card">
+          <div class="group-card-head">
+            <img class="group-card-thumb" src="${escapeHtml(g.image || '')}" alt="" loading="lazy" onerror="this.style.visibility='hidden'" />
+            <div style="min-width:0;flex:1;">
+              <span class="small muted">${escapeHtml(g.brand || 'Multi-Tienda')}</span>
+              <h3 class="group-card-title">${escapeHtml(g.title)}</h3>
+              <div class="group-summary-line">
+                <strong class="mono positive">Desde ${formatPen(minP)}</strong>
+                <span class="peer-badge">${offers.length} tiendas</span>
+                ${diffPen >= 10 ? `<span class="small muted mono">Ahorras hasta ${formatPen(diffPen)}</span>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <div class="group-offers-list">
+            ${offers
+              .map((o, idx) => {
+                const delta = o.userPrice.price - minP;
+                return `
+                  <div class="group-offer-row ${idx === 0 ? 'best-offer' : ''}" data-product-id="${escapeHtml(o.id)}">
+                    <div class="group-offer-left">
+                      <span class="store-pill" style="${getStorePillStyle(o.storeId)}">${escapeHtml(o.storeName)}</span>
+                      ${o.userPrice.usingCard ? `<span class="price-card-mini mono">${escapeHtml(o.userPrice.cardName)}</span>` : ''}
+                    </div>
+                    <div class="group-offer-right">
+                      <span class="small mono ${idx === 0 ? 'positive' : 'muted'}">
+                        ${idx === 0 ? 'Más barato' : `+${formatPen(delta)}`}
+                      </span>
+                      <strong class="mono">${formatPen(o.userPrice.price)}</strong>
+                    </div>
+                  </div>
+                `;
+              })
+              .join('')}
+          </div>
+        </article>
+      `;
+    })
+    .join('');
 }
 
 // ============================================================================
@@ -1036,8 +1236,48 @@ function renderStoresPanel() {
 }
 
 // ============================================================================
-// Product Detail Drawer
+// Product Detail Drawer (Deep-linkable ?p= + WhatsApp Share + Multi-Tienda)
 // ============================================================================
+function getShareableProductUrl(productId) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('p', productId);
+  url.searchParams.delete('v');
+  return url.toString();
+}
+
+function shareSelectedProductWhatsApp() {
+  const p = state.selectedProduct;
+  if (!p) return;
+  const uPrice = getUserPrice(p);
+  const link = getShareableProductUrl(p.id);
+  const tag = p.stats?.isBugazo
+    ? '⚡ Posible Bugazo'
+    : p.stats?.isAllTimeLow
+      ? '🔥 Mínimo histórico'
+      : '🏷️ Oferta en Perú';
+  const cardNote = p.cardPrice ? ` (${p.cardName || 'Tarjeta'}: ${formatPen(p.cardPrice)})` : '';
+  const disc =
+    p.stats?.realDiscountPct >= 5
+      ? `-${p.stats.realDiscountPct}% real`
+      : p.stats?.storeDiscountPct > 0
+        ? `-${p.stats.storeDiscountPct}%`
+        : '';
+  const text = `${tag} en ${p.storeName}:\n${p.title}\n💰 ${formatPen(uPrice.price)}${cardNote}${disc ? ` (${disc})` : ''}\n📊 Ver historial en ChapaAlToque PE: ${link}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+}
+
+async function copySelectedProductLink() {
+  const p = state.selectedProduct;
+  if (!p) return;
+  const link = getShareableProductUrl(p.id);
+  try {
+    await navigator.clipboard.writeText(link);
+    showToast('Enlace directo copiado al portapapeles.');
+  } catch {
+    showToast(`Copia este enlace: ${link}`);
+  }
+}
+
 async function openProductDrawer(productId) {
   const product = state.catalog.find((p) => p.id === productId);
   if (!product) return;
@@ -1045,8 +1285,18 @@ async function openProductDrawer(productId) {
   state.selectedProduct = product;
   state.chartRange = 'all';
 
+  // Sync deep-link ?p= cleanly without reloading
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set('p', productId);
+    window.history.replaceState({}, '', url.toString());
+  } catch {
+    // ignore history errors
+  }
+
   let history = state.historyCache[productId] || [];
   let related = [];
+  let group = product.groupId ? state.groupMap[product.groupId] || null : null;
 
   if (state.mode === 'server') {
     try {
@@ -1056,6 +1306,7 @@ async function openProductDrawer(productId) {
         state.selectedProduct = data.product || product;
         history = data.history || [];
         related = data.related || [];
+        group = data.group || group;
         state.historyCache[productId] = history;
       }
     } catch {
@@ -1066,7 +1317,8 @@ async function openProductDrawer(productId) {
   }
 
   state.selectedHistory = history;
-  renderDrawer(state.selectedProduct, history, related);
+  state.selectedGroup = group;
+  renderDrawer(state.selectedProduct, history, related, group);
 
   document.getElementById('drawer-backdrop').hidden = false;
   const drawer = document.getElementById('product-drawer');
@@ -1079,10 +1331,21 @@ function closeProductDrawer() {
   drawer.classList.remove('open');
   drawer.setAttribute('aria-hidden', 'true');
   document.getElementById('drawer-backdrop').hidden = true;
+
+  try {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('p')) {
+      url.searchParams.delete('p');
+      window.history.replaceState({}, '', url.toString());
+    }
+  } catch {
+    // ignore
+  }
 }
 
-function renderDrawer(p, history, related) {
+function renderDrawer(p, history, related, group = state.selectedGroup) {
   const s = p.stats;
+  const uPrice = getUserPrice(p);
   const pill = document.getElementById('drawer-store-pill');
   pill.textContent = p.storeName;
   pill.setAttribute('style', getStorePillStyle(p.storeId));
@@ -1090,7 +1353,7 @@ function renderDrawer(p, history, related) {
   setText('drawer-sku', p.sku ? `SKU ${p.sku}` : '');
   setText('drawer-brand', p.brand || p.storeName);
   setText('drawer-title', p.title);
-  setText('drawer-price-now', formatPen(p.price));
+  setText('drawer-price-now', formatPen(uPrice.price));
 
   const img = document.getElementById('drawer-img');
   img.src = p.image || '';
@@ -1112,7 +1375,9 @@ function renderDrawer(p, history, related) {
   const cardEl = document.getElementById('drawer-card-price');
   if (p.cardPrice) {
     cardEl.hidden = false;
-    cardEl.textContent = `Con ${p.cardName || 'tarjeta de tienda'}: ${formatPen(p.cardPrice)}`;
+    cardEl.textContent = uPrice.usingCard
+      ? `Aplicando tu ${p.cardName || 'tarjeta'} (Internet: ${formatPen(p.price)})`
+      : `Con ${p.cardName || 'tarjeta de tienda'}: ${formatPen(p.cardPrice)}`;
   } else {
     cardEl.hidden = true;
   }
@@ -1128,9 +1393,9 @@ function renderDrawer(p, history, related) {
   // Verdict
   const vPill = document.getElementById('drawer-verdict-pill');
   vPill.className = `verdict-pill verdict-${s.verdict}`;
-  vPill.textContent = s.verdictLabel;
+  vPill.textContent = s.isBugazo ? `⚡ ${s.verdictLabel}` : s.verdictLabel;
   setText('drawer-score-label', `Deal Score: ${s.dealScore}/100`);
-  setText('drawer-verdict-reason', s.verdictReason);
+  setText('drawer-verdict-reason', s.bugazoReason || s.verdictReason);
 
   // Links & buttons
   document.getElementById('drawer-store-link').href = p.url;
@@ -1142,15 +1407,84 @@ function renderDrawer(p, history, related) {
   const refreshBtn = document.getElementById('drawer-refresh-btn');
   refreshBtn.hidden = state.mode !== 'server';
 
+  // Anti-Cyber 15d / 30d Strip
+  const cyberEl = document.getElementById('drawer-cyber-status');
+  if (cyberEl) {
+    cyberEl.textContent = s.cyberLabel || (s.daysTracked < 2 ? 'Día 1' : 'Precio estable');
+    cyberEl.className = s.cyberStatus === 'real_drop' ? 'positive' : s.cyberStatus === 'cyber_trap' ? 'negative' : '';
+  }
+  const d15 = document.getElementById('drawer-delta-15d');
+  if (d15) {
+    if (s.delta15dPct !== null && s.delta15dPct !== undefined) {
+      d15.textContent = `${s.delta15dPct > 0 ? '+' : ''}${s.delta15dPct}% (${formatPen(s.price15dAgo)})`;
+      d15.className = `mono ${s.delta15dPct < 0 ? 'positive' : s.delta15dPct > 0 ? 'negative' : ''}`;
+    } else {
+      d15.textContent = 'En recopilación';
+      d15.className = 'mono muted';
+    }
+  }
+  const d30 = document.getElementById('drawer-delta-30d');
+  if (d30) {
+    if (s.delta30dPct !== null && s.delta30dPct !== undefined) {
+      d30.textContent = `${s.delta30dPct > 0 ? '+' : ''}${s.delta30dPct}% (${formatPen(s.price30dAgo)})`;
+      d30.className = `mono ${s.delta30dPct < 0 ? 'positive' : s.delta30dPct > 0 ? 'negative' : ''}`;
+    } else {
+      d30.textContent = 'En recopilación';
+      d30.className = 'mono muted';
+    }
+  }
+
+  // Exact Multi-Store Group Table
+  const groupSec = document.getElementById('drawer-group-section');
+  const groupList = document.getElementById('drawer-group-list');
+  if (groupSec && groupList) {
+    if (group && Array.isArray(group.offers) && group.offers.length >= 2) {
+      groupSec.hidden = false;
+      const sortedOffers = [...group.offers]
+        .map((o) => ({ ...o, userPrice: getUserPrice(o) }))
+        .sort((a, b) => a.userPrice.price - b.userPrice.price);
+      const cheapest = sortedOffers[0].userPrice.price;
+
+      groupList.innerHTML = sortedOffers
+        .map((o, idx) => {
+          const isCurrent = o.id === p.id;
+          const diff = o.userPrice.price - cheapest;
+          return `
+            <div class="group-offer-row ${idx === 0 ? 'best-offer' : ''}" data-open-group-id="${escapeHtml(o.id)}">
+              <div class="group-offer-left">
+                <span class="store-pill" style="${getStorePillStyle(o.storeId)}">${escapeHtml(o.storeName)}</span>
+                ${isCurrent ? '<span class="small muted">(viendo)</span>' : ''}
+                ${o.userPrice.usingCard ? `<span class="price-card-mini mono">${escapeHtml(o.userPrice.cardName)}</span>` : ''}
+              </div>
+              <div class="group-offer-right">
+                <span class="small mono ${idx === 0 ? 'positive' : 'muted'}">
+                  ${idx === 0 ? 'Más barato' : `+${formatPen(diff)}`}
+                </span>
+                <strong class="mono">${formatPen(o.userPrice.price)}</strong>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+      groupList.querySelectorAll('[data-open-group-id]').forEach((el) => {
+        el.addEventListener('click', () => {
+          if (el.dataset.openGroupId !== p.id) openProductDrawer(el.dataset.openGroupId);
+        });
+      });
+    } else {
+      groupSec.hidden = true;
+    }
+  }
+
   // Target price
   const currentTarget = state.watchlist.targetPrices?.[p.id] || '';
   document.getElementById('drawer-target-input').value = currentTarget;
   const targetFeedback = document.getElementById('drawer-target-feedback');
   if (currentTarget) {
-    if (p.effectivePrice <= Number(currentTarget)) {
-      targetFeedback.innerHTML = `<strong class="positive">¡Objetivo alcanzado!</strong> Hoy cuesta ${formatPen(p.effectivePrice)} (tu meta era ≤ ${formatPen(currentTarget)}).`;
+    if (uPrice.price <= Number(currentTarget)) {
+      targetFeedback.innerHTML = `<strong class="positive">¡Objetivo alcanzado!</strong> Hoy cuesta ${formatPen(uPrice.price)} (tu meta era ≤ ${formatPen(currentTarget)}).`;
     } else {
-      const diff = p.effectivePrice - Number(currentTarget);
+      const diff = uPrice.price - Number(currentTarget);
       targetFeedback.textContent = `Falta que baje ${formatPen(diff)} para alcanzar tu meta de ${formatPen(currentTarget)}.`;
     }
   } else {
@@ -1856,7 +2190,7 @@ function bindEvents() {
   searchInput.addEventListener('input', () => {
     state.filters.search = searchInput.value;
     state.pageSize = 60;
-    if (state.activeTab === 'deals' || state.activeTab === 'drops') {
+    if (['deals', 'bugazos', 'anticyber'].includes(state.activeTab)) {
       renderCatalog();
     }
   });
@@ -1865,6 +2199,37 @@ function bindEvents() {
     e.preventDefault();
     const q = searchInput.value.trim();
     if (q) runLiveSearch(q);
+  });
+
+  // Wallet cards toggle ("¿Qué tarjetas tienes?")
+  document.getElementById('wallet-cards-chips')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-card]');
+    if (!btn) return;
+    const card = btn.dataset.card;
+    const idx = state.userCards.indexOf(card);
+    if (idx >= 0) state.userCards.splice(idx, 1);
+    else state.userCards.push(card);
+    saveUserCards();
+    renderWalletCardsUi();
+    renderAll();
+  });
+
+  // Anti-Cyber subfilter chips
+  document.getElementById('anticyber-subfilters')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-cyber]');
+    if (!btn) return;
+    state.filters.cyber = btn.dataset.cyber;
+    state.pageSize = 60;
+    document.querySelectorAll('#anticyber-subfilters .chip-btn').forEach((b) =>
+      b.classList.toggle('active', b === btn)
+    );
+    renderCatalog();
+  });
+
+  // Multi-Tienda search input
+  document.getElementById('groups-search-input')?.addEventListener('input', (e) => {
+    state.groupsQuery = e.target.value;
+    renderGroupsPanel();
   });
 
   // Category chips delegation
@@ -1908,7 +2273,7 @@ function bindEvents() {
   });
 
   document.getElementById('clear-filters-btn').addEventListener('click', () => {
-    state.filters = { search: '', category: 'all', store: 'all', brand: 'all', verdict: 'all', sort: 'score', maxPrice: '' };
+    state.filters = { search: '', category: 'all', store: 'all', brand: 'all', verdict: 'all', cyber: 'all', sort: 'score', maxPrice: '' };
     searchInput.value = '';
     document.getElementById('filter-store').value = 'all';
     document.getElementById('filter-brand').value = 'all';
@@ -2011,6 +2376,8 @@ function bindEvents() {
   document.getElementById('drawer-star-btn').addEventListener('click', () => {
     if (state.selectedProduct) toggleStar(state.selectedProduct.id);
   });
+  document.getElementById('drawer-whatsapp-btn')?.addEventListener('click', shareSelectedProductWhatsApp);
+  document.getElementById('drawer-copy-link-btn')?.addEventListener('click', copySelectedProductLink);
   document.getElementById('drawer-save-target-btn').addEventListener('click', saveTargetPrice);
   document.getElementById('drawer-refresh-btn').addEventListener('click', refreshSingleProduct);
 

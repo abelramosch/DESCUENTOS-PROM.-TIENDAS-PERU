@@ -8,6 +8,7 @@
     "dev": "node --watch server/index.js",
     "scrape": "node scraper/run-daily.js",
     "scrape:quick": "node scraper/run-daily.js --quick",
+    "notify": "node scraper/notify.js",
     "test": "node --test tests/*.test.js"
   },
   "keywords": [

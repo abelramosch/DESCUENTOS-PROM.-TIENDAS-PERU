@@ -6,8 +6,9 @@ on:
     paths:
       - 'public/**'
   schedule:
-    # Corre todos los días a las 07:00 AM hora de Lima, Perú (12:00 UTC)
-    - cron: '0 12 * * *'
+    # Corre 3 veces al día hora de Lima, Perú (UTC-5):
+    # 07:00 AM PET (12:00 UTC), 01:00 PM PET (18:00 UTC) y 08:00 PM PET (01:00 UTC)
+    - cron: '0 12,18,1 * * *'
   workflow_dispatch:
     inputs:
       quick:
@@ -65,6 +66,15 @@ jobs:
             git commit -m "chore(prices): actualización diaria Perú (${DATE_PE} PET) [skip ci]"
             git push
           fi
+
+      - name: Enviar alertas de ofertas a Telegram / Discord (si está configurado)
+        if: github.event_name != 'push'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SITE_URL: https://abelramosch.github.io/chapaaltoque/
+        run: node scraper/notify.js
 
       - name: Subir artefacto para GitHub Pages
         uses: actions/upload-pages-artifact@v3

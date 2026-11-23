@@ -6,6 +6,7 @@ import { getLimaDateString, getUsdToPenRate, runWithConcurrency } from './http.j
 import { searchSingleStore } from './live-search.js';
 import { scrapeProductUrl } from './adapters/url-scraper.js';
 import { analyzeProduct } from './analyzer.js';
+import { buildMultiStoreGroups } from './grouper.js';
 import {
   loadCatalog,
   loadHistory,
@@ -187,11 +188,16 @@ export async function runDailyScrape(options = {}) {
     }
   });
 
-  // Analyze every product with full historical analytics
+  // Build cross-store unified product groups (SoloTodo / Compy style)
+  const rawProducts = [...productMap.values()];
+  const { groups, productGroupMeta } = buildMultiStoreGroups(rawProducts);
+
+  // Analyze every product with full historical + cross-store analytics
   const analyzedCatalog = [];
-  for (const prod of productMap.values()) {
+  for (const prod of rawProducts) {
     const prodHistory = history[prod.id] || [];
-    const analyzed = analyzeProduct(prod, prodHistory);
+    const groupMeta = productGroupMeta.get(prod.id) || null;
+    const analyzed = analyzeProduct(prod, prodHistory, groupMeta);
     analyzedCatalog.push(analyzed);
   }
 
@@ -215,6 +221,7 @@ export async function runDailyScrape(options = {}) {
   const allTimeLows = analyzedCatalog.filter((p) => p.stats.isAllTimeLow).length;
   const droppedToday = analyzedCatalog.filter((p) => p.stats.delta24h < 0).length;
   const fakeDiscounts = analyzedCatalog.filter((p) => p.stats.isFakeDiscount).length;
+  const bugazosCount = analyzedCatalog.filter((p) => p.stats.isBugazo).length;
   const activeStores = Object.values(storesStatus).filter((s) => s.catalogCount > 0).length;
 
   const meta = {
@@ -228,10 +235,12 @@ export async function runDailyScrape(options = {}) {
     allTimeLows,
     droppedToday,
     fakeDiscounts,
+    bugazosCount,
+    groupsCount: groups.length,
     storesStatus
   };
 
-  saveAllData({ catalog: analyzedCatalog, history, meta });
+  saveAllData({ catalog: analyzedCatalog, history, meta, groups });
 
   onProgress({
     phase: 'done',
@@ -239,10 +248,10 @@ export async function runDailyScrape(options = {}) {
     total: jobs.length,
     fetchedCount,
     meta,
-    message: `¡Listo! ${analyzedCatalog.length} productos actualizados de ${activeStores} tiendas peruanas en ${(meta.elapsedMs / 1000).toFixed(1)}s.`
+    message: `¡Listo! ${analyzedCatalog.length} productos actualizados (${groups.length} comparativas multi-tienda, ${bugazosCount} posibles bugazos) en ${(meta.elapsedMs / 1000).toFixed(1)}s.`
   });
 
-  return { catalog: analyzedCatalog, meta };
+  return { catalog: analyzedCatalog, groups, meta };
 }
 
 // Allow direct CLI execution: `node scraper/run-daily.js [--quick]`
