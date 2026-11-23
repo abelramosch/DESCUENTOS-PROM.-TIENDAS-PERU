@@ -1,5 +1,5 @@
 /**
- * Catálogo oficial de tiendas en Perú soportadas por NadaMenos PE.
+ * Catálogo oficial de tiendas en Perú soportadas por ChapaAlToque PE.
  * Cada tienda especifica su motor de extracción público (VTEX, Falabella SSR,
  * PrestaShop JSON o Magento HTML), moneda nativa y tarjeta promocional.
  */

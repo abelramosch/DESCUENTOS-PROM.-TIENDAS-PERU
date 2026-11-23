@@ -1,9 +1,10 @@
 import { formatPen, renderHistoryChart, renderSparkline } from './chart.js';
 
-const LOCAL_WATCHLIST_KEY = 'nadamenos_pe_watchlist_v1';
-const LEGACY_WATCHLIST_KEY = 'precioreal_pe_watchlist_v1';
-const THEME_KEY = 'nadamenos_pe_theme';
-const GH_TOKEN_KEY = 'nadamenos_pe_gh_token';
+const LOCAL_WATCHLIST_KEY = 'chapaaltoque_pe_watchlist_v1';
+const LEGACY_WATCHLIST_KEYS = ['nadamenos_pe_watchlist_v1', 'precioreal_pe_watchlist_v1'];
+const THEME_KEY = 'chapaaltoque_pe_theme';
+const GH_TOKEN_KEY = 'chapaaltoque_pe_gh_token';
+const LEGACY_GH_TOKEN_KEY = 'nadamenos_pe_gh_token';
 const WORKFLOW_FILE = 'daily-scrape.yml';
 const DEFAULT_GH_REPO = { owner: 'abelramosch', repo: 'DESCUENTOS-PROM.-TIENDAS-PERU' };
 
@@ -137,7 +138,7 @@ function mergeLocalWatchlist(base) {
   try {
     const raw =
       localStorage.getItem(LOCAL_WATCHLIST_KEY) ||
-      localStorage.getItem(LEGACY_WATCHLIST_KEY) ||
+      LEGACY_WATCHLIST_KEYS.map((k) => localStorage.getItem(k)).find(Boolean) ||
       'null';
     const saved = JSON.parse(raw);
     if (!saved) return base;
@@ -857,7 +858,7 @@ function findRelatedClient(target, catalog) {
 // ============================================================================
 function getSavedGhToken() {
   try {
-    return localStorage.getItem(GH_TOKEN_KEY) || '';
+    return localStorage.getItem(GH_TOKEN_KEY) || localStorage.getItem(LEGACY_GH_TOKEN_KEY) || '';
   } catch {
     return '';
   }
@@ -1553,6 +1554,7 @@ function bindEvents() {
   });
   document.getElementById('clear-gh-token-btn').addEventListener('click', () => {
     localStorage.removeItem(GH_TOKEN_KEY);
+    localStorage.removeItem(LEGACY_GH_TOKEN_KEY);
     refreshGhTokenUi();
     showToast('Token eliminado de este navegador.');
   });

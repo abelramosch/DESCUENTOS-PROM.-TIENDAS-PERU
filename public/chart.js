@@ -1,5 +1,5 @@
 /**
- * Gráficos SVG puros (cero dependencias externas) para NadaMenos PE:
+ * Gráficos SVG puros (cero dependencias externas) para ChapaAlToque PE:
  *  - renderSparkline(values, options): mini-gráfico de tendencia para tabla/tarjetas
  *  - renderHistoryChart(container, history, stats): gráfico interactivo estilo SteamDB
  */

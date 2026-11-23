@@ -340,5 +340,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`🇵🇪 NadaMenos PE corriendo en http://localhost:${PORT}`);
+  console.log(`🇵🇪 ChapaAlToque PE corriendo en http://localhost:${PORT}`);
 });
