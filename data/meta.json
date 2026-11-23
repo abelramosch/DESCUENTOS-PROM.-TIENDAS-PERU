@@ -1,9 +1,9 @@
 {
-  "lastUpdatedAt": "2026-11-23T16:53:26.957Z",
+  "lastUpdatedAt": "2026-11-23T19:04:40.859Z",
   "lastUpdatedDate": "2026-11-23",
-  "elapsedMs": 18636,
+  "elapsedMs": 33006,
   "usdToPen": 3.443,
-  "totalProducts": 1286,
+  "totalProducts": 1337,
   "activeStores": 21,
   "totalConfiguredStores": 22,
   "allTimeLows": 0,
@@ -19,7 +19,7 @@
       "failedJobs": 0,
       "productsFetched": 158,
       "lastError": null,
-      "catalogCount": 161
+      "catalogCount": 188
     },
     "tottus": {
       "id": "tottus",
@@ -30,7 +30,7 @@
       "failedJobs": 0,
       "productsFetched": 72,
       "lastError": null,
-      "catalogCount": 71
+      "catalogCount": 73
     },
     "plazavea": {
       "id": "plazavea",
@@ -39,9 +39,9 @@
       "currency": "PEN",
       "okJobs": 15,
       "failedJobs": 0,
-      "productsFetched": 133,
+      "productsFetched": 134,
       "lastError": null,
-      "catalogCount": 128
+      "catalogCount": 129
     },
     "oechsle": {
       "id": "oechsle",
@@ -74,7 +74,7 @@
       "failedJobs": 0,
       "productsFetched": 59,
       "lastError": null,
-      "catalogCount": 58
+      "catalogCount": 61
     },
     "metro": {
       "id": "metro",
@@ -96,7 +96,7 @@
       "failedJobs": 0,
       "productsFetched": 102,
       "lastError": null,
-      "catalogCount": 95
+      "catalogCount": 97
     },
     "carsa": {
       "id": "carsa",
@@ -107,7 +107,7 @@
       "failedJobs": 0,
       "productsFetched": 105,
       "lastError": null,
-      "catalogCount": 91
+      "catalogCount": 92
     },
     "shopstar": {
       "id": "shopstar",
@@ -118,7 +118,7 @@
       "failedJobs": 0,
       "productsFetched": 122,
       "lastError": null,
-      "catalogCount": 122
+      "catalogCount": 123
     },
     "estilos": {
       "id": "estilos",
@@ -129,7 +129,7 @@
       "failedJobs": 0,
       "productsFetched": 80,
       "lastError": null,
-      "catalogCount": 79
+      "catalogCount": 83
     },
     "sony": {
       "id": "sony",
@@ -140,17 +140,17 @@
       "failedJobs": 0,
       "productsFetched": 41,
       "lastError": null,
-      "catalogCount": 37
+      "catalogCount": 38
     },
     "xiaomi": {
       "id": "xiaomi",
       "name": "Xiaomi Perú",
       "engine": "vtex",
       "currency": "PEN",
-      "okJobs": 10,
-      "failedJobs": 0,
-      "productsFetched": 11,
-      "lastError": null,
+      "okJobs": 9,
+      "failedJobs": 1,
+      "productsFetched": 9,
+      "lastError": "This operation was aborted",
       "catalogCount": 11
     },
     "triathlon": {
@@ -173,7 +173,7 @@
       "failedJobs": 0,
       "productsFetched": 16,
       "lastError": null,
-      "catalogCount": 16
+      "catalogCount": 24
     },
     "casaideas": {
       "id": "casaideas",
@@ -195,7 +195,7 @@
       "failedJobs": 0,
       "productsFetched": 8,
       "lastError": null,
-      "catalogCount": 8
+      "catalogCount": 9
     },
     "hiraoka": {
       "id": "hiraoka",
