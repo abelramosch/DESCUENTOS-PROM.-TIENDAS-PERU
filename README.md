@@ -1,4 +1,4 @@
-# PrecioReal Perú — Radar Diario de Precios Históricos y Ofertas Reales
+# NadaMenos PE — Radar Diario de Precios Históricos y Ofertas Reales
 
 Web App estilo **SteamDB + Compy.pe** diseñada para rastrear el **historial diario de precios** en tiendas del Perú y detectar **qué productos en verdad conviene comprar** (separando verdaderos mínimos históricos de descuentos inflados).
 

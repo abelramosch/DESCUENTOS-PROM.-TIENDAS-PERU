@@ -1,7 +1,27 @@
 import { formatPen, renderHistoryChart, renderSparkline } from './chart.js';
 
-const LOCAL_WATCHLIST_KEY = 'precioreal_pe_watchlist_v1';
-const THEME_KEY = 'precioreal_pe_theme';
+const LOCAL_WATCHLIST_KEY = 'nadamenos_pe_watchlist_v1';
+const LEGACY_WATCHLIST_KEY = 'precioreal_pe_watchlist_v1';
+const THEME_KEY = 'nadamenos_pe_theme';
+const GH_TOKEN_KEY = 'nadamenos_pe_gh_token';
+const WORKFLOW_FILE = 'daily-scrape.yml';
+const DEFAULT_GH_REPO = { owner: 'abelramosch', repo: 'DESCUENTOS-PROM.-TIENDAS-PERU' };
+
+function detectGitHubRepo() {
+  try {
+    const host = window.location.hostname.toLowerCase();
+    if (host.endsWith('.github.io')) {
+      const owner = host.slice(0, -'.github.io'.length);
+      const seg = window.location.pathname.split('/').filter(Boolean)[0];
+      if (owner && seg) return { owner, repo: seg };
+    }
+  } catch {
+    // fallback below
+  }
+  return DEFAULT_GH_REPO;
+}
+
+const GH_REPO = detectGitHubRepo();
 
 const state = {
   mode: 'static', // 'server' or 'static'
@@ -12,6 +32,8 @@ const state = {
   storeMap: {},
   categories: [],
   watchlist: { urls: [], customQueries: [], starredIds: [], targetPrices: {} },
+  isUpdating: false,
+  ghPollTimer: null,
 
   // UI state
   activeTab: 'deals', // deals | drops | watchlist | live-search | stores
@@ -41,11 +63,12 @@ async function init() {
 }
 
 async function loadInitialData() {
+  const cacheBust = `t=${Date.now()}`;
   try {
-    const healthRes = await fetch('/api/health');
+    const healthRes = await fetch(`/api/health?${cacheBust}`, { cache: 'no-store' });
     if (healthRes.ok) {
       state.mode = 'server';
-      const dataRes = await fetch('/api/catalog');
+      const dataRes = await fetch(`/api/catalog?${cacheBust}`, { cache: 'no-store' });
       const payload = await dataRes.json();
       state.meta = payload.meta;
       state.catalog = payload.catalog || [];
@@ -58,10 +81,10 @@ async function loadInitialData() {
   } catch {
     state.mode = 'static';
     const [catalog, meta, history, watchlistFile] = await Promise.all([
-      fetchJsonSafe('./data/catalog.json', []),
-      fetchJsonSafe('./data/meta.json', {}),
-      fetchJsonSafe('./data/history.json', {}),
-      fetchJsonSafe('./data/watchlist.json', { urls: [], customQueries: [], starredIds: [], targetPrices: {} })
+      fetchJsonSafe(`./data/catalog.json?${cacheBust}`, []),
+      fetchJsonSafe(`./data/meta.json?${cacheBust}`, {}),
+      fetchJsonSafe(`./data/history.json?${cacheBust}`, {}),
+      fetchJsonSafe(`./data/watchlist.json?${cacheBust}`, { urls: [], customQueries: [], starredIds: [], targetPrices: {} })
     ]);
     state.catalog = catalog;
     state.meta = meta;
@@ -102,7 +125,7 @@ async function loadInitialData() {
 
 async function fetchJsonSafe(url, fallback) {
   try {
-    const r = await fetch(url);
+    const r = await fetch(url, { cache: 'no-store' });
     if (!r.ok) return fallback;
     return await r.json();
   } catch {
@@ -112,7 +135,11 @@ async function fetchJsonSafe(url, fallback) {
 
 function mergeLocalWatchlist(base) {
   try {
-    const saved = JSON.parse(localStorage.getItem(LOCAL_WATCHLIST_KEY) || 'null');
+    const raw =
+      localStorage.getItem(LOCAL_WATCHLIST_KEY) ||
+      localStorage.getItem(LEGACY_WATCHLIST_KEY) ||
+      'null';
+    const saved = JSON.parse(raw);
     if (!saved) return base;
     return {
       urls: base.urls || [],
@@ -826,14 +853,17 @@ function findRelatedClient(target, catalog) {
 }
 
 // ============================================================================
-// Live Actions: Daily Scrape (SSE), Live Search, Track URL, Watchlist
+// Live Actions: Upgraded "Actualizar hoy" (Server SSE + GitHub Actions 1-Click)
 // ============================================================================
-function startDailyScrape() {
-  if (state.mode !== 'server') {
-    showToast('En GitHub Pages, los precios se actualizan cada mañana automáticamente vía GitHub Actions (o corre "npm start" localmente para actualizar en vivo).');
-    return;
+function getSavedGhToken() {
+  try {
+    return localStorage.getItem(GH_TOKEN_KEY) || '';
+  } catch {
+    return '';
   }
+}
 
+function setProgressBar(visible, pct = 0, text = '') {
   const btn = document.getElementById('refresh-daily-btn');
   const label = document.getElementById('refresh-daily-label');
   const bar = document.getElementById('scrape-progress-bar');
@@ -841,40 +871,262 @@ function startDailyScrape() {
   const pctEl = document.getElementById('scrape-progress-pct');
   const textEl = document.getElementById('scrape-progress-text');
 
-  btn.disabled = true;
-  btn.classList.add('is-spinning');
-  label.textContent = 'Actualizando...';
-  bar.hidden = false;
-  fill.style.width = '3%';
-  pctEl.textContent = '3%';
-  textEl.textContent = 'Conectando con las tiendas de Perú...';
+  state.isUpdating = visible;
+  btn.disabled = visible;
+  btn.classList.toggle('is-spinning', visible);
+  label.textContent = visible ? 'Actualizando...' : 'Actualizar hoy';
+  bar.hidden = !visible;
+  if (visible) {
+    fill.style.width = `${Math.max(3, Math.min(100, pct))}%`;
+    pctEl.textContent = `${Math.round(pct)}%`;
+    textEl.textContent = text;
+  }
+}
 
-  const es = new EventSource('/api/scrape/stream');
+async function openUpdateModal() {
+  const backdrop = document.getElementById('update-modal-backdrop');
+  const feedback = document.getElementById('update-modal-feedback');
+  feedback.hidden = true;
+  backdrop.hidden = false;
+
+  const isServer = state.mode === 'server';
+  document.getElementById('update-server-section').hidden = !isServer;
+  document.getElementById('update-github-section').hidden = isServer;
+
+  // Update dynamic GitHub Actions link for detected repo
+  const ghActionsUrl = `https://github.com/${GH_REPO.owner}/${GH_REPO.repo}/actions/workflows/${WORKFLOW_FILE}`;
+  document.getElementById('open-gh-actions-link').href = ghActionsUrl;
+
+  if (isServer) {
+    const dt = state.meta?.lastUpdatedAt ? formatRelativeTime(state.meta.lastUpdatedAt) : 'sin datos aún';
+    setSyncStatus('ok', `Servidor local activo · ${state.catalog.length} productos`, `Última actualización: ${dt}`);
+    return;
+  }
+
+  refreshGhTokenUi();
+  await checkGitHubWorkflowStatus();
+}
+
+function closeUpdateModal() {
+  document.getElementById('update-modal-backdrop').hidden = true;
+}
+
+function setSyncStatus(dotClass, title, sub) {
+  const dot = document.getElementById('update-status-dot');
+  dot.className = `sync-dot ${dotClass}`;
+  setText('update-status-title', title);
+  setText('update-status-sub', sub);
+}
+
+function refreshGhTokenUi() {
+  const token = getSavedGhToken();
+  const hasToken = Boolean(token);
+  document.getElementById('gh-dispatch-buttons').hidden = !hasToken;
+  document.getElementById('clear-gh-token-btn').hidden = !hasToken;
+  document.getElementById('gh-token-input').value = hasToken ? '••••••••••••••••••••' : '';
+  document.getElementById('gh-token-summary').textContent = hasToken
+    ? 'Botón en 1 clic activado (configurar / cambiar token)'
+    : 'Configurar botón en 1 clic desde esta web (opcional, solo 1 vez)';
+  document.getElementById('gh-token-feedback').textContent = hasToken
+    ? 'Token guardado solo en este navegador. Ya puedes actualizar directamente desde aquí.'
+    : '';
+}
+
+async function fetchLatestGhRun() {
+  const token = getSavedGhToken();
+  const headers = { Accept: 'application/vnd.github+json' };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const url = `https://api.github.com/repos/${GH_REPO.owner}/${GH_REPO.repo}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=1&t=${Date.now()}`;
+  const res = await fetch(url, { headers, cache: 'no-store' });
+  if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
+  const data = await res.json();
+  return data?.workflow_runs?.[0] || null;
+}
+
+async function checkGitHubWorkflowStatus() {
+  setSyncStatus('running', 'Consultando estado en GitHub Actions...', `${GH_REPO.owner}/${GH_REPO.repo}`);
+  try {
+    const run = await fetchLatestGhRun();
+    if (!run) {
+      setSyncStatus('warn', 'Aún no hay ejecuciones registradas', 'Ejecuta el flujo para actualizar los precios de hoy.');
+      return;
+    }
+    const when = formatRelativeTime(run.updated_at || run.created_at);
+    if (run.status === 'in_progress' || run.status === 'queued' || run.status === 'waiting') {
+      setSyncStatus('running', 'Actualización en progreso en GitHub Actions...', `Iniciada ${when}`);
+    } else if (run.conclusion === 'success') {
+      setSyncStatus('ok', `Última actualización exitosa (${when})`, `${state.catalog.length} productos · ${state.meta?.activeStores || 21} tiendas en Perú`);
+    } else {
+      setSyncStatus('warn', `Último estado: ${run.conclusion || run.status}`, `Actualizado ${when}`);
+    }
+  } catch {
+    const dt = state.meta?.lastUpdatedAt ? formatRelativeTime(state.meta.lastUpdatedAt) : 'hoy';
+    setSyncStatus('ok', `Catálogo listo (${dt})`, `${state.catalog.length} productos de ${state.meta?.activeStores || 21} tiendas`);
+  }
+}
+
+async function forceReloadLatestData() {
+  const btn = document.getElementById('force-reload-data-btn');
+  const prevTimestamp = state.meta?.lastUpdatedAt;
+  btn.disabled = true;
+  btn.textContent = 'Recargando...';
+  try {
+    await loadInitialData();
+    renderAll();
+    const isNewer = state.meta?.lastUpdatedAt && state.meta.lastUpdatedAt !== prevTimestamp;
+    showToast(
+      isNewer
+        ? `¡Nuevos precios cargados! (${state.catalog.length} productos)`
+        : `Datos actualizados al último registro (${state.catalog.length} productos).`
+    );
+    if (!document.getElementById('update-modal-backdrop').hidden) {
+      await checkGitHubWorkflowStatus();
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '↻ Recargar datos';
+  }
+}
+
+async function dispatchGitHubUpdate(quick = false) {
+  const token = getSavedGhToken();
+  const feedback = document.getElementById('update-modal-feedback');
+  if (!token) {
+    feedback.hidden = false;
+    feedback.className = 'modal-feedback error';
+    feedback.textContent = 'Primero guarda tu token personal de GitHub abajo o usa "Ejecutar en GitHub Actions ↗".';
+    document.getElementById('gh-token-details').open = true;
+    return;
+  }
+
+  feedback.hidden = false;
+  feedback.className = 'modal-feedback';
+  feedback.textContent = 'Enviando orden de actualización a GitHub Actions...';
+
+  const prevUpdatedAt = state.meta?.lastUpdatedAt || '';
+  const dispatchTime = Date.now();
+
+  try {
+    const url = `https://api.github.com/repos/${GH_REPO.owner}/${GH_REPO.repo}/actions/workflows/${WORKFLOW_FILE}/dispatches`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ref: 'main',
+        inputs: { quick: quick ? 'true' : 'false' }
+      })
+    });
+
+    if (res.status === 204 || res.ok) {
+      closeUpdateModal();
+      showToast('Actualización iniciada en GitHub Actions. Te avisaremos en cuanto termine.');
+      watchGitHubRunUntilDeployed(prevUpdatedAt, dispatchTime);
+      return;
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      throw new Error('Token rechazado (HTTP ' + res.status + '). Verifica que tenga permiso "Actions: Read and write" en este repositorio.');
+    }
+    throw new Error(`No se pudo iniciar la actualización (HTTP ${res.status}).`);
+  } catch (err) {
+    feedback.className = 'modal-feedback error';
+    feedback.textContent = err.message;
+  }
+}
+
+function watchGitHubRunUntilDeployed(prevUpdatedAt, startedMs = Date.now()) {
+  if (state.ghPollTimer) {
+    clearInterval(state.ghPollTimer);
+    state.ghPollTimer = null;
+  }
+
+  setProgressBar(true, 10, 'Orden enviada · esperando inicio en GitHub Actions...');
+  let ticks = 0;
+
+  const poll = async () => {
+    ticks += 1;
+    try {
+      // Check if GitHub Pages already published newer meta.json
+      const freshMeta = await fetchJsonSafe(`./data/meta.json?t=${Date.now()}`, null);
+      if (freshMeta?.lastUpdatedAt && freshMeta.lastUpdatedAt !== prevUpdatedAt) {
+        clearInterval(state.ghPollTimer);
+        state.ghPollTimer = null;
+        setProgressBar(true, 100, `¡Listo! ${freshMeta.totalProducts} productos actualizados.`);
+        await loadInitialData();
+        renderAll();
+        showToast(`¡Precios actualizados! ${state.catalog.length} productos de ${state.meta?.activeStores || 21} tiendas.`);
+        setTimeout(() => setProgressBar(false), 2400);
+        return;
+      }
+
+      // Check GitHub Actions live run status
+      const run = await fetchLatestGhRun();
+      if (run) {
+        const runCreated = new Date(run.created_at).getTime();
+        const isCurrentRun = runCreated >= startedMs - 90000;
+        if (isCurrentRun) {
+          if (run.status === 'queued' || run.status === 'waiting') {
+            setProgressBar(true, 18, 'En cola en GitHub Actions...');
+          } else if (run.status === 'in_progress') {
+            const est = Math.min(78, 28 + ticks * 4);
+            setProgressBar(true, est, 'Escaneando 21 tiendas de Perú y publicando cambios...');
+          } else if (run.status === 'completed') {
+            if (run.conclusion === 'success') {
+              setProgressBar(true, 92, 'Escaneo listo · esperando propagación de GitHub Pages...');
+            } else {
+              clearInterval(state.ghPollTimer);
+              state.ghPollTimer = null;
+              setProgressBar(false);
+              showToast(`El workflow terminó con estado: ${run.conclusion}. Revisa la pestaña Actions en GitHub.`);
+              return;
+            }
+          }
+        }
+      }
+
+      // Timeout after ~4 minutes so we never poll forever
+      if (ticks >= 60) {
+        clearInterval(state.ghPollTimer);
+        state.ghPollTimer = null;
+        setProgressBar(false);
+        await loadInitialData();
+        renderAll();
+        showToast('Catálogo recargado.');
+      }
+    } catch {
+      // ignore transient network glitches while polling
+    }
+  };
+
+  poll();
+  state.ghPollTimer = setInterval(poll, 4000);
+}
+
+function startLocalDailyScrape(quick = false) {
+  closeUpdateModal();
+  setProgressBar(true, 4, `Conectando con las 21 tiendas de Perú (${quick ? 'modo rápido' : 'modo completo'})...`);
+
+  const es = new EventSource(`/api/scrape/stream${quick ? '?quick=1' : ''}`);
 
   es.addEventListener('progress', (ev) => {
     const data = JSON.parse(ev.data);
     const pct = data.total ? Math.round((data.completed / data.total) * 100) : 5;
-    fill.style.width = `${Math.max(3, pct)}%`;
-    pctEl.textContent = `${pct}%`;
-    textEl.textContent = data.message || 'Actualizando...';
+    setProgressBar(true, Math.max(4, pct), data.message || 'Actualizando...');
   });
 
   es.addEventListener('done', async (ev) => {
     es.close();
-    fill.style.width = '100%';
-    pctEl.textContent = '100%';
     const data = JSON.parse(ev.data);
-    textEl.textContent = `¡Actualizado! ${data.totalProducts} productos guardados en el historial de hoy.`;
+    setProgressBar(true, 100, `¡Actualizado! ${data.totalProducts} productos guardados en el historial de hoy.`);
     await loadInitialData();
     renderAll();
     showToast(`Lista de hoy actualizada (${data.totalProducts} productos).`);
 
-    setTimeout(() => {
-      bar.hidden = true;
-      btn.disabled = false;
-      btn.classList.remove('is-spinning');
-      label.textContent = 'Actualizar hoy';
-    }, 2200);
+    setTimeout(() => setProgressBar(false), 2200);
   });
 
   es.addEventListener('error', (ev) => {
@@ -887,11 +1139,22 @@ function startDailyScrape() {
       // keep default
     }
     showToast(msg);
-    bar.hidden = true;
-    btn.disabled = false;
-    btn.classList.remove('is-spinning');
-    label.textContent = 'Actualizar hoy';
+    setProgressBar(false);
   });
+}
+
+function formatRelativeTime(isoStr) {
+  try {
+    const diffSec = Math.max(0, Math.round((Date.now() - new Date(isoStr).getTime()) / 1000));
+    if (diffSec < 60) return 'hace unos segundos';
+    const diffMin = Math.round(diffSec / 60);
+    if (diffMin < 60) return `hace ${diffMin} min`;
+    const diffHr = Math.round(diffMin / 60);
+    if (diffHr < 24) return `hace ${diffHr} h`;
+    return new Date(isoStr).toLocaleString('es-PE', { dateStyle: 'medium', timeStyle: 'short' });
+  } catch {
+    return '';
+  }
 }
 
 async function runLiveSearch(query) {
@@ -1261,8 +1524,38 @@ function bindEvents() {
     }
   });
 
-  // Daily scrape button
-  document.getElementById('refresh-daily-btn').addEventListener('click', startDailyScrape);
+  // Daily update modal & actions
+  document.getElementById('refresh-daily-btn').addEventListener('click', openUpdateModal);
+  document.getElementById('close-update-modal-btn').addEventListener('click', closeUpdateModal);
+  document.getElementById('update-modal-backdrop').addEventListener('click', (e) => {
+    if (e.target.id === 'update-modal-backdrop') closeUpdateModal();
+  });
+  document.getElementById('force-reload-data-btn').addEventListener('click', forceReloadLatestData);
+  document.getElementById('run-local-full-btn').addEventListener('click', () => startLocalDailyScrape(false));
+  document.getElementById('run-local-quick-btn').addEventListener('click', () => startLocalDailyScrape(true));
+  document.getElementById('run-gh-full-btn').addEventListener('click', () => dispatchGitHubUpdate(false));
+  document.getElementById('run-gh-quick-btn').addEventListener('click', () => dispatchGitHubUpdate(true));
+  document.getElementById('watch-gh-run-btn').addEventListener('click', () => {
+    closeUpdateModal();
+    watchGitHubRunUntilDeployed(state.meta?.lastUpdatedAt || '', Date.now());
+  });
+  document.getElementById('save-gh-token-btn').addEventListener('click', () => {
+    const input = document.getElementById('gh-token-input');
+    const raw = input.value.trim();
+    if (!raw || raw.startsWith('••')) {
+      document.getElementById('gh-token-feedback').textContent = 'Pega un token válido (empieza con github_pat_ o ghp_).';
+      return;
+    }
+    localStorage.setItem(GH_TOKEN_KEY, raw);
+    refreshGhTokenUi();
+    document.getElementById('gh-token-details').open = false;
+    showToast('Token guardado solo en tu navegador. ¡Botón en 1 clic activado!');
+  });
+  document.getElementById('clear-gh-token-btn').addEventListener('click', () => {
+    localStorage.removeItem(GH_TOKEN_KEY);
+    refreshGhTokenUi();
+    showToast('Token eliminado de este navegador.');
+  });
 
   // Track URL modal
   document.getElementById('open-track-modal-btn').addEventListener('click', openTrackModal);
@@ -1321,6 +1614,7 @@ function bindEvents() {
     if (e.key === 'Escape') {
       closeProductDrawer();
       closeTrackModal();
+      closeUpdateModal();
     }
   });
 }
