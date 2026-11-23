@@ -2418,9 +2418,15 @@ function bindEvents() {
   });
   document.getElementById('tour-skip-btn')?.addEventListener('click', () => closeTour(true));
   document.getElementById('tour-skip-inline-btn')?.addEventListener('click', () => closeTour(true));
-  window.addEventListener('resize', () => {
-    if (tourActive) positionTourElements();
-  });
+  const scheduleTourReposition = () => {
+    if (!tourActive) return;
+    requestAnimationFrame(() => {
+      if (tourActive) positionTourElements();
+    });
+  };
+  window.addEventListener('resize', scheduleTourReposition);
+  window.addEventListener('scroll', scheduleTourReposition, { passive: true });
+  document.querySelector('.tabs-list')?.addEventListener('scroll', scheduleTourReposition, { passive: true });
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -2481,7 +2487,10 @@ const TOUR_STEPS = [
     `
   },
   {
-    selector: '#products-table-wrap',
+    selector: () =>
+      state.viewMode === 'table'
+        ? document.querySelector('#deals-table tbody tr') || document.querySelector('#products-table-wrap')
+        : document.querySelector('#products-grid-wrap .deal-card') || document.querySelector('#products-grid-wrap'),
     tab: 'deals',
     title: 'Historial, gráficos y compartir por WhatsApp',
     body: `
@@ -2508,6 +2517,12 @@ const TOUR_STEPS = [
     nextLabel: '¡Listo, empezar!'
   }
 ];
+
+function getTourTargetElement(step) {
+  if (!step || !step.selector) return null;
+  if (typeof step.selector === 'function') return step.selector();
+  return document.querySelector(step.selector);
+}
 
 function maybeStartFirstVisitTour() {
   try {
@@ -2569,16 +2584,22 @@ function renderTourStep() {
     (_, i) => `<span class="tour-dot ${i === tourIndex ? 'active' : ''}"></span>`
   ).join('');
 
-  if (step.selector) {
-    const target = document.querySelector(step.selector);
-    if (target && target.offsetParent !== null) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-      setTimeout(() => {
-        if (tourActive) positionTourElements();
-      }, 220);
-      positionTourElements();
-      return;
+  const target = getTourTargetElement(step);
+  if (target && target.offsetParent !== null) {
+    // Scroll target cleanly into view accounting for sticky topbar (64px)
+    const rect = target.getBoundingClientRect();
+    const isFixedTopbarChild = Boolean(target.closest('.topbar'));
+    if (!isFixedTopbarChild) {
+      const targetTopDoc = rect.top + window.scrollY;
+      const desiredScrollY = Math.max(0, targetTopDoc - 140);
+      window.scrollTo({ top: desiredScrollY, behavior: 'auto' });
     }
+    target.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
+    positionTourElements();
+    requestAnimationFrame(() => {
+      if (tourActive) positionTourElements();
+    });
+    return;
   }
 
   positionTourElements();
@@ -2591,7 +2612,7 @@ function positionTourElements() {
   const card = document.getElementById('tour-card');
   if (!step || !overlay || !spotlight || !card) return;
 
-  const target = step.selector ? document.querySelector(step.selector) : null;
+  const target = getTourTargetElement(step);
   if (!target || target.offsetParent === null) {
     overlay.classList.remove('has-spotlight');
     spotlight.hidden = true;
