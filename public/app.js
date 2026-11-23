@@ -550,12 +550,11 @@ function getFilteredProducts() {
     if (state.activeTab === 'bugazos') {
       if (!p.stats.isBugazo) return false;
     } else if (state.activeTab === 'anticyber') {
-      if (cyber === 'real_drop' && p.stats.cyberStatus !== 'real_drop' && !['all_time_low', 'great_deal'].includes(p.stats.verdict)) {
-        return false;
-      }
-      if (cyber === 'cyber_trap' && p.stats.cyberStatus !== 'cyber_trap' && !p.stats.isFakeDiscount) {
-        return false;
-      }
+      const isReal = p.stats.cyberStatus === 'real_drop' || p.stats.isAllTimeLow;
+      const isTrap = p.stats.cyberStatus === 'cyber_trap' || p.stats.isFakeDiscount || p.stats.listPriceInflated;
+      if (cyber === 'real_drop' && !isReal) return false;
+      if (cyber === 'cyber_trap' && !isTrap) return false;
+      if (cyber === 'all' && !isReal && !isTrap) return false;
     }
 
     if (category !== 'all' && p.category !== category) return false;
@@ -569,6 +568,8 @@ function getFilteredProducts() {
       if (!['all_time_low', 'great_deal', 'good_deal'].includes(p.stats.verdict)) return false;
     } else if (verdict === 'bugazo') {
       if (!p.stats.isBugazo) return false;
+    } else if (verdict === 'inflated') {
+      if (p.stats.verdict !== 'inflated' && !p.stats.isFakeDiscount && !p.stats.listPriceInflated) return false;
     } else if (verdict !== 'all' && p.stats.verdict !== verdict) {
       return false;
     }
@@ -625,9 +626,10 @@ function renderKpis() {
     ['all_time_low', 'great_deal'].includes(p.stats.verdict)
   ).length;
   const droppedToday = state.catalog.filter((p) => p.stats.delta24h < 0 || p.stats.isAllTimeLow).length;
-  const inflated = state.catalog.filter((p) => p.stats.isFakeDiscount || p.stats.cyberStatus === 'cyber_trap').length;
+  const realDrops = state.catalog.filter((p) => p.stats.cyberStatus === 'real_drop' || p.stats.isAllTimeLow).length;
+  const inflated = state.catalog.filter((p) => p.stats.cyberStatus === 'cyber_trap' || p.stats.isFakeDiscount || p.stats.listPriceInflated).length;
   const bugazos = state.catalog.filter((p) => p.stats.isBugazo).length;
-  const realCyber = state.catalog.filter((p) => p.stats.cyberStatus === 'real_drop' || p.stats.cyberStatus === 'cyber_trap').length;
+  const antiCyberTotal = realDrops + inflated;
 
   setText('kpi-total', total.toLocaleString('es-PE'));
   setText('kpi-stores', activeStores);
@@ -636,9 +638,20 @@ function renderKpis() {
   setText('kpi-inflated', inflated.toLocaleString('es-PE'));
 
   setText('badge-bugazos', bugazos);
-  setText('badge-anticyber', realCyber || inflated);
+  setText('badge-anticyber', antiCyberTotal);
   setText('badge-groups', state.groups.length);
   setText('badge-watchlist', getWatchlistProducts().length);
+
+  // Update Anti-Cyber subfilter chip counts
+  const subCyber = document.getElementById('anticyber-subfilters');
+  if (subCyber) {
+    const btnAll = subCyber.querySelector('[data-cyber="all"]');
+    const btnReal = subCyber.querySelector('[data-cyber="real_drop"]');
+    const btnTrap = subCyber.querySelector('[data-cyber="cyber_trap"]');
+    if (btnAll) btnAll.textContent = `Todos (${antiCyberTotal})`;
+    if (btnReal) btnReal.textContent = `Ofertas reales (${realDrops})`;
+    if (btnTrap) btnTrap.textContent = `Trampas / Inflados (${inflated})`;
+  }
 
   const summary = document.getElementById('last-updated-summary');
   if (state.meta?.lastUpdatedAt) {
@@ -2149,6 +2162,11 @@ async function refreshSingleProduct() {
 function switchTab(tab) {
   state.activeTab = tab;
   state.pageSize = 60;
+  if (tab === 'bugazos' || tab === 'anticyber') {
+    state.filters.verdict = 'all';
+    const vSel = document.getElementById('filter-verdict');
+    if (vSel) vSel.value = 'all';
+  }
   document.querySelectorAll('.tab-btn').forEach((b) => {
     const active = b.dataset.tab === tab;
     b.classList.toggle('active', active);
