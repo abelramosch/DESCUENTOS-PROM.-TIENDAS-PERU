@@ -1,9 +1,9 @@
 {
-  "lastUpdatedAt": "2026-11-23T19:04:40.859Z",
+  "lastUpdatedAt": "2026-11-23T20:35:25.097Z",
   "lastUpdatedDate": "2026-11-23",
-  "elapsedMs": 33006,
+  "elapsedMs": 30216,
   "usdToPen": 3.443,
-  "totalProducts": 1337,
+  "totalProducts": 1365,
   "activeStores": 21,
   "totalConfiguredStores": 22,
   "allTimeLows": 0,
@@ -19,7 +19,7 @@
       "failedJobs": 0,
       "productsFetched": 158,
       "lastError": null,
-      "catalogCount": 188
+      "catalogCount": 199
     },
     "tottus": {
       "id": "tottus",
@@ -30,7 +30,7 @@
       "failedJobs": 0,
       "productsFetched": 72,
       "lastError": null,
-      "catalogCount": 73
+      "catalogCount": 82
     },
     "plazavea": {
       "id": "plazavea",
@@ -41,7 +41,7 @@
       "failedJobs": 0,
       "productsFetched": 134,
       "lastError": null,
-      "catalogCount": 129
+      "catalogCount": 130
     },
     "oechsle": {
       "id": "oechsle",
@@ -52,7 +52,7 @@
       "failedJobs": 0,
       "productsFetched": 118,
       "lastError": null,
-      "catalogCount": 115
+      "catalogCount": 116
     },
     "promart": {
       "id": "promart",
@@ -94,7 +94,7 @@
       "currency": "PEN",
       "okJobs": 11,
       "failedJobs": 0,
-      "productsFetched": 102,
+      "productsFetched": 101,
       "lastError": null,
       "catalogCount": 97
     },
@@ -107,7 +107,7 @@
       "failedJobs": 0,
       "productsFetched": 105,
       "lastError": null,
-      "catalogCount": 92
+      "catalogCount": 97
     },
     "shopstar": {
       "id": "shopstar",
@@ -116,7 +116,7 @@
       "currency": "PEN",
       "okJobs": 14,
       "failedJobs": 0,
-      "productsFetched": 122,
+      "productsFetched": 121,
       "lastError": null,
       "catalogCount": 123
     },
@@ -149,7 +149,7 @@
       "currency": "PEN",
       "okJobs": 9,
       "failedJobs": 1,
-      "productsFetched": 9,
+      "productsFetched": 8,
       "lastError": "This operation was aborted",
       "catalogCount": 11
     },
@@ -217,7 +217,7 @@
       "failedJobs": 0,
       "productsFetched": 56,
       "lastError": null,
-      "catalogCount": 49
+      "catalogCount": 50
     },
     "infotec": {
       "id": "infotec",
