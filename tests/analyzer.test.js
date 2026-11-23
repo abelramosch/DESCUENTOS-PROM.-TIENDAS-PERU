@@ -132,6 +132,50 @@ test('analyzeProduct detects Bugazo on cross-store price anomaly and historical 
   assert.equal(crashAnalyzed.stats.bugazoType, 'historical_crash');
 });
 
+test('analyzeProduct penalizes inflated store base/listPrice compared to real Peruvian market median', () => {
+  // Store invents S/ 799.90 listPrice (-53%) while real 3-store market median is S/ 359!
+  const inflatedStoreOffer = {
+    id: 'tottus:airfryer',
+    storeId: 'tottus',
+    storeName: 'Tottus',
+    title: 'Freidora de Aire 11L Double Air Fryer',
+    brand: 'Oster',
+    price: 379,
+    listPrice: 799.9,
+    inStock: true
+  };
+  const analyzedFake = analyzeProduct(
+    inflatedStoreOffer,
+    [{ date: '2026-11-23', price: 379, listPrice: 799.9, inStock: true }],
+    { groupId: 'grp:electro:1', peerCount: 3, peerMinPrice: 359, peerMedianPrice: 359 }
+  );
+  assert.equal(analyzedFake.stats.listPriceInflated, true);
+  assert.equal(analyzedFake.stats.verdict, 'inflated');
+  assert.equal(analyzedFake.stats.isBugazo, false);
+  assert.ok(analyzedFake.stats.dealScore <= 42, `Expected score <= 42, got ${analyzedFake.stats.dealScore}`);
+
+  // Meanwhile a genuinely cheaper TV vs 5-store Peruvian market ranks high!
+  const genuineDeal = {
+    id: 'tottus:tv55',
+    storeId: 'tottus',
+    storeName: 'Tottus',
+    title: 'Televisor 55" 4K UHD',
+    brand: 'LG',
+    price: 1299,
+    listPrice: 1999,
+    inStock: true
+  };
+  const analyzedReal = analyzeProduct(
+    genuineDeal,
+    [{ date: '2026-11-23', price: 1299, listPrice: 1999, inStock: true }],
+    { groupId: 'grp:tv:1', peerCount: 5, peerMinPrice: 1299, peerMedianPrice: 1779 }
+  );
+  assert.equal(analyzedReal.stats.listPriceInflated, false);
+  assert.equal(analyzedReal.stats.referenceSource, 'market');
+  assert.ok(analyzedReal.stats.fairDiscountPct >= 25);
+  assert.ok(analyzedReal.stats.dealScore >= 80, `Expected score >= 80, got ${analyzedReal.stats.dealScore}`);
+});
+
 test('buildMultiStoreGroups unifies identical models across Peruvian stores and excludes accessories', () => {
   const sampleCatalog = [
     {

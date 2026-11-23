@@ -1,7 +1,8 @@
 /**
  * Motor de inteligencia de precios estilo SteamDB / Compy / Knasta.
- * Evalúa si un descuento en tiendas peruanas es REAL, INFLADO (trampa Cyber)
- * o un POSIBLE BUGAZO / LIQUIDACIÓN EXTREMA, y genera un Deal Score (0-100).
+ * Usa un Precio de Referencia Real (historial propio o mediana real del mercado
+ * peruano entre tiendas) en vez de confiar ciegamente en el precio tachado (listPrice),
+ * neutralizando precios base inflados artificialmente.
  */
 
 export function analyzeProduct(product, historyEntries = [], groupMeta = null) {
@@ -62,7 +63,7 @@ export function analyzeProduct(product, historyEntries = [], groupMeta = null) {
   const delta30dPct =
     price30dAgo && price30dAgo > 0 ? round1(((currentPrice - price30dAgo) / price30dAgo) * 100) : null;
 
-  // Apparent store discount vs listPrice
+  // Apparent store discount vs store's own listPrice (often inflated!)
   const storeDiscountPct =
     listPrice > currentPrice ? round1(((listPrice - currentPrice) / listPrice) * 100) : 0;
 
@@ -70,11 +71,43 @@ export function analyzeProduct(product, historyEntries = [], groupMeta = null) {
   const realDiscountPct =
     medianPrice > 0 ? round1(((medianPrice - currentPrice) / medianPrice) * 100) : 0;
 
+  // Cross-store Peruvian market benchmark (immune to inflated list prices!)
+  const peerMedianPrice = groupMeta?.peerMedianPrice ? round2(Number(groupMeta.peerMedianPrice)) : null;
+  const peerCount = groupMeta?.peerCount || 1;
+  const peerDiscountPct =
+    peerMedianPrice && peerMedianPrice > 0
+      ? round1(((peerMedianPrice - effectiveNow) / peerMedianPrice) * 100)
+      : 0;
+
   // Distance above all-time low
   const pctAboveMin =
     minPrice > 0 ? round1(((currentPrice - minPrice) / minPrice) * 100) : 0;
 
-  // Detect pre-sale price hike (Cyber inflation trap: price jumped >= 12% recently then "dropped" back)
+  // Fair Market Reference Price hierarchy:
+  // 1) Own history (>= 3 days)  2) Peruvian cross-store market median (>= 2 stores)  3) Unverified store listPrice
+  let referencePrice = listPrice;
+  let referenceSource = 'list_unverified'; // 'history' | 'market' | 'list_unverified'
+  let fairDiscountPct = 0;
+
+  if (daysTracked >= 3) {
+    referenceSource = 'history';
+    referencePrice =
+      peerCount >= 2 && peerMedianPrice > 0
+        ? round2(Math.min(medianPrice, peerMedianPrice))
+        : medianPrice;
+    fairDiscountPct =
+      referencePrice > 0 ? round1(((referencePrice - effectiveNow) / referencePrice) * 100) : 0;
+  } else if (peerCount >= 2 && peerMedianPrice > 0) {
+    referenceSource = 'market';
+    referencePrice = peerMedianPrice;
+    fairDiscountPct = peerDiscountPct;
+  } else {
+    referenceSource = 'list_unverified';
+    referencePrice = listPrice;
+    fairDiscountPct = 0;
+  }
+
+  // Detect pre-sale price hike (Cyber inflation trap)
   let preSaleHikeDetected = false;
   if (sorted.length >= 4) {
     const recentWindow = sorted.slice(-14);
@@ -91,9 +124,21 @@ export function analyzeProduct(product, historyEntries = [], groupMeta = null) {
     }
   }
 
-  // Detect fake/inflated discount
+  // Detect inflated base / listPrice (comparing store's listPrice against REAL market or history!)
+  let listPriceInflated = false;
+  if (peerCount >= 2 && peerMedianPrice > 0) {
+    // Store claims >= 25% off an inflated listPrice (> 1.35x real market median) while selling near/above market!
+    if (listPrice > peerMedianPrice * 1.35 && storeDiscountPct >= 25 && peerDiscountPct < 10) {
+      listPriceInflated = true;
+    }
+  }
+  if (daysTracked >= 3 && listPrice > medianPrice * 1.35 && currentPrice >= medianPrice * 0.98 && storeDiscountPct >= 25) {
+    listPriceInflated = true;
+  }
+
+  // Detect fake/inflated discount overall
   let isFakeDiscount = false;
-  if (preSaleHikeDetected) {
+  if (preSaleHikeDetected || listPriceInflated) {
     isFakeDiscount = true;
   } else if (daysTracked >= 3) {
     const distinctPrices = new Set(prices.map((p) => Math.round(p))).size;
@@ -110,7 +155,11 @@ export function analyzeProduct(product, historyEntries = [], groupMeta = null) {
   let cyberLabel = 'Iniciando historial';
   if (isFakeDiscount || preSaleHikeDetected) {
     cyberStatus = 'cyber_trap';
-    cyberLabel = preSaleHikeDetected ? 'Inflado antes de oferta' : 'Descuento inflado';
+    cyberLabel = preSaleHikeDetected
+      ? 'Inflado antes de oferta'
+      : listPriceInflated
+        ? 'Precio base inflado'
+        : 'Descuento inflado';
   } else if (daysTracked >= 2) {
     const refDelta = delta30dPct ?? delta15dPct ?? -realDiscountPct;
     if (refDelta <= -8 || realDiscountPct >= 8) {
@@ -123,33 +172,28 @@ export function analyzeProduct(product, historyEntries = [], groupMeta = null) {
       cyberStatus = 'stable';
       cyberLabel = 'Precio estable';
     }
+  } else if (peerCount >= 2 && peerDiscountPct >= 15) {
+    cyberStatus = 'real_drop';
+    cyberLabel = `-${peerDiscountPct}% vs mercado PE`;
+  } else if (peerCount >= 2 && peerDiscountPct <= -10) {
+    cyberStatus = 'cyber_trap';
+    cyberLabel = 'Más caro que el mercado';
   }
 
-  // Bugazo / Extreme Liquidation detector (historical crash, cross-store anomaly, or extreme clearance)
-  const peerMedianPrice = groupMeta?.peerMedianPrice || null;
-  const peerCount = groupMeta?.peerCount || 1;
-  const peerDiscountPct =
-    peerMedianPrice && peerMedianPrice > 0
-      ? round1(((peerMedianPrice - effectiveNow) / peerMedianPrice) * 100)
-      : 0;
-
+  // Bugazo detector: ONLY verified historical crash OR verified cross-store anomaly (immune to inflated listPrice!)
   let isBugazo = false;
   let bugazoType = null;
   let bugazoReason = null;
 
   if (!isFakeDiscount && product.inStock !== false) {
-    if (daysTracked >= 2 && (realDiscountPct >= 45 || delta24hPct <= -40)) {
+    if (daysTracked >= 2 && (realDiscountPct >= 40 || delta24hPct <= -38)) {
       isBugazo = true;
       bugazoType = 'historical_crash';
-      bugazoReason = `Caída extrema de ${Math.max(realDiscountPct, Math.abs(delta24hPct))}% respecto a su precio histórico (mediana S/ ${formatNum(medianPrice)}).`;
-    } else if (peerCount >= 2 && peerDiscountPct >= 40) {
+      bugazoReason = `Caída extrema de ${Math.max(realDiscountPct, Math.abs(delta24hPct))}% respecto a su precio histórico real (mediana S/ ${formatNum(medianPrice)}).`;
+    } else if (peerCount >= 2 && peerDiscountPct >= 35) {
       isBugazo = true;
       bugazoType = 'cross_store';
-      bugazoReason = `Cuesta ${peerDiscountPct}% menos que el precio mediano en otras tiendas peruanas (S/ ${formatNum(peerMedianPrice)} en ${peerCount} tiendas).`;
-    } else if (storeDiscountPct >= 55 && currentPrice >= 49) {
-      isBugazo = true;
-      bugazoType = 'extreme_clearance';
-      bugazoReason = `Liquidación extrema de -${storeDiscountPct}% frente a su precio lista (ahorro de S/ ${formatNum(listPrice - effectiveNow)}).`;
+      bugazoReason = `Cuesta ${peerDiscountPct}% menos que el precio real de mercado en ${peerCount} tiendas peruanas (mediana S/ ${formatNum(peerMedianPrice)}).`;
     }
   }
 
@@ -163,45 +207,80 @@ export function analyzeProduct(product, historyEntries = [], groupMeta = null) {
   let verdictReason = '';
   let dealScore = 50;
 
-  if (daysTracked === 1) {
-    const effectiveListDisc =
-      listPrice > effectiveNow ? ((listPrice - effectiveNow) / listPrice) * 100 : 0;
-    const crossStoreBonus = peerDiscountPct >= 15 ? Math.min(14, peerDiscountPct * 0.4) : 0;
-    dealScore = clamp(
-      Math.round(48 + Math.min(effectiveListDisc, 55) * 0.72 + (cardPrice ? 4 : 0) + crossStoreBonus),
-      35,
-      95
-    );
-
-    if (isBugazo) {
-      verdict = 'great_deal';
-      verdictLabel = bugazoType === 'cross_store' ? 'Posible Bugazo' : 'Liquidación extrema';
-      verdictShort = '¡Chapa ya!';
-      verdictReason = bugazoReason;
-    } else if (effectiveListDisc >= 30) {
-      verdict = 'great_deal';
-      verdictLabel = 'Fuerte descuento hoy';
-      verdictShort = 'Conviene';
-      verdictReason = `Tiene ${round1(effectiveListDisc)}% menos que su precio lista (S/ ${formatNum(listPrice)}). Primer día de seguimiento: verifica el historial los próximos días para confirmar tendencia.`;
-    } else if (effectiveListDisc >= 15) {
-      verdict = 'good_deal';
-      verdictLabel = 'Buen descuento hoy';
-      verdictShort = 'Buen precio';
-      verdictReason = `Ahorras S/ ${formatNum(listPrice - effectiveNow)} frente al precio regular publicado (S/ ${formatNum(listPrice)}). Historial iniciado hoy.`;
-    } else {
-      verdict = 'tracking_new';
-      verdictLabel = 'Precio base (Día 1)';
-      verdictShort = 'Monitoreando';
-      verdictReason = `Historial iniciado hoy en S/ ${formatNum(currentPrice)}. Cada actualización guardará su evolución real para detectar verdaderos mínimos históricos.`;
-    }
-  } else if (isFakeDiscount) {
+  if (isFakeDiscount) {
     verdict = 'inflated';
-    verdictLabel = preSaleHikeDetected ? 'Trampa Cyber' : 'Descuento inflado';
+    verdictLabel = preSaleHikeDetected
+      ? 'Trampa Cyber'
+      : listPriceInflated
+        ? 'Base inflada'
+        : 'Descuento inflado';
     verdictShort = 'No conviene';
-    dealScore = clamp(Math.round(30 - Math.max(0, -realDiscountPct)), 10, 42);
-    verdictReason = preSaleHikeDetected
-      ? `¡Alerta Anti-Cyber! Este producto subió de precio recientemente para luego fingir una rebaja. Su precio habitual real era S/ ${formatNum(medianPrice)}.`
-      : `¡Ojo! La tienda muestra -${storeDiscountPct}% frente a S/ ${formatNum(listPrice)}, pero su precio real habitual en ${daysTracked} días es S/ ${formatNum(medianPrice)}. No es una oferta verdadera.`;
+    const penalty = peerCount >= 2 && peerDiscountPct < 0 ? Math.abs(peerDiscountPct) : Math.max(0, -realDiscountPct);
+    dealScore = clamp(Math.round(36 - penalty * 0.6), 12, 42);
+    if (preSaleHikeDetected) {
+      verdictReason = `¡Alerta Anti-Cyber! Este producto subió de precio recientemente para luego fingir una rebaja. Su precio habitual real era S/ ${formatNum(medianPrice)}.`;
+    } else if (listPriceInflated && peerCount >= 2 && peerMedianPrice) {
+      verdictReason = `¡Ojo con el precio base! Esta tienda tacha S/ ${formatNum(listPrice)} (-${storeDiscountPct}%), pero el precio real de mercado en ${peerCount} tiendas de Perú es ~S/ ${formatNum(peerMedianPrice)}. Hoy ${peerDiscountPct < 0 ? `incluso está ${Math.abs(peerDiscountPct)}% más caro que el mercado` : 'está en su precio normal de mercado'}.`;
+    } else {
+      verdictReason = `¡Ojo! La tienda muestra -${storeDiscountPct}% frente a S/ ${formatNum(listPrice)}, pero su precio real habitual en ${daysTracked} días es S/ ${formatNum(medianPrice)}. No es una oferta verdadera.`;
+    }
+  } else if (daysTracked === 1) {
+    if (peerCount >= 2 && peerMedianPrice > 0) {
+      // Day 1 WITH Peruvian market benchmark: score by REAL discount vs competing stores, NOT fake listPrice!
+      if (isBugazo) {
+        verdict = 'great_deal';
+        verdictLabel = 'Posible Bugazo';
+        verdictShort = '¡Chapa ya!';
+        dealScore = clamp(Math.round(88 + Math.min(peerDiscountPct - 35, 30) * 0.4), 90, 99);
+        verdictReason = bugazoReason;
+      } else if (peerDiscountPct >= 15) {
+        verdict = 'great_deal';
+        verdictLabel = 'Más barato del mercado';
+        verdictShort = 'Conviene';
+        dealScore = clamp(Math.round(74 + Math.min(peerDiscountPct, 35) * 0.45 + (cardPrice ? 3 : 0)), 76, 89);
+        verdictReason = `Conviene comprar: está ${peerDiscountPct}% debajo del precio real de mercado en Perú (S/ ${formatNum(peerMedianPrice)} en ${peerCount} tiendas), ahorrando S/ ${formatNum(peerMedianPrice - effectiveNow)}.`;
+      } else if (peerDiscountPct >= 5) {
+        verdict = 'good_deal';
+        verdictLabel = 'Buen precio mercado';
+        verdictShort = 'Buen precio';
+        dealScore = clamp(Math.round(62 + peerDiscountPct * 0.9 + (cardPrice ? 2 : 0)), 63, 75);
+        verdictReason = `Está ${peerDiscountPct}% por debajo del precio mediano en ${peerCount} tiendas peruanas (S/ ${formatNum(peerMedianPrice)}).`;
+      } else if (peerDiscountPct <= -12) {
+        verdict = 'inflated';
+        verdictLabel = 'Más caro del mercado';
+        verdictShort = 'No conviene';
+        dealScore = clamp(Math.round(42 + peerDiscountPct * 0.6), 18, 42);
+        verdictReason = `Hoy está ${Math.abs(peerDiscountPct)}% más caro que el precio mediano en otras tiendas peruanas (S/ ${formatNum(peerMedianPrice)} en ${peerCount} tiendas). Revisa la tabla Multi-Tienda abajo.`;
+      } else {
+        verdict = 'normal';
+        verdictLabel = 'Precio de mercado';
+        verdictShort = 'Normal';
+        dealScore = clamp(Math.round(52 + peerDiscountPct), 46, 61);
+        verdictReason = `Precio alineado con el mercado peruano (mediana S/ ${formatNum(peerMedianPrice)} en ${peerCount} tiendas).`;
+      }
+    } else {
+      // Single-store Day 1 (unverified listPrice): strict anti-hype cap at 70 so inflated listPrices NEVER beat verified deals!
+      const effectiveListDisc =
+        listPrice > effectiveNow ? ((listPrice - effectiveNow) / listPrice) * 100 : 0;
+      dealScore = clamp(Math.round(44 + Math.min(effectiveListDisc, 50) * 0.48 + (cardPrice ? 3 : 0)), 40, 70);
+
+      if (effectiveListDisc >= 45) {
+        verdict = 'good_deal';
+        verdictLabel = 'Desc. sin verificar';
+        verdictShort = 'Verificar';
+        verdictReason = `Publica -${round1(effectiveListDisc)}% frente a un precio lista de S/ ${formatNum(listPrice)}, pero aún no tiene historial ni otras tiendas para confirmar si ese precio base es real. Se verificará en los próximos días.`;
+      } else if (effectiveListDisc >= 18) {
+        verdict = 'good_deal';
+        verdictLabel = 'Descuento publicado';
+        verdictShort = 'Revisar';
+        verdictReason = `Ahorro aparente de S/ ${formatNum(listPrice - effectiveNow)} frente a lista (S/ ${formatNum(listPrice)}). Primer día de seguimiento en 1 tienda.`;
+      } else {
+        verdict = 'tracking_new';
+        verdictLabel = 'Precio base (Día 1)';
+        verdictShort = 'Monitoreando';
+        verdictReason = `Historial iniciado hoy en S/ ${formatNum(currentPrice)}. Cada actualización guardará su evolución real para detectar verdaderos mínimos históricos.`;
+      }
+    }
   } else if (isAllTimeLow && (realDiscountPct >= 5 || delta24hPct <= -5)) {
     verdict = 'all_time_low';
     verdictLabel = isBugazo ? 'Bugazo · Mínimo histórico' : 'Mínimo histórico';
@@ -212,14 +291,14 @@ export function analyzeProduct(product, historyEntries = [], groupMeta = null) {
     verdict = 'great_deal';
     verdictLabel = 'Excelente oferta';
     verdictShort = 'Conviene';
-    dealScore = clamp(Math.round(76 + Math.min(realDiscountPct, 30) * 0.5), 75, 89);
+    dealScore = clamp(Math.round(76 + Math.min(realDiscountPct, 30) * 0.5), 76, 89);
     verdictReason = `Conviene comprar: está ${realDiscountPct}% por debajo de su precio habitual (S/ ${formatNum(medianPrice)}) y muy cerca de su mínimo histórico (S/ ${formatNum(minPrice)}).`;
-  } else if (realDiscountPct >= 5 || (pctAboveMin <= 5 && storeDiscountPct >= 15)) {
+  } else if (realDiscountPct >= 5 || (peerCount >= 2 && peerDiscountPct >= 10)) {
     verdict = 'good_deal';
     verdictLabel = 'Buen precio';
     verdictShort = 'Buen precio';
-    dealScore = clamp(Math.round(62 + realDiscountPct * 0.9), 62, 74);
-    verdictReason = `Está ${realDiscountPct > 0 ? `${realDiscountPct}% más barato que su promedio habitual` : 'cerca de su mínimo histórico'} (mínimo: S/ ${formatNum(minPrice)}).`;
+    dealScore = clamp(Math.round(62 + Math.max(realDiscountPct, peerDiscountPct) * 0.9), 62, 75);
+    verdictReason = `Está ${realDiscountPct > 0 ? `${realDiscountPct}% más barato que su promedio habitual` : `${peerDiscountPct}% debajo del mercado peruano`} (mínimo: S/ ${formatNum(minPrice)}).`;
   } else if (currentPrice > medianPrice * 1.05) {
     verdict = 'inflated';
     verdictLabel = 'Precio alto';
@@ -254,6 +333,10 @@ export function analyzeProduct(product, historyEntries = [], groupMeta = null) {
       maxDate,
       avgPrice30d,
       medianPrice,
+      referencePrice,
+      referenceSource,
+      fairDiscountPct,
+      listPriceInflated,
       prevPrice,
       delta24h,
       delta24hPct,
@@ -294,13 +377,11 @@ function findPriceDaysAgo(sortedEntries, daysAgo) {
 
   let best = null;
   let bestDiff = Infinity;
-  // Exclude the very last point (today)
   for (let i = 0; i < sortedEntries.length - 1; i++) {
     const entry = sortedEntries[i];
     const ms = Date.parse(`${entry.date}T00:00:00Z`);
     if (!Number.isFinite(ms)) continue;
     const diff = Math.abs(ms - targetMs);
-    // Accept observation if reasonably close or oldest available when tracking >= 7 days
     if (diff < bestDiff) {
       bestDiff = diff;
       best = entry;

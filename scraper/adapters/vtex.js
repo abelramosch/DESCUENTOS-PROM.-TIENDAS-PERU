@@ -80,11 +80,35 @@ export function normalizeVtexProduct(store, p, category) {
   const rawList = Number(chosenOffer.ListPrice) || price;
   const listPrice = round2(Math.max(price, rawList));
 
-  // Detect spotPrice or store-card teaser discount if available
+  // Detect spotPrice or bank/store-card teaser discount if available
   let cardPrice = null;
+  let cardName = null;
   const spotPrice = Number(chosenOffer.spotPrice);
   if (spotPrice > 0 && spotPrice < price) {
     cardPrice = round2(spotPrice);
+    cardName = store.cardName || 'Tarjeta';
+  }
+
+  const teasers = [...(chosenOffer.Teasers || []), ...(chosenOffer.PromotionTeasers || [])];
+  if (teasers.length) {
+    for (const t of teasers) {
+      const tName = String(t?.name || t?.Name || '').toLowerCase();
+      const detectedCard = detectBankCardName(tName);
+      if (!detectedCard) continue;
+      // Extract percentage or nominal discount from VTEX teaser effects if available
+      const effects = t?.effects?.parameters || t?.Effects?.Parameters || [];
+      const pctParam = effects.find((p) => /percent/i.test(p?.name || p?.Name || ''));
+      const pctVal = Number(pctParam?.value || pctParam?.Value);
+      if (pctVal > 0 && pctVal < 60) {
+        const promoPrice = round2(price * (1 - pctVal / 100));
+        if (!cardPrice || promoPrice < cardPrice) {
+          cardPrice = promoPrice;
+          cardName = detectedCard;
+        }
+      } else if (cardPrice && !cardName) {
+        cardName = detectedCard;
+      }
+    }
   }
 
   const image = chosenItem?.images?.[0]?.imageUrl || '';
@@ -106,11 +130,21 @@ export function normalizeVtexProduct(store, p, category) {
     price,
     listPrice,
     cardPrice,
-    cardName: cardPrice ? store.cardName || 'Tarjeta' : null,
+    cardName: cardPrice ? cardName || store.cardName || 'Tarjeta' : null,
     originalCurrency: 'PEN',
     originalPrice: null,
     inStock: Number(chosenOffer.AvailableQuantity) > 0
   };
+}
+
+function detectBankCardName(text) {
+  if (/\bbcp\b|yape|banca\s+bcp/i.test(text)) return 'BCP';
+  if (/\bcmr\b|falabella/i.test(text)) return 'CMR';
+  if (/tarjeta\s*oh|financiera\s*oh|\boh!\b/i.test(text)) return 'Tarjeta Oh!';
+  if (/cencosud/i.test(text)) return 'Cencosud';
+  if (/interbank|\bibk\b/i.test(text)) return 'Interbank';
+  if (/\bbbva\b/i.test(text)) return 'BBVA';
+  return null;
 }
 
 function round2(n) {

@@ -592,7 +592,7 @@ function getFilteredProducts() {
     }
     switch (sort) {
       case 'real_discount':
-        return (b.stats.realDiscountPct || b.stats.storeDiscountPct) - (a.stats.realDiscountPct || a.stats.storeDiscountPct);
+        return (b.stats.fairDiscountPct ?? b.stats.realDiscountPct ?? 0) - (a.stats.fairDiscountPct ?? a.stats.realDiscountPct ?? 0);
       case 'store_discount':
         return b.stats.storeDiscountPct - a.stats.storeDiscountPct;
       case 'drop_today':
@@ -603,7 +603,7 @@ function getFilteredProducts() {
         return getUserPrice(b).price - getUserPrice(a).price;
       case 'score':
       default:
-        return b.stats.dealScore - a.stats.dealScore || b.stats.storeDiscountPct - a.stats.storeDiscountPct;
+        return b.stats.dealScore - a.stats.dealScore || (b.stats.fairDiscountPct ?? 0) - (a.stats.fairDiscountPct ?? 0);
     }
   });
 
@@ -674,18 +674,18 @@ function renderCatalog() {
   if (state.activeTab === 'bugazos') {
     banner.hidden = false;
     subCyber.hidden = true;
-    setText('catalog-mode-title', '⚡ Detector de Posibles Bugazos y Liquidaciones Extremas');
+    setText('catalog-mode-title', '⚡ Detector de Bugazos Reales (Sin Precios Base Inflados)');
     setText(
       'catalog-mode-desc',
-      'Productos con caídas ≥ 45% vs historial, ≥ 40% más baratos que otras tiendas peruanas con el mismo modelo, o liquidaciones extremas (≥ 55%).'
+      'Solo incluye caídas verificadas ≥ 40% vs historial propio o precios ≥ 35% más baratos que la mediana real de otras tiendas peruanas con el mismo modelo.'
     );
   } else if (state.activeTab === 'anticyber') {
     banner.hidden = false;
     subCyber.hidden = false;
-    setText('catalog-mode-title', '🕵️ Verificador Anti-Cyber Falso (Hoy vs 15d / 30d)');
+    setText('catalog-mode-title', '🕵️ Verificador Anti-Cyber y Precios Base Inflados');
     setText(
       'catalog-mode-desc',
-      'Separa descuentos reales comprobados en el historial de subidas previas o precios lista inflados antes de Cyber / Black Friday.'
+      'Separa descuentos reales comprobados frente al mercado/historial de precios tachados inflados artificialmente antes o durante ofertas.'
     );
   } else {
     banner.hidden = true;
@@ -751,13 +751,17 @@ function renderTableRows(items) {
       const scoreColor = getScoreColor(s.dealScore);
 
       const discountHtml =
-        s.isFakeDiscount
-          ? `<span class="discount-tag warn mono" title="Descuento inflado respecto a su historial">⚠ -${s.storeDiscountPct}%?</span>`
-          : s.daysTracked >= 2 && s.realDiscountPct >= 3
-            ? `<span class="discount-tag mono" title="Descuento real frente a su mediana histórica">-${s.realDiscountPct}% real</span>`
-            : s.storeDiscountPct > 0
-              ? `<span class="discount-tag mono" title="Descuento publicado frente al precio lista">-${s.storeDiscountPct}%</span>`
-              : `<span class="discount-tag neutral mono">0%</span>`;
+        s.listPriceInflated
+          ? `<span class="discount-tag warn mono" title="La tienda infló el precio base respecto al mercado real">⚠ Base inflada</span>`
+          : s.isFakeDiscount
+            ? `<span class="discount-tag warn mono" title="Descuento inflado respecto a su historial">⚠ -${s.storeDiscountPct}%?</span>`
+            : s.referenceSource === 'market' && s.fairDiscountPct >= 3
+              ? `<span class="discount-tag mono" title="Ahorro real frente al precio mediano en ${p.peerCount} tiendas de Perú">-${s.fairDiscountPct}% mercado</span>`
+              : s.daysTracked >= 2 && s.realDiscountPct >= 3
+                ? `<span class="discount-tag mono" title="Descuento real frente a su mediana histórica">-${s.realDiscountPct}% real</span>`
+                : s.storeDiscountPct > 0
+                  ? `<span class="discount-tag neutral mono" title="Descuento publicado por la tienda (sin verificar aún con historial o mercado)">-${s.storeDiscountPct}% lista</span>`
+                  : `<span class="discount-tag neutral mono">0%</span>`;
 
       const deltaHtml =
         s.delta24h < 0
@@ -2474,7 +2478,7 @@ const TOUR_STEPS = [
     tab: 'deals',
     title: '¿Qué tarjetas bancarias tienes?',
     body: `
-      <p>Marca si tienes <strong>CMR</strong>, <strong>Tarjeta Oh!</strong>, <strong>Cencosud</strong> o <strong>Interbank</strong>.</p>
+      <p>Marca si tienes <strong>BCP</strong>, <strong>CMR</strong>, <strong>Tarjeta Oh!</strong>, <strong>Interbank</strong>, <strong>BBVA</strong> o <strong>Cencosud</strong>.</p>
       <p>Toda la web recalculará precios, ordenamientos y comparativas con el <strong>precio real que tú pagarías</strong>.</p>
     `
   },

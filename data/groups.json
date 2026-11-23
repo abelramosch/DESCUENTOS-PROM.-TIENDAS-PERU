@@ -90,30 +90,30 @@
   },
   {
     "groupId": "grp:televisores:149",
-    "title": "65\" NANO 4K UHD AI NU80 Smart TV 2026",
+    "title": "55\" NANO 4K UHD AI NU80 Smart TV 2026",
     "brand": "LG",
     "category": "televisores",
-    "image": "https://media.falabella.com.pe/tottusPE/43680145_1/public",
+    "image": "https://media.falabella.com.pe/tottusPE/43680144_1/public",
     "storeCount": 6,
-    "minPrice": 1499,
-    "medianPrice": 1949,
+    "minPrice": 1299,
+    "medianPrice": 1864,
     "maxPrice": 3299,
-    "savingsPen": 1800,
-    "spreadPct": 54.6,
+    "savingsPen": 2000,
+    "spreadPct": 60.6,
     "bestStoreName": "Tottus",
-    "bestProductId": "tottus:153614244",
+    "bestProductId": "tottus:153614314",
     "offers": [
       {
-        "id": "tottus:153614244",
+        "id": "tottus:153614314",
         "storeId": "tottus",
         "storeName": "Tottus",
-        "title": "65\" NANO 4K UHD AI NU80 Smart TV 2026",
-        "price": 1499,
-        "listPrice": 2299,
-        "cardPrice": 1399,
+        "title": "55\" NANO 4K UHD AI NU80 Smart TV 2026",
+        "price": 1299,
+        "listPrice": 1999,
+        "cardPrice": 1199,
         "cardName": "CMR",
-        "url": "https://tottus.falabella.com.pe/tottus-pe/product/153614244/televisor-lg-65-nano-uhd-4k-smart-thinkq-ai?exp=tottus",
-        "image": "https://media.falabella.com.pe/tottusPE/43680145_1/public"
+        "url": "https://tottus.falabella.com.pe/tottus-pe/product/153614314/televisor-lg-55-nano-uhd-4k-smart-thinkq-ai?exp=tottus",
+        "image": "https://media.falabella.com.pe/tottusPE/43680144_1/public"
       },
       {
         "id": "estilos:309425",
@@ -126,6 +126,18 @@
         "cardName": null,
         "url": "https://www.estilos.com.pe/televisor-lg-50-nano-4k-uhd-ai-smart-tv-2026309425/p",
         "image": "https://estilospe.vteximg.com.br/arquivos/ids/4005889/SKU.webp?v=639150884735930000"
+      },
+      {
+        "id": "carsa:3806",
+        "storeId": "carsa",
+        "storeName": "Carsa",
+        "title": "Televisor Smart LG 55\" Nano 4K UHD AI NU80 webOS 55NU800BPSB",
+        "price": 1779,
+        "listPrice": 1999,
+        "cardPrice": null,
+        "cardName": null,
+        "url": "https://www.carsa.pe/televisor-smart-lg-55-nano-4k-uhd-ai-nu80-webos-55nu800bpsb/p",
+        "image": "https://carsaperupoc.vteximg.com.br/arquivos/ids/191104/8806096811276_01.jpg?v=639172382681500000"
       },
       {
         "id": "wong:1109209",
@@ -150,18 +162,6 @@
         "cardName": null,
         "url": "https://www.metro.pe/televisor-lg-75-nano-4k-uhd-ai-smart-tv-2026-1067719/p",
         "image": "https://metroio.vteximg.com.br/arquivos/ids/661641/Televisor-LG-75-NANO-4K-UHD-AI-Smart-TV-2026-1-367469.jpg?v=639283749307330000"
-      },
-      {
-        "id": "carsa:3807",
-        "storeId": "carsa",
-        "storeName": "Carsa",
-        "title": "Televisor Smart LG 65\" Nano 4K UHD AI NU80 webOS 65NU800BPSB",
-        "price": 2069,
-        "listPrice": 2299,
-        "cardPrice": null,
-        "cardName": null,
-        "url": "https://www.carsa.pe/televisor-smart-lg-65-nano-4k-uhd-ai-nu80-webos-65nu800bpsb/p",
-        "image": "https://carsaperupoc.vteximg.com.br/arquivos/ids/191122/4846_01.jpg?v=639172402224600000"
       },
       {
         "id": "oechsle:3236172",
@@ -446,30 +446,30 @@
   },
   {
     "groupId": "grp:televisores:150",
-    "title": "55\" NANO 4K UHD AI NU80 Smart TV 2026",
+    "title": "65\" NANO 4K UHD AI NU80 Smart TV 2026",
     "brand": "LG",
     "category": "televisores",
-    "image": "https://media.falabella.com.pe/tottusPE/43680144_1/public",
+    "image": "https://media.falabella.com.pe/tottusPE/43680145_1/public",
     "storeCount": 5,
-    "minPrice": 1299,
-    "medianPrice": 1779,
+    "minPrice": 1499,
+    "medianPrice": 2069,
     "maxPrice": 3499,
-    "savingsPen": 2200,
-    "spreadPct": 62.9,
+    "savingsPen": 2000,
+    "spreadPct": 57.2,
     "bestStoreName": "Tottus",
-    "bestProductId": "tottus:153614314",
+    "bestProductId": "tottus:153614244",
     "offers": [
       {
-        "id": "tottus:153614314",
+        "id": "tottus:153614244",
         "storeId": "tottus",
         "storeName": "Tottus",
-        "title": "55\" NANO 4K UHD AI NU80 Smart TV 2026",
-        "price": 1299,
-        "listPrice": 1999,
-        "cardPrice": 1199,
+        "title": "65\" NANO 4K UHD AI NU80 Smart TV 2026",
+        "price": 1499,
+        "listPrice": 2299,
+        "cardPrice": 1399,
         "cardName": "CMR",
-        "url": "https://tottus.falabella.com.pe/tottus-pe/product/153614314/televisor-lg-55-nano-uhd-4k-smart-thinkq-ai?exp=tottus",
-        "image": "https://media.falabella.com.pe/tottusPE/43680144_1/public"
+        "url": "https://tottus.falabella.com.pe/tottus-pe/product/153614244/televisor-lg-65-nano-uhd-4k-smart-thinkq-ai?exp=tottus",
+        "image": "https://media.falabella.com.pe/tottusPE/43680145_1/public"
       },
       {
         "id": "oechsle:3099750",
@@ -484,16 +484,16 @@
         "image": "https://oechsle.vteximg.com.br/arquivos/ids/27271793/3099750.jpg?v=639263846745530000"
       },
       {
-        "id": "carsa:3806",
+        "id": "carsa:3807",
         "storeId": "carsa",
         "storeName": "Carsa",
-        "title": "Televisor Smart LG 55\" Nano 4K UHD AI NU80 webOS 55NU800BPSB",
-        "price": 1779,
-        "listPrice": 1999,
+        "title": "Televisor Smart LG 65\" Nano 4K UHD AI NU80 webOS 65NU800BPSB",
+        "price": 2069,
+        "listPrice": 2299,
         "cardPrice": null,
         "cardName": null,
-        "url": "https://www.carsa.pe/televisor-smart-lg-55-nano-4k-uhd-ai-nu80-webos-55nu800bpsb/p",
-        "image": "https://carsaperupoc.vteximg.com.br/arquivos/ids/191104/8806096811276_01.jpg?v=639172382681500000"
+        "url": "https://www.carsa.pe/televisor-smart-lg-65-nano-4k-uhd-ai-nu80-webos-65nu800bpsb/p",
+        "image": "https://carsaperupoc.vteximg.com.br/arquivos/ids/191122/4846_01.jpg?v=639172402224600000"
       },
       {
         "id": "wong:1109210",
@@ -818,6 +818,71 @@
     ]
   },
   {
+    "groupId": "grp:tecnologia:44",
+    "title": "Unidad en estado solido Kingston NV3 PCIe 4.0 NVMe M.2 SSD - 1TB (1000GB)",
+    "brand": "KINGSTON",
+    "category": "tecnologia",
+    "image": "https://mercury.vteximg.com.br/arquivos/ids/24264042/00031004.jpg?v=639272453087970000",
+    "storeCount": 4,
+    "minPrice": 749.9,
+    "medianPrice": 1979,
+    "maxPrice": 2075,
+    "savingsPen": 1325.1,
+    "spreadPct": 63.9,
+    "bestStoreName": "Shopstar",
+    "bestProductId": "shopstar:16698832",
+    "offers": [
+      {
+        "id": "shopstar:16698832",
+        "storeId": "shopstar",
+        "storeName": "Shopstar",
+        "title": "Unidad en estado solido Kingston NV3 PCIe 4.0 NVMe M.2 SSD - 1TB (1000GB)",
+        "price": 749.9,
+        "listPrice": 799.9,
+        "cardPrice": null,
+        "cardName": null,
+        "url": "https://www.shopstar.pe/unidad-en-estado-solido-kingston-nv3-pcie-40-nvme-m2-ssd-1tb-1000gb-437066-1287/p",
+        "image": "https://mercury.vteximg.com.br/arquivos/ids/24264042/00031004.jpg?v=639272453087970000"
+      },
+      {
+        "id": "tottus:152881448",
+        "storeId": "tottus",
+        "storeName": "Tottus",
+        "title": "SSD NVMe M.2 2TB NV3",
+        "price": 1979,
+        "listPrice": 2669,
+        "cardPrice": null,
+        "cardName": null,
+        "url": "https://www.falabella.com.pe/falabella-pe/product/152881448/ssd-kingston-nv3-2tb-m-2-2230-pcie-4-0-nvme-snv3sm3-2t0",
+        "image": "https://media.falabella.com.pe/falabellaPE/152881449_01/public"
+      },
+      {
+        "id": "falabella:152881448",
+        "storeId": "falabella",
+        "storeName": "Falabella",
+        "title": "SSD NVMe M.2 2TB NV3",
+        "price": 1979,
+        "listPrice": 2669,
+        "cardPrice": null,
+        "cardName": null,
+        "url": "https://www.falabella.com.pe/falabella-pe/product/152881448/ssd-kingston-nv3-2tb-m-2-2230-pcie-4-0-nvme-snv3sm3-2t0",
+        "image": "https://media.falabella.com.pe/falabellaPE/152881449_01/public"
+      },
+      {
+        "id": "promart:1001629043",
+        "storeId": "promart",
+        "storeName": "Promart",
+        "title": "Disco Sólido SSD Kingston NV3 2TB NVMe PCIe 4.0 M.2 2230 Azul",
+        "price": 2075,
+        "listPrice": 3000,
+        "cardPrice": null,
+        "cardName": null,
+        "url": "https://www.promart.pe/disco-solido-ssd-kingston-nv3-2tb-nvme-pcie-4-0-m-2-2230-azul-1001629043/p",
+        "image": "https://promart.vteximg.com.br/arquivos/ids/11648030/imageUrl_1.jpg?v=639273817623400000"
+      }
+    ]
+  },
+  {
     "groupId": "grp:celulares:183",
     "title": "Celular Samsung Galaxy S26 5G 512GB 12GB RAM 50MP Negro",
     "brand": "Samsung",
@@ -883,67 +948,67 @@
     ]
   },
   {
-    "groupId": "grp:tecnologia:44",
-    "title": "Unidad de Estado Sólido SSD Kingston NV3 1TB NVMe PCIe Gen 4",
-    "brand": "KINGSTON",
-    "category": "tecnologia",
-    "image": "https://mercury.vteximg.com.br/arquivos/ids/21554828/100342.jpg?v=638923379061400000",
+    "groupId": "grp:celulares:188",
+    "title": "SAMSUNG GALAXY S26 ULTRA 256GB 12GB - VIOLETA",
+    "brand": "SAMSUNG",
+    "category": "celulares",
+    "image": "https://plazavea.vteximg.com.br/arquivos/ids/34259635/imageUrl_1.jpg?v=639115417988100000",
     "storeCount": 4,
-    "minPrice": 1049,
-    "medianPrice": 1979,
-    "maxPrice": 2075,
-    "savingsPen": 1026,
-    "spreadPct": 49.4,
-    "bestStoreName": "Shopstar",
-    "bestProductId": "shopstar:16583430",
+    "minPrice": 3739,
+    "medianPrice": 4515.5,
+    "maxPrice": 4999,
+    "savingsPen": 1260,
+    "spreadPct": 25.2,
+    "bestStoreName": "PlazaVea",
+    "bestProductId": "plazavea:101994863",
     "offers": [
       {
-        "id": "shopstar:16583430",
-        "storeId": "shopstar",
-        "storeName": "Shopstar",
-        "title": "Unidad de Estado Sólido SSD Kingston NV3 1TB NVMe PCIe Gen 4",
-        "price": 1049,
-        "listPrice": 1049,
+        "id": "plazavea:101994863",
+        "storeId": "plazavea",
+        "storeName": "PlazaVea",
+        "title": "SAMSUNG GALAXY S26 ULTRA 256GB 12GB - VIOLETA",
+        "price": 3739,
+        "listPrice": 5899,
         "cardPrice": null,
         "cardName": null,
-        "url": "https://www.shopstar.pe/unidad-de-estado-solido-ssd-kingston-nv3-1tb-nvme-pcie-gen-4-790793-1451/p",
-        "image": "https://mercury.vteximg.com.br/arquivos/ids/21554828/100342.jpg?v=638923379061400000"
+        "url": "https://www.plazavea.com.pe/samsung-galaxy-s26-ultra-256gb-12gb-violeta-101994863/p",
+        "image": "https://plazavea.vteximg.com.br/arquivos/ids/34259635/imageUrl_1.jpg?v=639115417988100000"
       },
       {
-        "id": "tottus:152881448",
-        "storeId": "tottus",
-        "storeName": "Tottus",
-        "title": "SSD NVMe M.2 2TB NV3",
-        "price": 1979,
-        "listPrice": 2669,
+        "id": "estilos:314200",
+        "storeId": "estilos",
+        "storeName": "Estilos",
+        "title": "Celular Samsung S26 12Gb + 512Gb Black",
+        "price": 4432,
+        "listPrice": 5318,
         "cardPrice": null,
         "cardName": null,
-        "url": "https://www.falabella.com.pe/falabella-pe/product/152881448/ssd-kingston-nv3-2tb-m-2-2230-pcie-4-0-nvme-snv3sm3-2t0",
-        "image": "https://media.falabella.com.pe/falabellaPE/152881449_01/public"
+        "url": "https://www.estilos.com.pe/celular-samsung-s26-12gb-512gb-black314200/p",
+        "image": "https://estilospe.vteximg.com.br/arquivos/ids/4126669/SKU.jpg?v=639233489675030000"
       },
       {
-        "id": "falabella:152881448",
-        "storeId": "falabella",
-        "storeName": "Falabella",
-        "title": "SSD NVMe M.2 2TB NV3",
-        "price": 1979,
-        "listPrice": 2669,
+        "id": "carsa:1970",
+        "storeId": "carsa",
+        "storeName": "Carsa",
+        "title": "Celular Samsung Galaxy S26 Ultra 5G 512GB 12GB RAM 200MP Negro",
+        "price": 4599,
+        "listPrice": 8779,
         "cardPrice": null,
         "cardName": null,
-        "url": "https://www.falabella.com.pe/falabella-pe/product/152881448/ssd-kingston-nv3-2tb-m-2-2230-pcie-4-0-nvme-snv3sm3-2t0",
-        "image": "https://media.falabella.com.pe/falabellaPE/152881449_01/public"
+        "url": "https://www.carsa.pe/celular-5g-samsung-galaxy-s26-ultra-512gb-12gb-ram-200mp-black-8806097885276/p",
+        "image": "https://carsaperupoc.vteximg.com.br/arquivos/ids/174253/celular-5g-samsung-galaxy-s26-ultra-512gb-12gb-ram-200mp-black-8806097885276_9.jpg?v=639146503623400000"
       },
       {
-        "id": "promart:1001629043",
-        "storeId": "promart",
-        "storeName": "Promart",
-        "title": "Disco Sólido SSD Kingston NV3 2TB NVMe PCIe 4.0 M.2 2230 Azul",
-        "price": 2075,
-        "listPrice": 3000,
+        "id": "oechsle:3059055",
+        "storeId": "oechsle",
+        "storeName": "Oechsle",
+        "title": "Smartphone Samsung Galaxy S26 Ultra 512GB Black",
+        "price": 4999,
+        "listPrice": 6899,
         "cardPrice": null,
         "cardName": null,
-        "url": "https://www.promart.pe/disco-solido-ssd-kingston-nv3-2tb-nvme-pcie-4-0-m-2-2230-azul-1001629043/p",
-        "image": "https://promart.vteximg.com.br/arquivos/ids/11648030/imageUrl_1.jpg?v=639273817623400000"
+        "url": "https://www.oechsle.pe/celular-samsung-galaxy-s26-ultra-512gb-black-sm-s948bzkmltp-3059055/p",
+        "image": "https://oechsle.vteximg.com.br/arquivos/ids/24622500/3059055.jpg?v=639086854386330000"
       }
     ]
   },
@@ -1150,7 +1215,7 @@
     "image": "https://infotec.com.pe/100574-large_default/disco-solido-ssd-kingston-1tb-nv3-snv3s1000g-pcie-nvme-gen4.jpg",
     "storeCount": 4,
     "minPrice": 629,
-    "medianPrice": 722.43,
+    "medianPrice": 871.98,
     "maxPrice": 1126,
     "savingsPen": 497,
     "spreadPct": 44.1,
@@ -1182,16 +1247,16 @@
         "image": "https://carsaperupoc.vteximg.com.br/arquivos/ids/205121/image-3059b2887c8149ed94561d869247175b.jpg?v=639232204994670000"
       },
       {
-        "id": "shopstar:16698832",
+        "id": "shopstar:16583430",
         "storeId": "shopstar",
         "storeName": "Shopstar",
-        "title": "Unidad en estado solido Kingston NV3 PCIe 4.0 NVMe M.2 SSD - 1TB (1000GB)",
-        "price": 749.9,
-        "listPrice": 799.9,
+        "title": "Unidad de Estado Sólido SSD Kingston NV3 1TB NVMe PCIe Gen 4",
+        "price": 1049,
+        "listPrice": 1049,
         "cardPrice": null,
         "cardName": null,
-        "url": "https://www.shopstar.pe/unidad-en-estado-solido-kingston-nv3-pcie-40-nvme-m2-ssd-1tb-1000gb-437066-1287/p",
-        "image": "https://mercury.vteximg.com.br/arquivos/ids/24264042/00031004.jpg?v=639272453087970000"
+        "url": "https://www.shopstar.pe/unidad-de-estado-solido-ssd-kingston-nv3-1tb-nvme-pcie-gen-4-790793-1451/p",
+        "image": "https://mercury.vteximg.com.br/arquivos/ids/21554828/100342.jpg?v=638923379061400000"
       },
       {
         "id": "promart:1001634465",
@@ -1430,16 +1495,16 @@
         "image": "https://wongfood.vteximg.com.br/arquivos/ids/846216/Tablet-Redmi-Xiaomi-Pad-2-9-7-Gray-4GB-128GB-1-351724706.jpg?v=639227685826230000"
       },
       {
-        "id": "oechsle:1001951591",
+        "id": "oechsle:1001951847",
         "storeId": "oechsle",
         "storeName": "Oechsle",
-        "title": "Tablet Xiaomi Redmi Pad 2 4gb 128gb Plata 9.7",
+        "title": "Tablet Xiaomi Redmi Pad 2 4gb 128gb Gris 9.7",
         "price": 589,
         "listPrice": 899,
         "cardPrice": null,
         "cardName": null,
-        "url": "https://www.oechsle.pe/tablet-xiaomi-redmi-pad-2-4gb-128gb-plata-9-7-1001951591/p",
-        "image": "https://oechsle.vteximg.com.br/arquivos/ids/26887644/imageUrl_1.jpg?v=639229754502330000"
+        "url": "https://www.oechsle.pe/tablet-xiaomi-redmi-pad-2-4gb-128gb-gris-9-7-1001951847/p",
+        "image": "https://oechsle.vteximg.com.br/arquivos/ids/26888886/imageUrl_1.jpg?v=639229755572730000"
       },
       {
         "id": "plazavea:102090699",
@@ -1639,31 +1704,31 @@
     ]
   },
   {
-    "groupId": "grp:celulares:188",
-    "title": "Celular Samsung Galaxy A17 256GB 8GB Negro",
+    "groupId": "grp:celulares:197",
+    "title": "Smartphone SAMSUNG Galaxy A17 6.7\" 8GB 256GB 50.0 MP + 5.0 MP + 2.0 MP Negro",
     "brand": "SAMSUNG",
     "category": "celulares",
-    "image": "https://oechsle.vteximg.com.br/arquivos/ids/22693509/2979250.jpg?v=638969120174330000",
+    "image": "https://plazavea.vteximg.com.br/arquivos/ids/34371331/20566877.jpg?v=639154324265000000",
     "storeCount": 3,
-    "minPrice": 1099,
+    "minPrice": 1149,
     "medianPrice": 2599,
-    "maxPrice": 3739,
-    "savingsPen": 2640,
-    "spreadPct": 70.6,
-    "bestStoreName": "Oechsle",
-    "bestProductId": "oechsle:2979250",
+    "maxPrice": 3249,
+    "savingsPen": 2100,
+    "spreadPct": 64.6,
+    "bestStoreName": "PlazaVea",
+    "bestProductId": "plazavea:101742717",
     "offers": [
       {
-        "id": "oechsle:2979250",
-        "storeId": "oechsle",
-        "storeName": "Oechsle",
-        "title": "Celular Samsung Galaxy A17 256GB 8GB Negro",
-        "price": 1099,
-        "listPrice": 1399,
+        "id": "plazavea:101742717",
+        "storeId": "plazavea",
+        "storeName": "PlazaVea",
+        "title": "Smartphone SAMSUNG Galaxy A17 6.7\" 8GB 256GB 50.0 MP + 5.0 MP + 2.0 MP Negro",
+        "price": 1149,
+        "listPrice": 1549,
         "cardPrice": null,
         "cardName": null,
-        "url": "https://www.oechsle.pe/celular-samsung-galaxy-a17-256gb-8gb-negro-2979250/p",
-        "image": "https://oechsle.vteximg.com.br/arquivos/ids/22693509/2979250.jpg?v=638969120174330000"
+        "url": "https://www.plazavea.com.pe/smartphone-samsung-galaxy-a17-6-7--8gb-256gb-50-0-mp5-0-mp2-0-mp-negro/p",
+        "image": "https://plazavea.vteximg.com.br/arquivos/ids/34371331/20566877.jpg?v=639154324265000000"
       },
       {
         "id": "estilos:313263",
@@ -1678,16 +1743,16 @@
         "image": "https://estilospe.vteximg.com.br/arquivos/ids/4145040/002508064_1.jpg?v=639250868278400000"
       },
       {
-        "id": "plazavea:101994863",
-        "storeId": "plazavea",
-        "storeName": "PlazaVea",
-        "title": "SAMSUNG GALAXY S26 ULTRA 256GB 12GB - VIOLETA",
-        "price": 3739,
-        "listPrice": 5899,
+        "id": "oechsle:2979246",
+        "storeId": "oechsle",
+        "storeName": "Oechsle",
+        "title": "Celular Samsung Galaxy S25 FE 5G 256GB 8GB Negro",
+        "price": 3249,
+        "listPrice": 3249,
         "cardPrice": null,
         "cardName": null,
-        "url": "https://www.plazavea.com.pe/samsung-galaxy-s26-ultra-256gb-12gb-violeta-101994863/p",
-        "image": "https://plazavea.vteximg.com.br/arquivos/ids/34259635/imageUrl_1.jpg?v=639115417988100000"
+        "url": "https://www.oechsle.pe/celular-samsung-galaxy-s25-fe-5g-256gb-8gb-negro-2979246/p",
+        "image": "https://oechsle.vteximg.com.br/arquivos/ids/22693179/2979246.jpg?v=638969117699600000"
       }
     ]
   },
@@ -1745,7 +1810,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:222",
+    "groupId": "grp:hogar:221",
     "title": "Robot aspiradora y trapeador Dreame F10 Blanco - Succión 13000Pa",
     "brand": "DREAME",
     "category": "hogar",
@@ -1794,6 +1859,59 @@
         "cardName": null,
         "url": "https://www.falabella.com.pe/falabella-pe/product/151210490/robot-aspirador-dreame-d20-ultra-todo-en-uno-succion-13000pa",
         "image": "https://media.falabella.com.pe/falabellaPE/151210491_01/public"
+      }
+    ]
+  },
+  {
+    "groupId": "grp:celulares:192",
+    "title": "Tablet Samsung Galaxy Tab S10 FE 10.9\" 128GB 8GB RAM Gris",
+    "brand": "SAMSUNG",
+    "category": "celulares",
+    "image": "https://oechsle.vteximg.com.br/arquivos/ids/27880137/2864723.jpg?v=639291914585770000",
+    "storeCount": 3,
+    "minPrice": 1649,
+    "medianPrice": 1689,
+    "maxPrice": 2299,
+    "savingsPen": 650,
+    "spreadPct": 28.3,
+    "bestStoreName": "Oechsle",
+    "bestProductId": "oechsle:2864723",
+    "offers": [
+      {
+        "id": "oechsle:2864723",
+        "storeId": "oechsle",
+        "storeName": "Oechsle",
+        "title": "Tablet Samsung Galaxy Tab S10 FE 10.9\" 128GB 8GB RAM Gris",
+        "price": 1649,
+        "listPrice": 2199,
+        "cardPrice": null,
+        "cardName": null,
+        "url": "https://www.oechsle.pe/tablet-samsung-10-9--8gb-ram-128gb-sm-x520nzaapeo-gris-2864723/p",
+        "image": "https://oechsle.vteximg.com.br/arquivos/ids/27880137/2864723.jpg?v=639291914585770000"
+      },
+      {
+        "id": "coolbox:100446944",
+        "storeId": "coolbox",
+        "storeName": "Coolbox",
+        "title": "Tablet Samsung Galaxy Tab S10 FE 10.9\", 128GB, 8GB RAM, cámara trasera 13MP y frontal 12MP, Exynos 1580, 8000 mAh, gris + S Pen + Parlante Náutica",
+        "price": 1689,
+        "listPrice": 2199,
+        "cardPrice": null,
+        "cardName": null,
+        "url": "https://www.coolbox.pe/tablet-samsung-galaxy-tab-s10-fe-s-pen-parlante-tabs10feg-t/p",
+        "image": "https://coolboxpe.vteximg.com.br/arquivos/ids/588513/TABS10FEG-T-1.jpg?v=639287135345600000"
+      },
+      {
+        "id": "estilos:313262",
+        "storeId": "estilos",
+        "storeName": "Estilos",
+        "title": "Samsung Celular Galaxy S26 FE 8Gb + 128Gb",
+        "price": 2299,
+        "listPrice": 3399,
+        "cardPrice": null,
+        "cardName": null,
+        "url": "https://www.estilos.com.pe/samsung-celular-galaxy-s26-fe-8gb--128gb313262/p",
+        "image": "https://estilospe.vteximg.com.br/arquivos/ids/4145031/002508063_1.jpg?v=639250867363830000"
       }
     ]
   },
@@ -1851,59 +1969,6 @@
     ]
   },
   {
-    "groupId": "grp:celulares:189",
-    "title": "Celular Samsung S26 12Gb + 512Gb Black",
-    "brand": "SAMSUNG",
-    "category": "celulares",
-    "image": "https://estilospe.vteximg.com.br/arquivos/ids/4126669/SKU.jpg?v=639233489675030000",
-    "storeCount": 3,
-    "minPrice": 4432,
-    "medianPrice": 4599,
-    "maxPrice": 4999,
-    "savingsPen": 567,
-    "spreadPct": 11.3,
-    "bestStoreName": "Estilos",
-    "bestProductId": "estilos:314200",
-    "offers": [
-      {
-        "id": "estilos:314200",
-        "storeId": "estilos",
-        "storeName": "Estilos",
-        "title": "Celular Samsung S26 12Gb + 512Gb Black",
-        "price": 4432,
-        "listPrice": 5318,
-        "cardPrice": null,
-        "cardName": null,
-        "url": "https://www.estilos.com.pe/celular-samsung-s26-12gb-512gb-black314200/p",
-        "image": "https://estilospe.vteximg.com.br/arquivos/ids/4126669/SKU.jpg?v=639233489675030000"
-      },
-      {
-        "id": "carsa:1970",
-        "storeId": "carsa",
-        "storeName": "Carsa",
-        "title": "Celular Samsung Galaxy S26 Ultra 5G 512GB 12GB RAM 200MP Negro",
-        "price": 4599,
-        "listPrice": 8779,
-        "cardPrice": null,
-        "cardName": null,
-        "url": "https://www.carsa.pe/celular-5g-samsung-galaxy-s26-ultra-512gb-12gb-ram-200mp-black-8806097885276/p",
-        "image": "https://carsaperupoc.vteximg.com.br/arquivos/ids/174253/celular-5g-samsung-galaxy-s26-ultra-512gb-12gb-ram-200mp-black-8806097885276_9.jpg?v=639146503623400000"
-      },
-      {
-        "id": "oechsle:3059055",
-        "storeId": "oechsle",
-        "storeName": "Oechsle",
-        "title": "Smartphone Samsung Galaxy S26 Ultra 512GB Black",
-        "price": 4999,
-        "listPrice": 6899,
-        "cardPrice": null,
-        "cardName": null,
-        "url": "https://www.oechsle.pe/celular-samsung-galaxy-s26-ultra-512gb-black-sm-s948bzkmltp-3059055/p",
-        "image": "https://oechsle.vteximg.com.br/arquivos/ids/24622500/3059055.jpg?v=639086854386330000"
-      }
-    ]
-  },
-  {
     "groupId": "grp:televisores:171",
     "title": "Televisor LG 55 NANO 4K UHD AI Smart TV 2026",
     "brand": "LG",
@@ -1957,7 +2022,7 @@
     ]
   },
   {
-    "groupId": "grp:gaming:215",
+    "groupId": "grp:gaming:214",
     "title": "Consola Nintendo Switch 2 Mario Kart World Bundle 256gb Negro",
     "brand": "NINTENDO",
     "category": "gaming",
@@ -2487,6 +2552,59 @@
     ]
   },
   {
+    "groupId": "grp:celulares:190",
+    "title": "Celular Samsung Galaxy A17 256GB 8GB Negro",
+    "brand": "SAMSUNG",
+    "category": "celulares",
+    "image": "https://oechsle.vteximg.com.br/arquivos/ids/22693509/2979250.jpg?v=638969120174330000",
+    "storeCount": 3,
+    "minPrice": 1099,
+    "medianPrice": 1199,
+    "maxPrice": 1298,
+    "savingsPen": 199,
+    "spreadPct": 15.3,
+    "bestStoreName": "Oechsle",
+    "bestProductId": "oechsle:2979250",
+    "offers": [
+      {
+        "id": "oechsle:2979250",
+        "storeId": "oechsle",
+        "storeName": "Oechsle",
+        "title": "Celular Samsung Galaxy A17 256GB 8GB Negro",
+        "price": 1099,
+        "listPrice": 1399,
+        "cardPrice": null,
+        "cardName": null,
+        "url": "https://www.oechsle.pe/celular-samsung-galaxy-a17-256gb-8gb-negro-2979250/p",
+        "image": "https://oechsle.vteximg.com.br/arquivos/ids/22693509/2979250.jpg?v=638969120174330000"
+      },
+      {
+        "id": "carsa:7769",
+        "storeId": "carsa",
+        "storeName": "Carsa",
+        "title": "Celular Samsung A27 256GB 8GB RAM negro",
+        "price": 1199,
+        "listPrice": 1999,
+        "cardPrice": null,
+        "cardName": null,
+        "url": "https://www.carsa.pe/celular-samsung-a27-256gb-8gb-ram-negro/p",
+        "image": "https://carsaperupoc.vteximg.com.br/arquivos/ids/214654/20--2-.jpg?v=639268151958300000"
+      },
+      {
+        "id": "falabella:158214410",
+        "storeId": "falabella",
+        "storeName": "Falabella",
+        "title": "Smartphone Galaxy A27 5G 8GB 256GB Negro",
+        "price": 1298,
+        "listPrice": 1499,
+        "cardPrice": null,
+        "cardName": null,
+        "url": "https://www.falabella.com.pe/falabella-pe/product/158214410/smartphone-galaxy-a27-5g-8gb-256gb-negro",
+        "image": "https://media.falabella.com.pe/falabellaPE/158214411_01/public"
+      }
+    ]
+  },
+  {
     "groupId": "grp:tecnologia:26",
     "title": "SSD 500GB WD GREEN SN350 M.2 2280 NVMe PCIe GEN 3 (PN:WDS500G2G0C-00CDH0)",
     "brand": "WESTERN DIGITAL",
@@ -2805,7 +2923,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:210",
+    "groupId": "grp:celulares:209",
     "title": "Smartphone Galaxy A07 4GB RAM 128GB Black",
     "brand": "SAMSUNG",
     "category": "celulares",
@@ -2911,7 +3029,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:221",
+    "groupId": "grp:hogar:220",
     "title": "Aspiradora Robot Dreame L10s Ultra Gen2 - Blanca",
     "brand": "DREAME",
     "category": "hogar",
@@ -3070,7 +3188,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:225",
+    "groupId": "grp:hogar:224",
     "title": "Colchón PARAISO Edén Plus 2 Plazas",
     "brand": "PARAÍSO",
     "category": "hogar",
@@ -4024,7 +4142,7 @@
     ]
   },
   {
-    "groupId": "grp:gaming:219",
+    "groupId": "grp:gaming:218",
     "title": "Grand Theft Auto VI + Gorra Azul PlayStation",
     "brand": "PlayStation",
     "category": "gaming",
@@ -4118,7 +4236,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:198",
+    "groupId": "grp:celulares:191",
     "title": "Smartphone Samsung Galaxy S26 512GB Cobalt Violet",
     "brand": "SAMSUNG",
     "category": "celulares",
@@ -4200,7 +4318,7 @@
     ]
   },
   {
-    "groupId": "grp:audio:240",
+    "groupId": "grp:audio:239",
     "title": "Parlante bluetooth JBL Flip 7 35W hasta 14 horas IP68 camuflado",
     "brand": "JBL",
     "category": "audio",
@@ -4364,47 +4482,6 @@
     ]
   },
   {
-    "groupId": "grp:celulares:195",
-    "title": "Tablet Samsung Galaxy Tab S10 FE 10.9\" 128GB 8GB RAM Gris",
-    "brand": "SAMSUNG",
-    "category": "celulares",
-    "image": "https://oechsle.vteximg.com.br/arquivos/ids/27880137/2864723.jpg?v=639291914585770000",
-    "storeCount": 2,
-    "minPrice": 1649,
-    "medianPrice": 1974,
-    "maxPrice": 2299,
-    "savingsPen": 650,
-    "spreadPct": 28.3,
-    "bestStoreName": "Oechsle",
-    "bestProductId": "oechsle:2864723",
-    "offers": [
-      {
-        "id": "oechsle:2864723",
-        "storeId": "oechsle",
-        "storeName": "Oechsle",
-        "title": "Tablet Samsung Galaxy Tab S10 FE 10.9\" 128GB 8GB RAM Gris",
-        "price": 1649,
-        "listPrice": 2199,
-        "cardPrice": null,
-        "cardName": null,
-        "url": "https://www.oechsle.pe/tablet-samsung-10-9--8gb-ram-128gb-sm-x520nzaapeo-gris-2864723/p",
-        "image": "https://oechsle.vteximg.com.br/arquivos/ids/27880137/2864723.jpg?v=639291914585770000"
-      },
-      {
-        "id": "estilos:313262",
-        "storeId": "estilos",
-        "storeName": "Estilos",
-        "title": "Samsung Celular Galaxy S26 FE 8Gb + 128Gb",
-        "price": 2299,
-        "listPrice": 3399,
-        "cardPrice": null,
-        "cardName": null,
-        "url": "https://www.estilos.com.pe/samsung-celular-galaxy-s26-fe-8gb--128gb313262/p",
-        "image": "https://estilospe.vteximg.com.br/arquivos/ids/4145031/002508063_1.jpg?v=639250867363830000"
-      }
-    ]
-  },
-  {
     "groupId": "grp:televisores:180",
     "title": "Televisor Hyundai 65\" QLED 4K UHD Google TV HYLED6513QG",
     "brand": "HYUNDAI",
@@ -4528,7 +4605,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:208",
+    "groupId": "grp:celulares:207",
     "title": "Celular Samsung Galaxy A37 5G 256GB, 8GB RAM, cámara trasera 50MP, frontal 12MP, pantalla 6.7\", negro",
     "brand": "Samsung",
     "category": "celulares",
@@ -4651,7 +4728,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:207",
+    "groupId": "grp:celulares:206",
     "title": "Celular Honor 600e 256GB 8GB RAM cámara 108MP velvet grey + Earbuds X7 Lite",
     "brand": "Honor",
     "category": "celulares",
@@ -4734,10 +4811,10 @@
   },
   {
     "groupId": "grp:tecnologia:36",
-    "title": "Tablet Xiaomi Redmi Pad 2 4gb 128gb Gris 9.7",
+    "title": "Tablet Xiaomi Redmi Pad 2 4gb 128gb Plata 9.7",
     "brand": "XIAOMI",
     "category": "tecnologia",
-    "image": "https://oechsle.vteximg.com.br/arquivos/ids/26888886/imageUrl_1.jpg?v=639229755572730000",
+    "image": "https://oechsle.vteximg.com.br/arquivos/ids/26887644/imageUrl_1.jpg?v=639229754502330000",
     "storeCount": 2,
     "minPrice": 589,
     "medianPrice": 794,
@@ -4745,19 +4822,19 @@
     "savingsPen": 410,
     "spreadPct": 41,
     "bestStoreName": "Oechsle",
-    "bestProductId": "oechsle:1001951847",
+    "bestProductId": "oechsle:1001951591",
     "offers": [
       {
-        "id": "oechsle:1001951847",
+        "id": "oechsle:1001951591",
         "storeId": "oechsle",
         "storeName": "Oechsle",
-        "title": "Tablet Xiaomi Redmi Pad 2 4gb 128gb Gris 9.7",
+        "title": "Tablet Xiaomi Redmi Pad 2 4gb 128gb Plata 9.7",
         "price": 589,
         "listPrice": 899,
         "cardPrice": null,
         "cardName": null,
-        "url": "https://www.oechsle.pe/tablet-xiaomi-redmi-pad-2-4gb-128gb-gris-9-7-1001951847/p",
-        "image": "https://oechsle.vteximg.com.br/arquivos/ids/26888886/imageUrl_1.jpg?v=639229755572730000"
+        "url": "https://www.oechsle.pe/tablet-xiaomi-redmi-pad-2-4gb-128gb-plata-9-7-1001951591/p",
+        "image": "https://oechsle.vteximg.com.br/arquivos/ids/26887644/imageUrl_1.jpg?v=639229754502330000"
       },
       {
         "id": "plazavea:102382755",
@@ -4897,7 +4974,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:192",
+    "groupId": "grp:celulares:193",
     "title": "Smartwatch Xiaomi Redmi Watch 6 Active Negro",
     "brand": "XIAOMI",
     "category": "celulares",
@@ -4979,7 +5056,7 @@
     ]
   },
   {
-    "groupId": "grp:gaming:212",
+    "groupId": "grp:gaming:211",
     "title": "Consola Nintendo Switch 2 256GB",
     "brand": "NINTENDO",
     "category": "gaming",
@@ -5061,7 +5138,7 @@
     ]
   },
   {
-    "groupId": "grp:gaming:220",
+    "groupId": "grp:gaming:219",
     "title": "Consola PlayStation 5® Digital PRO 2TB",
     "brand": "Sony",
     "category": "gaming",
@@ -5389,7 +5466,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:193",
+    "groupId": "grp:celulares:194",
     "title": "Smartphone Galaxy A57 5G 8GB 256GB Dark Blue",
     "brand": "SAMSUNG",
     "category": "celulares",
@@ -5430,7 +5507,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:205",
+    "groupId": "grp:celulares:204",
     "title": "Tablet Samsung Galaxy Tab A11 Plus 11\" 6Gb + 128Gb Gris",
     "brand": "SAMSUNG",
     "category": "celulares",
@@ -5594,7 +5671,7 @@
     ]
   },
   {
-    "groupId": "grp:gaming:218",
+    "groupId": "grp:gaming:217",
     "title": "Consola Nintendo Switch 2 Bundle Pokemon Legends Z-A",
     "brand": "Nintendo",
     "category": "gaming",
@@ -5635,7 +5712,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:194",
+    "groupId": "grp:celulares:195",
     "title": "Smartphones SAMSUNG Galaxy A17 4GB 128GB Negro",
     "brand": "SAMSUNG",
     "category": "celulares",
@@ -5672,47 +5749,6 @@
         "cardName": null,
         "url": "https://www.falabella.com.pe/falabella-pe/product/155230557/smartphone-galaxy-a17-5g-4gb-ram-128gb-negro",
         "image": "https://media.falabella.com.pe/falabellaPE/155230558_01/public"
-      }
-    ]
-  },
-  {
-    "groupId": "grp:celulares:204",
-    "title": "Smartphone galaxy A17 4G 8GB 256GB NEGRO",
-    "brand": "SAMSUNG",
-    "category": "celulares",
-    "image": "https://media.falabella.com.pe/falabellaPE/152141331_01/public",
-    "storeCount": 2,
-    "minPrice": 998,
-    "medianPrice": 1073.5,
-    "maxPrice": 1149,
-    "savingsPen": 151,
-    "spreadPct": 13.1,
-    "bestStoreName": "Falabella",
-    "bestProductId": "falabella:152141330",
-    "offers": [
-      {
-        "id": "falabella:152141330",
-        "storeId": "falabella",
-        "storeName": "Falabella",
-        "title": "Smartphone galaxy A17 4G 8GB 256GB NEGRO",
-        "price": 998,
-        "listPrice": 1200,
-        "cardPrice": null,
-        "cardName": null,
-        "url": "https://www.falabella.com.pe/falabella-pe/product/152141330/smartphone-galaxy-a17-4g-8gb-256gb-negro",
-        "image": "https://media.falabella.com.pe/falabellaPE/152141331_01/public"
-      },
-      {
-        "id": "plazavea:101742717",
-        "storeId": "plazavea",
-        "storeName": "PlazaVea",
-        "title": "Smartphone SAMSUNG Galaxy A17 6.7\" 8GB 256GB 50.0 MP + 5.0 MP + 2.0 MP Negro",
-        "price": 1149,
-        "listPrice": 1549,
-        "cardPrice": null,
-        "cardName": null,
-        "url": "https://www.plazavea.com.pe/smartphone-samsung-galaxy-a17-6-7--8gb-256gb-50-0-mp5-0-mp2-0-mp-negro/p",
-        "image": "https://plazavea.vteximg.com.br/arquivos/ids/34371331/20566877.jpg?v=639154324265000000"
       }
     ]
   },
@@ -5758,7 +5794,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:230",
+    "groupId": "grp:hogar:229",
     "title": "Colchón PARAISO Consul Black 1.5 Plazas",
     "brand": "PARAÍSO",
     "category": "hogar",
@@ -5922,7 +5958,7 @@
     ]
   },
   {
-    "groupId": "grp:gaming:216",
+    "groupId": "grp:gaming:215",
     "title": "Consola Nintendo Switch Oled 64GB, rojo/azul neón",
     "brand": "Nintendo",
     "category": "gaming",
@@ -5963,7 +5999,7 @@
     ]
   },
   {
-    "groupId": "grp:gaming:217",
+    "groupId": "grp:gaming:216",
     "title": "Consola Playstation 5 Slim Lectora de Discos",
     "brand": "SONY",
     "category": "gaming",
@@ -6332,7 +6368,7 @@
     ]
   },
   {
-    "groupId": "grp:gaming:214",
+    "groupId": "grp:gaming:213",
     "title": "Consola Nintendo Switch 2 256 GB, pantalla 7.9\" Full HD, Joy-Con 2, GameChat integrado",
     "brand": "Nintendo",
     "category": "gaming",
@@ -6373,7 +6409,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:229",
+    "groupId": "grp:hogar:228",
     "title": "Aspiradora robot dreame D20 Ultra Blanco",
     "brand": "DREAME",
     "category": "hogar",
@@ -6410,47 +6446,6 @@
         "cardName": null,
         "url": "https://www.promart.pe/aspiradora-robot-dreame-d20-ultra-blanco-1001395878/p",
         "image": "https://promart.vteximg.com.br/arquivos/ids/11325987/Image-1.jpg?v=639222630359170000"
-      }
-    ]
-  },
-  {
-    "groupId": "grp:celulares:191",
-    "title": "Celular Samsung A27 256GB 8GB RAM negro",
-    "brand": "Samsung",
-    "category": "celulares",
-    "image": "https://carsaperupoc.vteximg.com.br/arquivos/ids/214654/20--2-.jpg?v=639268151958300000",
-    "storeCount": 2,
-    "minPrice": 1199,
-    "medianPrice": 1248.5,
-    "maxPrice": 1298,
-    "savingsPen": 99,
-    "spreadPct": 7.6,
-    "bestStoreName": "Carsa",
-    "bestProductId": "carsa:7769",
-    "offers": [
-      {
-        "id": "carsa:7769",
-        "storeId": "carsa",
-        "storeName": "Carsa",
-        "title": "Celular Samsung A27 256GB 8GB RAM negro",
-        "price": 1199,
-        "listPrice": 1999,
-        "cardPrice": null,
-        "cardName": null,
-        "url": "https://www.carsa.pe/celular-samsung-a27-256gb-8gb-ram-negro/p",
-        "image": "https://carsaperupoc.vteximg.com.br/arquivos/ids/214654/20--2-.jpg?v=639268151958300000"
-      },
-      {
-        "id": "falabella:158214410",
-        "storeId": "falabella",
-        "storeName": "Falabella",
-        "title": "Smartphone Galaxy A27 5G 8GB 256GB Negro",
-        "price": 1298,
-        "listPrice": 1499,
-        "cardPrice": null,
-        "cardName": null,
-        "url": "https://www.falabella.com.pe/falabella-pe/product/158214410/smartphone-galaxy-a27-5g-8gb-256gb-negro",
-        "image": "https://media.falabella.com.pe/falabellaPE/158214411_01/public"
       }
     ]
   },
@@ -6660,7 +6655,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:224",
+    "groupId": "grp:hogar:223",
     "title": "Colchon Pocket Max Black 2 Plazas + 2 Almohadas + 1 Protector",
     "brand": "PARAISO",
     "category": "hogar",
@@ -6824,7 +6819,7 @@
     ]
   },
   {
-    "groupId": "grp:audio:241",
+    "groupId": "grp:audio:240",
     "title": "Parlante bluetooth JBL Flip 7 35W hasta 14 horas IP68 rojo",
     "brand": "JBL",
     "category": "audio",
@@ -7193,7 +7188,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:206",
+    "groupId": "grp:celulares:205",
     "title": "Tablet Samsung Galaxy Tab A11 8.7\" 4GB + 64GB Gris",
     "brand": "SAMSUNG",
     "category": "celulares",
@@ -7398,7 +7393,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:231",
+    "groupId": "grp:hogar:230",
     "title": "Colchón Edén Plus 1.5 Plazas",
     "brand": "PARAISO",
     "category": "hogar",
@@ -7439,7 +7434,7 @@
     ]
   },
   {
-    "groupId": "grp:deporte:244",
+    "groupId": "grp:deporte:243",
     "title": "Zapatillas Urbanas Hombre Puma Park Lt Og Blanco",
     "brand": "Puma",
     "category": "deporte",
@@ -7726,7 +7721,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:236",
+    "groupId": "grp:hogar:235",
     "title": "Taladro Percutor Inalámbrico GSB 183-LI + Batería + Cargador + Maletín Bosch",
     "brand": "BOSCH",
     "category": "hogar",
@@ -7767,7 +7762,7 @@
     ]
   },
   {
-    "groupId": "grp:gaming:213",
+    "groupId": "grp:gaming:212",
     "title": "WRC 10 Playstation 5 Latam",
     "brand": "Sony",
     "category": "gaming",
@@ -7849,7 +7844,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:190",
+    "groupId": "grp:celulares:189",
     "title": "Smartwatch Reloj Inteligente Bluetooth Ultra 3 - Monitor de Salud y Deporte - Beige",
     "brand": "GENÉRICO",
     "category": "celulares",
@@ -7890,7 +7885,7 @@
     ]
   },
   {
-    "groupId": "grp:deporte:243",
+    "groupId": "grp:deporte:242",
     "title": "Zapatillas Running Puma Mujer Flyer Lite 4 Wns Rosa",
     "brand": "PUMA",
     "category": "deporte",
@@ -10514,7 +10509,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:197",
+    "groupId": "grp:celulares:198",
     "title": "Celular Smartphone Cubot KingKong ES 3 Negro 6GB RAM 256GB 6.74",
     "brand": "CUBOT",
     "category": "celulares",
@@ -10678,7 +10673,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:209",
+    "groupId": "grp:celulares:208",
     "title": "Smartwatch Apple Watch Series 11 GPS 46mm 64GB hasta 24 horas negro",
     "brand": "Apple",
     "category": "celulares",
@@ -10719,7 +10714,7 @@
     ]
   },
   {
-    "groupId": "grp:celulares:211",
+    "groupId": "grp:celulares:210",
     "title": "Smartwatch Xiaomi Ultra Reloj Inteligente",
     "brand": "ORIGINAL GRAIN",
     "category": "celulares",
@@ -10760,7 +10755,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:223",
+    "groupId": "grp:hogar:222",
     "title": "Almohada de Viscoelástica Krea 30x50cm",
     "brand": "Krea",
     "category": "hogar",
@@ -10801,7 +10796,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:226",
+    "groupId": "grp:hogar:225",
     "title": "Kit de repuestos Tapo RVA105 para aspiradora robot Tapo",
     "brand": "TP- LINK",
     "category": "hogar",
@@ -10842,7 +10837,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:227",
+    "groupId": "grp:hogar:226",
     "title": "Kit de repuestos Tapo RVA105 para aspiradora robot Tapo",
     "brand": "TP- LINK",
     "category": "hogar",
@@ -10883,7 +10878,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:228",
+    "groupId": "grp:hogar:227",
     "title": "Kit de repuestos Tapo RVA104 para aspiradora robot Tapo",
     "brand": "TP- LINK",
     "category": "hogar",
@@ -10924,7 +10919,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:232",
+    "groupId": "grp:hogar:231",
     "title": "Almohada Krea Lavable 48x74cm",
     "brand": "Krea",
     "category": "hogar",
@@ -10965,7 +10960,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:233",
+    "groupId": "grp:hogar:232",
     "title": "Cereales Ángel Fresia Almohada 350g",
     "brand": "Angel",
     "category": "hogar",
@@ -11006,7 +11001,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:234",
+    "groupId": "grp:hogar:233",
     "title": "Almohada Krea Firm 70x50cm",
     "brand": "Krea",
     "category": "hogar",
@@ -11047,7 +11042,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:235",
+    "groupId": "grp:hogar:234",
     "title": "Almohada Krea Soft 70x50cm",
     "brand": "Krea",
     "category": "hogar",
@@ -11088,7 +11083,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:237",
+    "groupId": "grp:hogar:236",
     "title": "Almohada Drimer Air 70x50cm",
     "brand": "Drimer",
     "category": "hogar",
@@ -11129,7 +11124,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:238",
+    "groupId": "grp:hogar:237",
     "title": "Almohada Drimer Enrollada 65x50cm",
     "brand": "Drimer",
     "category": "hogar",
@@ -11170,7 +11165,7 @@
     ]
   },
   {
-    "groupId": "grp:hogar:239",
+    "groupId": "grp:hogar:238",
     "title": "Almohada Technodream Antistress 65x50cm",
     "brand": "Technodream by Drimer",
     "category": "hogar",
@@ -11211,7 +11206,7 @@
     ]
   },
   {
-    "groupId": "grp:audio:242",
+    "groupId": "grp:audio:241",
     "title": "Audífonos Bluetooth in Ear WI-C100",
     "brand": "Sony",
     "category": "audio",
