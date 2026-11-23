@@ -81,16 +81,16 @@ async function loadInitialData() {
     }
   } catch {
     state.mode = 'static';
-    const [catalog, meta, history, watchlistFile] = await Promise.all([
+    const [catalog, meta, history] = await Promise.all([
       fetchJsonSafe(`./data/catalog.json?${cacheBust}`, []),
       fetchJsonSafe(`./data/meta.json?${cacheBust}`, {}),
-      fetchJsonSafe(`./data/history.json?${cacheBust}`, {}),
-      fetchJsonSafe(`./data/watchlist.json?${cacheBust}`, { urls: [], customQueries: [], starredIds: [], targetPrices: {} })
+      fetchJsonSafe(`./data/history.json?${cacheBust}`, {})
     ]);
     state.catalog = catalog;
     state.meta = meta;
     state.historyCache = history;
-    state.watchlist = mergeLocalWatchlist(watchlistFile);
+    // En modo web pública (GitHub Pages), Mi Lista es 100% personal por navegador
+    state.watchlist = loadLocalWatchlist();
     state.stores = Object.values(meta?.storesStatus || {}).map((s) => ({
       id: s.id,
       name: s.name,
@@ -134,22 +134,23 @@ async function fetchJsonSafe(url, fallback) {
   }
 }
 
-function mergeLocalWatchlist(base) {
+function loadLocalWatchlist() {
+  const empty = { urls: [], customQueries: [], starredIds: [], targetPrices: {} };
   try {
     const raw =
       localStorage.getItem(LOCAL_WATCHLIST_KEY) ||
       LEGACY_WATCHLIST_KEYS.map((k) => localStorage.getItem(k)).find(Boolean) ||
       'null';
     const saved = JSON.parse(raw);
-    if (!saved) return base;
+    if (!saved || typeof saved !== 'object') return empty;
     return {
-      urls: base.urls || [],
-      customQueries: [...new Set([...(base.customQueries || []), ...(saved.customQueries || [])])],
-      starredIds: [...new Set([...(base.starredIds || []), ...(saved.starredIds || [])])],
-      targetPrices: { ...(base.targetPrices || {}), ...(saved.targetPrices || {}) }
+      urls: Array.isArray(saved.urls) ? saved.urls : [],
+      customQueries: Array.isArray(saved.customQueries) ? [...new Set(saved.customQueries)] : [],
+      starredIds: Array.isArray(saved.starredIds) ? [...new Set(saved.starredIds)] : [],
+      targetPrices: saved.targetPrices && typeof saved.targetPrices === 'object' ? { ...saved.targetPrices } : {}
     };
   } catch {
-    return base;
+    return empty;
   }
 }
 
@@ -508,7 +509,9 @@ function renderCards(container, items, isLiveSearch = false) {
                 `
                 : `
                   <span class="verdict-pill verdict-${escapeHtml(s.verdict)}">${escapeHtml(s.verdictLabel)}</span>
-                  <span class="mono small" style="font-weight:700;">Score ${s.dealScore}</span>
+                  <button type="button" class="btn ${isStarred ? 'btn-danger-soft' : 'btn-secondary'} btn-list-toggle" data-star-id="${escapeHtml(p.id)}">
+                    ${isStarred ? '✕ Quitar' : '+ Añadir'}
+                  </button>
                 `
             }
           </div>
@@ -531,12 +534,15 @@ function renderCards(container, items, isLiveSearch = false) {
 }
 
 // ============================================================================
-// Watchlist View
+// Watchlist View (100% Personal & Removable)
 // ============================================================================
 function getWatchlistProducts() {
   const starred = new Set(state.watchlist.starredIds || []);
-  const trackedUrls = new Set((state.watchlist.urls || []).map((u) => (typeof u === 'string' ? u : u.url)));
-  return state.catalog.filter((p) => starred.has(p.id) || p.isCustomWatch || trackedUrls.has(p.url));
+  const trackedUrls =
+    state.mode === 'server'
+      ? new Set((state.watchlist.urls || []).map((u) => (typeof u === 'string' ? u : u.url)))
+      : new Set();
+  return state.catalog.filter((p) => starred.has(p.id) || (trackedUrls.size > 0 && trackedUrls.has(p.url)));
 }
 
 function renderWatchlist() {
@@ -560,13 +566,18 @@ function renderWatchlist() {
     });
   }
 
+  renderWatchlistPicker();
+
   const wrap = document.getElementById('watchlist-items-wrap');
+  const clearBtn = document.getElementById('watchlist-clear-all-btn');
   const list = getWatchlistProducts();
+  if (clearBtn) clearBtn.hidden = list.length === 0;
+
   if (!list.length) {
     wrap.innerHTML = `
       <div class="empty-state">
-        <h3>Tu lista de seguimiento está vacía</h3>
-        <p>Haz clic en la estrella (☆) de cualquier producto del catálogo o pega una URL de cualquier tienda peruana para seguir su precio histórico.</p>
+        <h3>Tu lista está vacía</h3>
+        <p>Usa el buscador de arriba para añadir productos del catálogo, o haz clic en <strong>☆ / + Añadir</strong> en cualquier oferta.</p>
       </div>
     `;
     return;
@@ -577,6 +588,54 @@ function renderWatchlist() {
   wrap.innerHTML = '';
   wrap.appendChild(grid);
   renderCards(grid, list, false);
+}
+
+function renderWatchlistPicker() {
+  const input = document.getElementById('watchlist-picker-input');
+  const resultsEl = document.getElementById('watchlist-picker-results');
+  if (!input || !resultsEl) return;
+
+  const q = input.value.trim().toLowerCase();
+  if (q.length < 2) {
+    resultsEl.hidden = true;
+    resultsEl.innerHTML = '';
+    return;
+  }
+
+  const terms = q.split(/\s+/).filter(Boolean);
+  const matches = state.catalog
+    .filter((p) => {
+      const hay = `${p.title} ${p.brand} ${p.storeName} ${p.sku}`.toLowerCase();
+      return terms.every((t) => hay.includes(t));
+    })
+    .slice(0, 10);
+
+  resultsEl.hidden = false;
+  if (!matches.length) {
+    resultsEl.innerHTML = '<span class="small muted">No se encontraron productos con ese nombre en el catálogo de hoy.</span>';
+    return;
+  }
+
+  const starredSet = new Set(state.watchlist.starredIds || []);
+  resultsEl.innerHTML = matches
+    .map((p) => {
+      const inList = starredSet.has(p.id);
+      return `
+        <div class="picker-row" data-product-id="${escapeHtml(p.id)}">
+          <div class="picker-row-info">
+            <span class="store-pill" style="${getStorePillStyle(p.storeId)}">${escapeHtml(p.storeName)}</span>
+            <span class="picker-row-title">${escapeHtml(p.title)}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <strong class="mono small">${formatPen(p.price)}</strong>
+            <button type="button" class="btn ${inList ? 'btn-danger-soft' : 'btn-primary'} btn-list-toggle" data-star-id="${escapeHtml(p.id)}">
+              ${inList ? '✕ Quitar' : '+ Añadir'}
+            </button>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
 }
 
 // ============================================================================
@@ -755,7 +814,8 @@ function renderDrawer(p, history, related) {
   document.getElementById('drawer-store-link').href = p.url;
   const isStarred = (state.watchlist.starredIds || []).includes(p.id);
   const starBtn = document.getElementById('drawer-star-btn');
-  starBtn.textContent = isStarred ? '★ En Mi Lista' : '☆ Seguir';
+  starBtn.textContent = isStarred ? '✕ Quitar de Mi Lista' : '+ Añadir a Mi Lista';
+  starBtn.className = `btn ${isStarred ? 'btn-danger-soft' : 'btn-secondary'}`;
 
   const refreshBtn = document.getElementById('drawer-refresh-btn');
   refreshBtn.hidden = state.mode !== 'server';
@@ -1280,6 +1340,7 @@ async function submitTrackUrl(e) {
 }
 
 async function toggleStar(productId) {
+  const wasStarred = (state.watchlist.starredIds || []).includes(productId);
   if (state.mode === 'server') {
     const res = await fetch('/api/watchlist', {
       method: 'POST',
@@ -1292,15 +1353,41 @@ async function toggleStar(productId) {
     }
   } else {
     const idx = state.watchlist.starredIds.indexOf(productId);
-    if (idx >= 0) state.watchlist.starredIds.splice(idx, 1);
-    else state.watchlist.starredIds.push(productId);
+    if (idx >= 0) {
+      state.watchlist.starredIds.splice(idx, 1);
+      delete state.watchlist.targetPrices[productId];
+    } else {
+      state.watchlist.starredIds.push(productId);
+    }
+    saveLocalWatchlist();
+  }
+
+  renderAll();
+  if (state.selectedProduct?.id === productId) {
+    const isStarred = (state.watchlist.starredIds || []).includes(productId);
+    const starBtn = document.getElementById('drawer-star-btn');
+    starBtn.textContent = isStarred ? '✕ Quitar de Mi Lista' : '+ Añadir a Mi Lista';
+    starBtn.className = `btn ${isStarred ? 'btn-danger-soft' : 'btn-secondary'}`;
+  }
+  showToast(wasStarred ? 'Producto quitado de Mi Lista.' : 'Producto añadido a Mi Lista.');
+}
+
+async function clearAllWatchlist() {
+  if (state.mode === 'server') {
+    const res = await fetch('/api/watchlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'clearAll' })
+    });
+    if (res.ok) state.watchlist = (await res.json()).watchlist;
+  } else {
+    state.watchlist.starredIds = [];
+    state.watchlist.urls = [];
+    state.watchlist.targetPrices = {};
     saveLocalWatchlist();
   }
   renderAll();
-  if (state.selectedProduct?.id === productId) {
-    const isStarred = state.watchlist.starredIds.includes(productId);
-    document.getElementById('drawer-star-btn').textContent = isStarred ? '★ En Mi Lista' : '☆ Seguir';
-  }
+  showToast('Se vació Mi Lista.');
 }
 
 async function saveTargetPrice() {
@@ -1569,7 +1656,9 @@ function bindEvents() {
   });
   document.getElementById('track-url-form').addEventListener('submit', submitTrackUrl);
 
-  // Watchlist add query form
+  // Watchlist picker, clear button & add query form
+  document.getElementById('watchlist-picker-input')?.addEventListener('input', renderWatchlistPicker);
+  document.getElementById('watchlist-clear-all-btn')?.addEventListener('click', clearAllWatchlist);
   document.getElementById('add-query-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const input = document.getElementById('new-query-input');

@@ -336,7 +336,7 @@
     "originalCurrency": "PEN",
     "originalPrice": null,
     "inStock": true,
-    "isCustomWatch": true,
+    "isCustomWatch": false,
     "lastSeenDate": "2026-11-23",
     "effectivePrice": 99,
     "stats": {

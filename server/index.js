@@ -290,8 +290,17 @@ const server = http.createServer(async (req, res) => {
 
       if (body.action === 'toggleStar' && body.id) {
         const idx = watchlist.starredIds.indexOf(body.id);
-        if (idx >= 0) watchlist.starredIds.splice(idx, 1);
-        else watchlist.starredIds.push(body.id);
+        if (idx >= 0) {
+          watchlist.starredIds.splice(idx, 1);
+          watchlist.urls = watchlist.urls.filter((u) => (typeof u === 'string' ? true : u.id !== body.id));
+          delete watchlist.targetPrices[body.id];
+        } else {
+          watchlist.starredIds.push(body.id);
+        }
+      } else if (body.action === 'clearAll') {
+        watchlist.starredIds = [];
+        watchlist.urls = [];
+        watchlist.targetPrices = {};
       } else if (body.action === 'setTargetPrice' && body.id) {
         if (body.targetPrice && Number(body.targetPrice) > 0) {
           watchlist.targetPrices[body.id] = Number(body.targetPrice);

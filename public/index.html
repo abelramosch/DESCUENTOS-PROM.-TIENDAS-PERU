@@ -248,10 +248,27 @@
         <div>
           <h2>Mi Lista de Seguimiento y Alertas</h2>
           <p class="muted">
-            Productos que guardaste con estrella o agregaste por URL. Define tu <strong>precio objetivo</strong> para saber al instante cuándo comprar.
+            Tu lista es <strong>privada en este navegador</strong> (al compartir el enlace, cada persona tiene su propia lista). Añade productos, define tu <strong>precio objetivo</strong> o quítalos cuando quieras.
           </p>
         </div>
-        <button type="button" class="btn btn-primary" id="watchlist-add-url-btn">+ Agregar URL de tienda</button>
+        <div class="watchlist-header-actions">
+          <button type="button" class="btn btn-secondary" id="watchlist-clear-all-btn" hidden>Vaciar lista</button>
+          <button type="button" class="btn btn-primary" id="watchlist-add-url-btn">+ Agregar por URL</button>
+        </div>
+      </div>
+
+      <!-- Instant Quick-Add from Catalog -->
+      <div class="watchlist-picker-box">
+        <div class="watchlist-picker-head">
+          <h3>Añadir productos del catálogo a Mi Lista</h3>
+          <input
+            type="search"
+            id="watchlist-picker-input"
+            placeholder="Busca cualquier producto del catálogo para añadirlo (ej. laptop, PS5, OLED, freidora)..."
+            autocomplete="off"
+          />
+        </div>
+        <div class="watchlist-picker-results" id="watchlist-picker-results" hidden></div>
       </div>
 
       <div class="custom-queries-box">
