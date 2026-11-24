@@ -71,7 +71,7 @@ export async function searchAllStoresLive(query, options = {}) {
       error: r.error || null
     });
     if (Array.isArray(r.items)) {
-      allItems.push(...r.items);
+      allItems.push(...r.items.filter((it) => !it._outOfStockMarker));
     }
   }
 

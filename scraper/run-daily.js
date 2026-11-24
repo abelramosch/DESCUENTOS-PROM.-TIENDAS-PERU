@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { STORES, STORE_MAP } from '../config/stores.js';
 import { getLimaDateString, getUsdToPenRate, runWithConcurrency } from './http.js';
 import { searchSingleStore } from './live-search.js';
+import { verifyVtexStockBatch } from './adapters/vtex.js';
 import { fetchMiOfficialCatalog } from './adapters/mi-official.js';
 import { discoverMagentoSeasonalPaths, fetchMagentoCategoryPage } from './adapters/magento.js';
 import { scrapeProductUrl } from './adapters/url-scraper.js';
@@ -193,23 +194,44 @@ export async function runDailyScrape(options = {}) {
   let completed = 0;
   let fetchedCount = 0;
   const preDiscoveredCampaignPaths = {};
+  const seenTodayIds = new Set();
+
+  const applyStockUpdate = (item, isCustomWatch = false) => {
+    const existing = productMap.get(item.id);
+    if (item._outOfStockMarker) {
+      if (!existing) return;
+      const updated = {
+        ...existing,
+        inStock: false,
+        lastSeenDate: today
+      };
+      productMap.set(item.id, updated);
+      seenTodayIds.add(item.id);
+      recordPricePoint(history, updated, today);
+      return;
+    }
+
+    const merged = {
+      ...item,
+      isCustomWatch: Boolean(existing?.isCustomWatch || isCustomWatch),
+      lastSeenDate: today
+    };
+    delete merged._outOfStockMarker;
+    productMap.set(item.id, merged);
+    seenTodayIds.add(item.id);
+    recordPricePoint(history, merged, today);
+  };
 
   const mergeFetchedItems = (storeId, items, isCustomWatch = false) => {
     const st = storesStatus[storeId];
+    const pricedItems = items.filter((it) => !it._outOfStockMarker);
     if (st) {
       st.okJobs += 1;
-      st.productsFetched += items.length;
+      st.productsFetched += pricedItems.length;
     }
     for (const item of items) {
-      fetchedCount += 1;
-      const existing = productMap.get(item.id);
-      const merged = {
-        ...item,
-        isCustomWatch: Boolean(existing?.isCustomWatch || isCustomWatch),
-        lastSeenDate: today
-      };
-      productMap.set(item.id, merged);
-      recordPricePoint(history, merged, today);
+      if (!item._outOfStockMarker) fetchedCount += 1;
+      applyStockUpdate(item, isCustomWatch);
     }
   };
 
@@ -229,7 +251,7 @@ export async function runDailyScrape(options = {}) {
           job.query,
           job.limit,
           job.category,
-          job.searchOptions || {}
+          { includeOutOfStockMarkers: true, ...(job.searchOptions || {}) }
         );
         mergeFetchedItems(job.store.id, items, Boolean(job.isCustomWatch));
       } else if (job.type === 'mi_official') {
@@ -259,17 +281,11 @@ export async function runDailyScrape(options = {}) {
       } else if (job.type === 'url') {
         const item = await scrapeProductUrl(job.url, job.category);
         if (item) {
-          fetchedCount += 1;
-          const merged = {
-            ...item,
-            isCustomWatch: true,
-            lastSeenDate: today
-          };
-          productMap.set(item.id, merged);
-          recordPricePoint(history, merged, today);
+          if (!item._outOfStockMarker) fetchedCount += 1;
+          applyStockUpdate(item, true);
           if (storesStatus[item.storeId]) {
             storesStatus[item.storeId].okJobs += 1;
-            storesStatus[item.storeId].productsFetched += 1;
+            if (!item._outOfStockMarker) storesStatus[item.storeId].productsFetched += 1;
           }
         }
       }
@@ -291,6 +307,55 @@ export async function runDailyScrape(options = {}) {
       });
     }
   });
+
+  // Verify live stock for previously-cached VTEX products not seen in today's search queries
+  // (catches products that sold out and dropped out of search results, e.g. PlazaVea/Oechsle/etc.)
+  const vtexUnseenByStore = new Map();
+  for (const prod of productMap.values()) {
+    if (seenTodayIds.has(prod.id)) continue;
+    const store = STORE_MAP[prod.storeId];
+    if (!store || !store.enabled || store.engine !== 'vtex') continue;
+    if (storeIds && !storeIds.includes(store.id)) continue;
+    // Check currently in-stock items (and also re-check recently out-of-stock items in full mode)
+    if (quick && prod.inStock === false) continue;
+    if (!vtexUnseenByStore.has(store.id)) vtexUnseenByStore.set(store.id, []);
+    vtexUnseenByStore.get(store.id).push(prod);
+  }
+
+  if (vtexUnseenByStore.size > 0) {
+    onProgress({
+      phase: 'scraping',
+      completed: jobs.length,
+      total: jobs.length,
+      fetchedCount,
+      message: `Verificando stock en vivo en ${vtexUnseenByStore.size} tiendas VTEX...`
+    });
+    const stockTasks = [...vtexUnseenByStore.entries()].map(([storeId, list]) => ({
+      store: STORE_MAP[storeId],
+      list
+    }));
+    await runWithConcurrency(stockTasks, 6, async ({ store, list }) => {
+      const updates = await verifyVtexStockBatch(store, list, 25);
+      for (const upd of updates) {
+        applyStockUpdate(upd, false);
+      }
+    });
+  }
+
+  // For healthy non-VTEX stores, mark items unseen for >= 2 days as out of stock
+  const todayMs = Date.parse(`${today}T00:00:00Z`);
+  if (Number.isFinite(todayMs) && !quick) {
+    for (const prod of productMap.values()) {
+      if (seenTodayIds.has(prod.id) || prod.inStock === false) continue;
+      const store = STORE_MAP[prod.storeId];
+      const st = storesStatus[prod.storeId];
+      if (!store || store.engine === 'vtex' || !st || st.okJobs === 0 || st.failedJobs > 0) continue;
+      const lastMs = Date.parse(`${prod.lastSeenDate || today}T00:00:00Z`);
+      if (Number.isFinite(lastMs) && (todayMs - lastMs) / 86400000 >= 2) {
+        prod.inStock = false;
+      }
+    }
+  }
 
   // Clean misclassified toy items and deduplicate identical same-store listings
   const normalizedProducts = [...productMap.values()].map((p) => ({

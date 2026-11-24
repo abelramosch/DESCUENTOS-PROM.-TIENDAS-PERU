@@ -6,7 +6,7 @@ import { fetchWithTimeout, makeProductId } from '../http.js';
  * Estilos, Triathlon, Footloose, Sony, Xiaomi, Casaideas, Aruma).
  */
 export async function searchVtexStore(store, query, limit = 10, category = 'tecnologia', options = {}) {
-  const { orderBy = null, minPrice = null, inStockOnly = false } = options;
+  const { orderBy = null, minPrice = null, inStockOnly = false, includeOutOfStockMarkers = false } = options;
   const encoded = encodeURIComponent(query);
   const to = Math.max(0, limit - 1);
   let url = `${store.baseUrl}/api/catalog_system/pub/products/search?ft=${encoded}&_from=0&_to=${to}`;
@@ -31,10 +31,12 @@ export async function searchVtexStore(store, query, limit = 10, category = 'tecn
 
   const products = [];
   for (const item of raw) {
-    const normalized = normalizeVtexProduct(store, item, category);
+    const normalized = normalizeVtexProduct(store, item, category, {
+      allowOutOfStockMarker: Boolean(includeOutOfStockMarkers && !inStockOnly)
+    });
     if (!normalized) continue;
     if (inStockOnly && !normalized.inStock) continue;
-    if (minPrice && normalized.price < Number(minPrice)) continue;
+    if (!normalized._outOfStockMarker && minPrice && normalized.price < Number(minPrice)) continue;
     products.push(normalized);
   }
   return products;
@@ -55,10 +57,83 @@ export async function fetchVtexProductByUrl(store, productUrl) {
   if (!res.ok && res.status !== 206) return null;
   const data = await res.json();
   if (!Array.isArray(data) || !data.length) return null;
-  return normalizeVtexProduct(store, data[0], 'personal');
+  return normalizeVtexProduct(store, data[0], 'personal', { allowOutOfStockMarker: true });
 }
 
-export function normalizeVtexProduct(store, p, category) {
+export function isVtexOfferInStock(offer) {
+  return Boolean(
+    offer &&
+      Number(offer.Price) > 0 &&
+      Number(offer.AvailableQuantity) > 0 &&
+      offer.IsAvailable !== false
+  );
+}
+
+/**
+ * Verifica en lote el stock y precio real en VTEX para productos previamente en catálogo
+ * que no aparecieron en las búsquedas del día (por ejemplo, cuando se agotaron).
+ */
+export async function verifyVtexStockBatch(store, products = [], batchSize = 25) {
+  if (!store?.baseUrl || !products.length) return [];
+  const updates = [];
+
+  for (let i = 0; i < products.length; i += batchSize) {
+    const chunk = products.slice(i, i + batchSize);
+    const validChunk = chunk.filter((p) => /^\d+$/.test(String(p.sku || '')));
+    if (!validChunk.length) continue;
+
+    const fq = validChunk.map((p) => `fq=productId:${encodeURIComponent(p.sku)}`).join('&');
+    const url = `${store.baseUrl}/api/catalog_system/pub/products/search?${fq}&_from=0&_to=${Math.max(49, validChunk.length)}`;
+
+    try {
+      const res = await fetchWithTimeout(url, {
+        timeoutMs: 12000,
+        headers: { Accept: 'application/json' }
+      });
+      if (!res.ok && res.status !== 206) continue;
+      const raw = await res.json();
+      if (!Array.isArray(raw)) continue;
+
+      const bySku = new Map();
+      for (const item of raw) {
+        if (item?.productId !== undefined && item?.productId !== null) {
+          bySku.set(String(item.productId), item);
+        }
+      }
+
+      for (const prev of validChunk) {
+        const rawItem = bySku.get(String(prev.sku));
+        if (!rawItem) {
+          // Only mark missing products as out of stock if the batch query returned at least one valid item
+          if (raw.length > 0) {
+            updates.push({
+              id: prev.id,
+              storeId: store.id,
+              sku: String(prev.sku),
+              price: 0,
+              inStock: false,
+              _outOfStockMarker: true
+            });
+          }
+          continue;
+        }
+        const normalized = normalizeVtexProduct(store, rawItem, prev.category || 'tecnologia', {
+          allowOutOfStockMarker: true
+        });
+        if (normalized) {
+          updates.push({ ...normalized, id: prev.id });
+        }
+      }
+    } catch {
+      // Network/timeout error: leave existing items untouched rather than falsely marking out-of-stock
+    }
+  }
+
+  return updates;
+}
+
+export function normalizeVtexProduct(store, p, category, options = {}) {
+  const { allowOutOfStockMarker = false } = options;
   if (!p || !Array.isArray(p.items) || p.items.length === 0) return null;
 
   // Pick first in-stock SKU with a valid price, or fall back to first SKU
@@ -69,7 +144,7 @@ export function normalizeVtexProduct(store, p, category) {
     const sellers = skuItem?.sellers || [];
     for (const seller of sellers) {
       const offer = seller?.commertialOffer;
-      if (offer && Number(offer.Price) > 0 && Number(offer.AvailableQuantity) > 0) {
+      if (isVtexOfferInStock(offer)) {
         chosenItem = skuItem;
         chosenOffer = offer;
         break;
@@ -81,7 +156,24 @@ export function normalizeVtexProduct(store, p, category) {
   if (!chosenOffer) {
     const fallbackItem = p.items[0];
     const fallbackOffer = fallbackItem?.sellers?.[0]?.commertialOffer;
-    if (!fallbackOffer || Number(fallbackOffer.Price) <= 0) return null;
+    const sku = String(p.productId || fallbackItem?.itemId || p.linkText || '');
+    const title = cleanText(p.productName || fallbackItem?.nameComplete || '');
+    if (!fallbackOffer || Number(fallbackOffer.Price) <= 0) {
+      if (allowOutOfStockMarker && sku) {
+        return {
+          id: makeProductId(store.id, sku),
+          storeId: store.id,
+          storeName: store.name,
+          sku,
+          title,
+          category,
+          price: 0,
+          inStock: false,
+          _outOfStockMarker: true
+        };
+      }
+      return null;
+    }
     chosenItem = fallbackItem;
     chosenOffer = fallbackOffer;
   }
@@ -143,7 +235,7 @@ export function normalizeVtexProduct(store, p, category) {
     cardName: cardPrice ? cardName || store.cardName || 'Tarjeta' : null,
     originalCurrency: 'PEN',
     originalPrice: null,
-    inStock: Number(chosenOffer.AvailableQuantity) > 0
+    inStock: isVtexOfferInStock(chosenOffer)
   };
 }
 

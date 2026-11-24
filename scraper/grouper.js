@@ -98,10 +98,12 @@ function round2(n) {
  *  - productGroupMeta: Map<productId, { groupId, peerCount, peerMinPrice, peerMedianPrice, peerMaxPrice, peers }>
  */
 export function buildMultiStoreGroups(catalog = []) {
-  const prepared = catalog.map((p) => ({
-    product: p,
-    fp: extractSignificantTokens(p.title, p.brand)
-  }));
+  const prepared = catalog
+    .filter((p) => p && p.inStock !== false)
+    .map((p) => ({
+      product: p,
+      fp: extractSignificantTokens(p.title, p.brand)
+    }));
 
   // Index by category to keep clustering fast and accurate
   const byCat = new Map();

@@ -1880,6 +1880,8 @@ function renderDrawer(p, history, related, group = state.selectedGroup) {
   pill.setAttribute('style', getStorePillStyle(p.storeId));
 
   setText('drawer-sku', p.sku ? `SKU ${p.sku}` : '');
+  const stockPill = document.getElementById('drawer-stock-pill');
+  if (stockPill) stockPill.hidden = p.inStock !== false;
   setText('drawer-brand', p.brand || p.storeName);
   setText('drawer-title', p.title);
   setText('drawer-price-now', formatPen(uPrice.price));

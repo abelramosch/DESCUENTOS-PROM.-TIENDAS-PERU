@@ -9,6 +9,7 @@ import {
 import { buildMultiStoreGroups } from '../scraper/grouper.js';
 import { parsePriceNumber } from '../scraper/http.js';
 import { compactCatalogForPublic, recordPricePoint } from '../scraper/storage.js';
+import { isVtexOfferInStock, normalizeVtexProduct } from '../scraper/adapters/vtex.js';
 
 test('parsePriceNumber parses Peruvian PEN, USD, and EU formatted prices', () => {
   assert.equal(parsePriceNumber('S/ 1,299.90'), 1299.9);
@@ -296,4 +297,41 @@ test('compactCatalogForPublic removes matchTokens and null defaults while preser
   assert.equal('bugazoReason' in compact[0].stats, false);
   assert.equal(compact[0].stats.isAllTimeLow, true);
 });
+
+test('normalizeVtexProduct detects out-of-stock items with Price=0 or IsAvailable=false', () => {
+  const store = { id: 'plazavea', name: 'PlazaVea', baseUrl: 'https://www.plazavea.com.pe' };
+  const rawOosZero = {
+    productId: '102067258',
+    productName: 'Xiaomi Poco X8 Pro 512gb 12gb Black',
+    brand: 'XIAOMI',
+    items: [
+      {
+        itemId: '12397348',
+        sellers: [{ commertialOffer: { Price: 0, ListPrice: 0, AvailableQuantity: 0, IsAvailable: false } }]
+      }
+    ]
+  };
+  assert.equal(normalizeVtexProduct(store, rawOosZero, 'celulares'), null);
+  const marker = normalizeVtexProduct(store, rawOosZero, 'celulares', { allowOutOfStockMarker: true });
+  assert.equal(marker.id, 'plazavea:102067258');
+  assert.equal(marker.inStock, false);
+  assert.equal(marker._outOfStockMarker, true);
+
+  assert.equal(isVtexOfferInStock({ Price: 1699, AvailableQuantity: 5, IsAvailable: false }), false);
+  assert.equal(isVtexOfferInStock({ Price: 1699, AvailableQuantity: 5, IsAvailable: true }), true);
+});
+
+test('buildMultiStoreGroups excludes out-of-stock offers from unified store comparisons', () => {
+  const sample = [
+    { id: 'plazavea:1', storeId: 'plazavea', storeName: 'PlazaVea', title: 'Xiaomi Poco X8 Pro 512GB 12GB Negro', brand: 'Xiaomi', category: 'celulares', price: 1699, inStock: false },
+    { id: 'coolbox:1', storeId: 'coolbox', storeName: 'Coolbox', title: 'Xiaomi Poco X8 Pro 512GB 12GB Negro', brand: 'Xiaomi', category: 'celulares', price: 1839, inStock: true },
+    { id: 'shopstar:1', storeId: 'shopstar', storeName: 'Shopstar', title: 'Xiaomi Poco X8 Pro 512GB 12GB Negro', brand: 'Xiaomi', category: 'celulares', price: 1832, inStock: true }
+  ];
+  const { groups, productGroupMeta } = buildMultiStoreGroups(sample);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].storeCount, 2);
+  assert.equal(groups[0].minPrice, 1832);
+  assert.equal(productGroupMeta.has('plazavea:1'), false);
+});
+
 
