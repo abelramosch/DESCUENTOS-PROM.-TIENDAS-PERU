@@ -1,16 +1,16 @@
 {
-  "lastUpdatedAt": "2026-11-24T02:04:21.385Z",
-  "lastUpdatedDate": "2026-11-23",
-  "elapsedMs": 45674,
+  "lastUpdatedAt": "2026-11-24T12:53:49.780Z",
+  "lastUpdatedDate": "2026-11-24",
+  "elapsedMs": 41407,
   "usdToPen": 3.456,
-  "totalProducts": 3837,
+  "totalProducts": 3912,
   "activeStores": 29,
   "totalConfiguredStores": 30,
-  "allTimeLows": 0,
-  "droppedToday": 0,
-  "fakeDiscounts": 468,
-  "bugazosCount": 24,
-  "groupsCount": 485,
+  "allTimeLows": 32,
+  "droppedToday": 32,
+  "fakeDiscounts": 473,
+  "bugazosCount": 17,
+  "groupsCount": 493,
   "storesStatus": {
     "falabella": {
       "id": "falabella",
@@ -21,7 +21,7 @@
       "failedJobs": 0,
       "productsFetched": 365,
       "lastError": null,
-      "catalogCount": 529
+      "catalogCount": 564
     },
     "tottus": {
       "id": "tottus",
@@ -30,9 +30,9 @@
       "currency": "PEN",
       "okJobs": 33,
       "failedJobs": 0,
-      "productsFetched": 193,
+      "productsFetched": 192,
       "lastError": null,
-      "catalogCount": 223
+      "catalogCount": 232
     },
     "plazavea": {
       "id": "plazavea",
@@ -41,9 +41,9 @@
       "currency": "PEN",
       "okJobs": 45,
       "failedJobs": 0,
-      "productsFetched": 332,
+      "productsFetched": 331,
       "lastError": null,
-      "catalogCount": 348
+      "catalogCount": 351
     },
     "oechsle": {
       "id": "oechsle",
@@ -54,7 +54,7 @@
       "failedJobs": 0,
       "productsFetched": 274,
       "lastError": null,
-      "catalogCount": 291
+      "catalogCount": 294
     },
     "promart": {
       "id": "promart",
@@ -65,7 +65,7 @@
       "failedJobs": 0,
       "productsFetched": 220,
       "lastError": null,
-      "catalogCount": 229
+      "catalogCount": 231
     },
     "wong": {
       "id": "wong",
@@ -76,7 +76,7 @@
       "failedJobs": 0,
       "productsFetched": 150,
       "lastError": null,
-      "catalogCount": 165
+      "catalogCount": 166
     },
     "metro": {
       "id": "metro",
@@ -85,9 +85,9 @@
       "currency": "PEN",
       "okJobs": 33,
       "failedJobs": 0,
-      "productsFetched": 145,
+      "productsFetched": 146,
       "lastError": null,
-      "catalogCount": 162
+      "catalogCount": 164
     },
     "coolbox": {
       "id": "coolbox",
@@ -96,9 +96,9 @@
       "currency": "PEN",
       "okJobs": 28,
       "failedJobs": 0,
-      "productsFetched": 203,
+      "productsFetched": 204,
       "lastError": null,
-      "catalogCount": 208
+      "catalogCount": 209
     },
     "carsa": {
       "id": "carsa",
@@ -120,7 +120,7 @@
       "failedJobs": 0,
       "productsFetched": 295,
       "lastError": null,
-      "catalogCount": 318
+      "catalogCount": 320
     },
     "estilos": {
       "id": "estilos",
@@ -131,7 +131,7 @@
       "failedJobs": 0,
       "productsFetched": 179,
       "lastError": null,
-      "catalogCount": 194
+      "catalogCount": 195
     },
     "sony": {
       "id": "sony",
@@ -142,7 +142,7 @@
       "failedJobs": 0,
       "productsFetched": 61,
       "lastError": null,
-      "catalogCount": 61
+      "catalogCount": 63
     },
     "xiaomi": {
       "id": "xiaomi",
@@ -175,7 +175,7 @@
       "failedJobs": 0,
       "productsFetched": 14,
       "lastError": null,
-      "catalogCount": 23
+      "catalogCount": 24
     },
     "casaideas": {
       "id": "casaideas",
@@ -208,7 +208,7 @@
       "failedJobs": 0,
       "productsFetched": 35,
       "lastError": null,
-      "catalogCount": 26
+      "catalogCount": 27
     },
     "electrolux": {
       "id": "electrolux",
@@ -252,7 +252,7 @@
       "failedJobs": 0,
       "productsFetched": 29,
       "lastError": null,
-      "catalogCount": 29
+      "catalogCount": 31
     },
     "topitop": {
       "id": "topitop",
@@ -274,7 +274,7 @@
       "failedJobs": 0,
       "productsFetched": 20,
       "lastError": null,
-      "catalogCount": 23
+      "catalogCount": 24
     },
     "miniso": {
       "id": "miniso",
@@ -285,18 +285,18 @@
       "failedJobs": 0,
       "productsFetched": 61,
       "lastError": null,
-      "catalogCount": 62
+      "catalogCount": 65
     },
     "hiraoka": {
       "id": "hiraoka",
       "name": "Hiraoka",
       "engine": "magento",
       "currency": "PEN",
-      "okJobs": 5,
-      "failedJobs": 24,
-      "productsFetched": 40,
+      "okJobs": 2,
+      "failedJobs": 27,
+      "productsFetched": 3,
       "lastError": "HTTP 403",
-      "catalogCount": 66
+      "catalogCount": 69
     },
     "tailoy": {
       "id": "tailoy",
@@ -307,7 +307,7 @@
       "failedJobs": 0,
       "productsFetched": 199,
       "lastError": null,
-      "catalogCount": 203
+      "catalogCount": 206
     },
     "infotec": {
       "id": "infotec",
