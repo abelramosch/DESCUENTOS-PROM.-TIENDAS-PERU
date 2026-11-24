@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { STORES, STORE_MAP } from '../config/stores.js';
 import { getLimaDateString, getUsdToPenRate, runWithConcurrency } from './http.js';
 import { searchSingleStore } from './live-search.js';
+import { fetchMiOfficialCatalog } from './adapters/mi-official.js';
+import { discoverMagentoSeasonalPaths, fetchMagentoCategoryPage } from './adapters/magento.js';
 import { scrapeProductUrl } from './adapters/url-scraper.js';
 import { analyzeProduct } from './analyzer.js';
 import { buildMultiStoreGroups } from './grouper.js';
@@ -32,10 +34,20 @@ export async function runDailyScrape(options = {}) {
   // Map previous catalog by id so temporarily unreachable items retain metadata
   const productMap = new Map();
   for (const p of prevCatalog) {
+    // Discard broken legacy Hiraoka items that captured only a short brand label (e.g. "LG", "LOGITECH G")
+    if (
+      p.storeId === 'hiraoka' &&
+      (!p.title ||
+        p.title.trim().split(/\s+/).length < 2 ||
+        (p.title.trim() === p.title.trim().toUpperCase() && p.title.trim().length <= 18))
+    ) {
+      continue;
+    }
+    const latestStore = STORE_MAP[p.storeId];
     productMap.set(p.id, {
       id: p.id,
       storeId: p.storeId,
-      storeName: p.storeName,
+      storeName: latestStore?.name || p.storeName,
       sku: p.sku,
       title: p.title,
       brand: p.brand,
@@ -58,12 +70,16 @@ export async function runDailyScrape(options = {}) {
     (s) => s.enabled && (!storeIds || storeIds.includes(s.id))
   );
 
-  // Build scraping jobs: (store, query, category, limit)
+  // Build scraping jobs: standard keyword search, mi_official events, Magento category/seasonal pages, and VTEX discount radar
   const jobs = [];
+  const searchStores = enabledStores.filter(
+    (s) => s.engine !== 'mi_official' && !s.useCategoryPages
+  );
+
   for (const catCfg of watchConfig.categories) {
     const queries = quick ? catCfg.queries.slice(0, 1) : catCfg.queries;
     const limit = quick ? Math.min(6, catCfg.limitPerStore) : catCfg.limitPerStore;
-    const matchingStores = enabledStores.filter((s) =>
+    const matchingStores = searchStores.filter((s) =>
       s.specialties.includes(catCfg.category)
     );
     for (const store of matchingStores) {
@@ -79,11 +95,55 @@ export async function runDailyScrape(options = {}) {
     }
   }
 
+  // Dedicated full-store + active seasonal campaign scan for Xiaomi Oficial (www.mi.com/pe)
+  for (const store of enabledStores.filter((s) => s.engine === 'mi_official')) {
+    jobs.push({
+      type: 'mi_official',
+      store,
+      query: 'campañas activas y tienda oficial'
+    });
+  }
+
+  // Official category + active seasonal campaign pages for Magento stores (sequential 1-by-1 polite rate)
+  for (const store of enabledStores.filter((s) => s.engine === 'magento' && s.useCategoryPages)) {
+    const pages = (quick ? (store.categoryPages || []).slice(0, 4) : store.categoryPages || []).map(
+      (pg) => ({ path: pg.path, category: pg.category, limit: quick ? 10 : 18 })
+    );
+    jobs.push({
+      type: 'magento_categories',
+      store,
+      pages,
+      query: 'categorías y campañas oficiales'
+    });
+  }
+
+  // Radar de Temporada / Mayor Descuento (VTEX OrderByBestDiscountDESC con piso de precio real)
+  if (!quick && Array.isArray(watchConfig.seasonalDiscountRadar)) {
+    const vtexStores = enabledStores.filter((s) => s.engine === 'vtex');
+    for (const radar of watchConfig.seasonalDiscountRadar) {
+      const matchingVtex = vtexStores.filter((s) => s.specialties.includes(radar.category));
+      for (const store of matchingVtex) {
+        jobs.push({
+          type: 'search',
+          store,
+          query: radar.query,
+          category: radar.category,
+          limit: radar.limitPerStore || 5,
+          searchOptions: {
+            orderBy: 'OrderByBestDiscountDESC',
+            minPrice: radar.minPrice || 100,
+            inStockOnly: true
+          }
+        });
+      }
+    }
+  }
+
   // Add user custom search queries across top retail/tech stores
   for (const customQ of watchlist.customQueries || []) {
     const qText = typeof customQ === 'string' ? customQ : customQ.query;
     if (!qText) continue;
-    const targetStores = enabledStores.slice(0, 12);
+    const targetStores = searchStores.slice(0, 12);
     for (const store of targetStores) {
       jobs.push({
         type: 'search',
@@ -113,8 +173,13 @@ export async function runDailyScrape(options = {}) {
     storesStatus[s.id] = {
       id: s.id,
       name: s.name,
+      domain: s.domain,
+      baseUrl: s.baseUrl,
       engine: s.engine,
       currency: s.currency,
+      badgeBg: s.badgeBg,
+      badgeText: s.badgeText,
+      enabled: s.enabled,
       okJobs: 0,
       failedJobs: 0,
       productsFetched: 0,
@@ -124,6 +189,25 @@ export async function runDailyScrape(options = {}) {
 
   let completed = 0;
   let fetchedCount = 0;
+
+  const mergeFetchedItems = (storeId, items, isCustomWatch = false) => {
+    const st = storesStatus[storeId];
+    if (st) {
+      st.okJobs += 1;
+      st.productsFetched += items.length;
+    }
+    for (const item of items) {
+      fetchedCount += 1;
+      const existing = productMap.get(item.id);
+      const merged = {
+        ...item,
+        isCustomWatch: Boolean(existing?.isCustomWatch || isCustomWatch),
+        lastSeenDate: today
+      };
+      productMap.set(item.id, merged);
+      recordPricePoint(history, merged, today);
+    }
+  };
 
   onProgress({
     phase: 'starting',
@@ -136,21 +220,34 @@ export async function runDailyScrape(options = {}) {
   await runWithConcurrency(jobs, 12, async (job) => {
     try {
       if (job.type === 'search') {
-        const items = await searchSingleStore(job.store, job.query, job.limit, job.category);
-        const st = storesStatus[job.store.id];
-        st.okJobs += 1;
-        st.productsFetched += items.length;
-
-        for (const item of items) {
-          fetchedCount += 1;
-          const existing = productMap.get(item.id);
-          const merged = {
-            ...item,
-            isCustomWatch: Boolean(existing?.isCustomWatch || job.isCustomWatch),
-            lastSeenDate: today
-          };
-          productMap.set(item.id, merged);
-          recordPricePoint(history, merged, today);
+        const items = await searchSingleStore(
+          job.store,
+          job.query,
+          job.limit,
+          job.category,
+          job.searchOptions || {}
+        );
+        mergeFetchedItems(job.store.id, items, Boolean(job.isCustomWatch));
+      } else if (job.type === 'mi_official') {
+        const items = await fetchMiOfficialCatalog(job.store);
+        mergeFetchedItems(job.store.id, items, false);
+      } else if (job.type === 'magento_categories') {
+        const seasonalPaths = await discoverMagentoSeasonalPaths(job.store);
+        const allPages = [
+          ...seasonalPaths.map((sPath) => ({ path: sPath, category: 'seasonal', limit: 20 })),
+          ...job.pages
+        ];
+        for (const pg of allPages) {
+          try {
+            const items = await fetchMagentoCategoryPage(job.store, pg.path, pg.category, pg.limit);
+            mergeFetchedItems(job.store.id, items, false);
+          } catch (pgErr) {
+            if (storesStatus[job.store.id]) {
+              storesStatus[job.store.id].failedJobs += 1;
+              storesStatus[job.store.id].lastError = pgErr?.message || 'Error';
+            }
+          }
+          await new Promise((r) => setTimeout(r, 450));
         }
       } else if (job.type === 'url') {
         const item = await scrapeProductUrl(job.url, job.category);
@@ -170,7 +267,7 @@ export async function runDailyScrape(options = {}) {
         }
       }
     } catch (err) {
-      if (job.type === 'search' && storesStatus[job.store.id]) {
+      if (job.store && storesStatus[job.store.id]) {
         storesStatus[job.store.id].failedJobs += 1;
         storesStatus[job.store.id].lastError = err?.message || 'Error';
       }

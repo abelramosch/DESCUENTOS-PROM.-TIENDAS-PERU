@@ -4,6 +4,7 @@
       "category": "tecnologia",
       "queries": [
         "laptop",
+        "macbook",
         "monitor gamer",
         "ssd nvme",
         "tablet",
@@ -12,7 +13,9 @@
         "teclado mecanico",
         "mouse gamer",
         "router wifi",
-        "proyector"
+        "proyector",
+        "powerbank cargador",
+        "camara gopro"
       ],
       "limitPerStore": 8
     },
@@ -29,6 +32,10 @@
       "queries": [
         "celular smartphone",
         "iphone samsung galaxy",
+        "poco xiaomi",
+        "redmi",
+        "motorola",
+        "honor",
         "smartwatch reloj inteligente"
       ],
       "limitPerStore": 9
@@ -37,6 +44,7 @@
       "category": "audio",
       "queries": [
         "audifonos bluetooth",
+        "airpods",
         "parlante bluetooth",
         "barra de sonido soundbar",
         "microfono"
@@ -49,6 +57,7 @@
         "playstation 5",
         "nintendo switch",
         "xbox",
+        "videojuego ps5 switch",
         "mando control gamer",
         "silla gamer"
       ],
@@ -80,7 +89,8 @@
         "hidrolavadora",
         "aspiradora robot",
         "juego de ollas",
-        "parrilla"
+        "parrilla",
+        "lego juguetes"
       ],
       "limitPerStore": 7
     },
@@ -122,5 +132,15 @@
       ],
       "limitPerStore": 8
     }
+  ],
+  "seasonalDiscountRadar": [
+    { "category": "celulares", "query": "celular smartphone", "minPrice": 280, "limitPerStore": 6 },
+    { "category": "televisores", "query": "smart tv 4k", "minPrice": 550, "limitPerStore": 6 },
+    { "category": "tecnologia", "query": "laptop", "minPrice": 850, "limitPerStore": 6 },
+    { "category": "gaming", "query": "consola playstation nintendo", "minPrice": 350, "limitPerStore": 5 },
+    { "category": "electro", "query": "freidora lavadora refrigeradora", "minPrice": 180, "limitPerStore": 6 },
+    { "category": "audio", "query": "audifonos parlante bluetooth", "minPrice": 90, "limitPerStore": 5 },
+    { "category": "hogar", "query": "colchon aspiradora taladro", "minPrice": 140, "limitPerStore": 5 },
+    { "category": "deporte", "query": "zapatillas bicicleta scooter", "minPrice": 120, "limitPerStore": 5 }
   ]
 }

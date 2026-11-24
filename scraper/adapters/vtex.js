@@ -5,10 +5,17 @@ import { fetchWithTimeout, makeProductId } from '../http.js';
  * (PlazaVea, Oechsle, Promart, Wong, Metro, Coolbox, Carsa, Shopstar,
  * Estilos, Triathlon, Footloose, Sony, Xiaomi, Casaideas, Aruma).
  */
-export async function searchVtexStore(store, query, limit = 10, category = 'tecnologia') {
+export async function searchVtexStore(store, query, limit = 10, category = 'tecnologia', options = {}) {
+  const { orderBy = null, minPrice = null, inStockOnly = false } = options;
   const encoded = encodeURIComponent(query);
   const to = Math.max(0, limit - 1);
-  const url = `${store.baseUrl}/api/catalog_system/pub/products/search?ft=${encoded}&_from=0&_to=${to}`;
+  let url = `${store.baseUrl}/api/catalog_system/pub/products/search?ft=${encoded}&_from=0&_to=${to}`;
+  if (minPrice && Number(minPrice) > 0) {
+    url += `&fq=${encodeURIComponent(`P:[${Number(minPrice)} TO 99999]`)}`;
+  }
+  if (orderBy) {
+    url += `&O=${encodeURIComponent(orderBy)}`;
+  }
 
   const res = await fetchWithTimeout(url, {
     timeoutMs: 10000,
@@ -25,7 +32,10 @@ export async function searchVtexStore(store, query, limit = 10, category = 'tecn
   const products = [];
   for (const item of raw) {
     const normalized = normalizeVtexProduct(store, item, category);
-    if (normalized) products.push(normalized);
+    if (!normalized) continue;
+    if (inStockOnly && !normalized.inStock) continue;
+    if (minPrice && normalized.price < Number(minPrice)) continue;
+    products.push(normalized);
   }
   return products;
 }

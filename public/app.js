@@ -68,6 +68,9 @@ const KNOWN_BRAND_ALIASES = {
   epson: 'Epson',
   canon: 'Canon',
   amazon: 'Amazon',
+  google: 'Google',
+  gopro: 'GoPro',
+  lego: 'LEGO',
 
   // TV, Audio & Gaming
   lg: 'LG',
@@ -398,9 +401,13 @@ async function loadInitialData() {
     state.stores = Object.values(meta?.storesStatus || {}).map((s) => ({
       id: s.id,
       name: s.name,
+      domain: s.domain || '',
+      baseUrl: s.baseUrl || '',
       engine: s.engine,
       currency: s.currency,
-      enabled: true
+      badgeBg: s.badgeBg || '',
+      badgeText: s.badgeText || '',
+      enabled: s.enabled !== false
     }));
     state.categories = [
       { id: 'tecnologia', label: 'Laptops & PC' },
@@ -1198,9 +1205,14 @@ function renderStoresPanel() {
           ? 'API VTEX'
           : store.engine === 'falabella'
             ? 'SSR Falabella'
-            : store.engine === 'prestashop'
-              ? 'API PrestaShop'
-              : 'Catálogo Web';
+            : store.engine === 'mi_official'
+              ? 'Tienda Oficial'
+              : store.engine === 'prestashop'
+                ? 'API PrestaShop'
+                : 'Catálogo Web';
+      const displayHost = store.baseUrl
+        ? store.baseUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')
+        : store.domain || '';
 
       return `
         <div class="store-card" data-jump-store="${escapeHtml(store.id)}">
@@ -1211,6 +1223,7 @@ function renderStoresPanel() {
               ${isActive ? 'Activa' : 'Sin datos'}
             </span>
           </div>
+          ${displayHost ? `<div class="small muted mono" style="font-size:0.72rem;margin-top:-2px;">${escapeHtml(displayHost)}</div>` : ''}
           <div style="display:flex;justify-content:space-between;align-items:baseline;">
             <div>
               <div class="mono" style="font-size:1.3rem;font-weight:800;">${st.count}</div>
@@ -1845,7 +1858,7 @@ function watchGitHubRunUntilDeployed(prevUpdatedAt, startedMs = Date.now()) {
             setProgressBar(true, 18, 'En cola en GitHub Actions...');
           } else if (run.status === 'in_progress') {
             const est = Math.min(78, 28 + ticks * 4);
-            const storeCount = state.meta?.activeStores || 29;
+            const storeCount = state.meta?.activeStores || 30;
             setProgressBar(true, est, `Escaneando ${storeCount} tiendas de Perú y publicando cambios...`);
           } else if (run.status === 'completed') {
             if (run.conclusion === 'success') {
@@ -1881,7 +1894,7 @@ function watchGitHubRunUntilDeployed(prevUpdatedAt, startedMs = Date.now()) {
 
 function startLocalDailyScrape(quick = false) {
   closeUpdateModal();
-  const storeCount = state.meta?.activeStores || 29;
+  const storeCount = state.meta?.activeStores || 30;
   setProgressBar(true, 4, `Conectando con las ${storeCount} tiendas de Perú (${quick ? 'modo rápido' : 'modo completo'})...`);
 
   const es = new EventSource(`/api/scrape/stream${quick ? '?quick=1' : ''}`);
@@ -2510,7 +2523,7 @@ const TOUR_STEPS = [
     selector: null,
     title: '¡Bienvenido a ChapaAlToque PE!',
     body: `
-      <p>Monitoreamos <strong>precios históricos reales</strong> en <strong>29 tiendas del Perú</strong> para que sepas qué descuentos son verdaderos y cuáles están inflados.</p>
+      <p>Monitoreamos <strong>precios históricos reales</strong> en <strong>30 tiendas del Perú</strong> para que sepas qué descuentos son verdaderos y cuáles están inflados.</p>
       <p>Te mostramos en 30 segundos cómo aprovechar cada sección. Si ya conoces la página, puedes saltarla ahora mismo.</p>
     `,
     nextLabel: 'Empezar guía →',

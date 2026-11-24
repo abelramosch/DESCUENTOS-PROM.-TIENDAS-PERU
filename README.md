@@ -14,11 +14,12 @@ Aplicación web estilo **SteamDB + Compy.pe** que registra diariamente el **hist
 
 ## Características principales
 
-- **29 tiendas peruanas monitoreadas diariamente**:
-  - **Retail, supermercados y mayoristas**: Falabella, Tottus, PlazaVea, Oechsle, Promart, Wong, Metro, Makro, Coolbox, Carsa, Shopstar, Estilos, Hiraoka y Tai Loy (con detección de precios **BCP / CMR / Tarjeta Oh! / Interbank / BBVA / Cencosud**).
-  - **Tiendas oficiales, hogar, moda y especializadas**: Sony Store PE, Xiaomi Perú, Oster Perú, Electrolux Perú, Paraíso Perú, Cassinelli, Topitop, Renzo Costa, Miniso Perú, Triathlon Sport, Footloose, Casaideas y Aruma.
+- **30 tiendas peruanas monitoreadas diariamente**:
+  - **Retail, supermercados y mayoristas**: Falabella, Tottus, PlazaVea, Oechsle, Promart, Wong, Metro, Makro, Coolbox, Carsa, Shopstar, Estilos, Hiraoka (categorías + campañas oficiales) y Tai Loy (con detección de precios **BCP / CMR / Tarjeta Oh! / Interbank / BBVA / Cencosud**).
+  - **Tiendas oficiales, hogar, moda y especializadas**: **Xiaomi Oficial (`mi.com/pe`)**, **Xiaomi QTC (`xiaomi.qtc.pe`)**, Sony Store PE, Oster Perú, Electrolux Perú, Paraíso Perú, Cassinelli, Topitop, Renzo Costa, Miniso Perú, Triathlon Sport, Footloose, Casaideas y Aruma.
   - **Tecnología / PC Perú**: Infotec Perú y CyC Computer (conversión automática **USD → S/** con tipo de cambio actualizado).
-- **Motor de veredicto "¿Conviene comprar?" (Deal Score 0–100)**:
+- **Motor de veredicto "¿Conviene comprar?" (Deal Score 0–100) y Radar de Temporada**:
+  - Escanea automáticamente **campañas activas (Black Friday, Cyber, Navidad)** en tiendas oficiales y aplica un **Radar de Mayor Descuento** en tiendas VTEX.
   - Calcula **Mínimo Histórico (ATL)**, **Máximo Histórico (ATH)**, **Mediana habitual**, **Promedio 30 días** y **variación 24h**.
   - **Detector de descuentos inflados y Base Inflada**: alerta cuando una tienda muestra un gran porcentaje tachado pero el precio real no ha bajado respecto a su historial o al precio de mercado en otras tiendas.
   - **Gráficos SVG interactivos** sin librerías pesadas + mini sparklines en la tabla.
@@ -41,10 +42,10 @@ Aplicación web estilo **SteamDB + Compy.pe** que registra diariamente el **hist
 chapaaltoque/
 ├── .github/workflows/daily-scrape.yml   # Cron 3x/día (Lima) + despliegue automático en Pages
 ├── config/
-│   ├── stores.js                        # Registro de 29 tiendas peruanas activas y sus motores
-│   └── watch-queries.json               # 11 categorías y 56 búsquedas monitoreadas diariamente
+│   ├── stores.js                        # Registro de 30 tiendas peruanas activas y sus motores
+│   └── watch-queries.json               # 11 categorías, 66 búsquedas y radar de temporada
 ├── scraper/
-│   ├── adapters/                        # Motores VTEX, Falabella SSR, PrestaShop, Magento y URL universal
+│   ├── adapters/                        # Motores VTEX, Falabella SSR, Xiaomi Oficial, PrestaShop, Magento y URL universal
 │   ├── analyzer.js                      # Inteligencia de precios (ATL, mediana, Deal Score, inflados)
 │   ├── live-search.js                   # Comparador multi-tienda concurrente
 │   ├── storage.js                       # Persistencia atómica JSON + sincronización compacta
@@ -71,7 +72,7 @@ npm start
 | Comando | Descripción |
 | :--- | :--- |
 | `npm start` | Inicia la app y API local en `http://localhost:3000` |
-| `npm run scrape` | Actualiza el catálogo completo de las 29 tiendas peruanas |
+| `npm run scrape` | Actualiza el catálogo completo de las 30 tiendas peruanas |
 | `npm run scrape:quick` | Actualización rápida (1 consulta por categoría, ~15s) |
 | `npm test` | Ejecuta las pruebas unitarias del analizador y parsers |
 

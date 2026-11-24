@@ -4,17 +4,20 @@ import { searchVtexStore } from './adapters/vtex.js';
 import { searchFalabellaStore } from './adapters/falabella.js';
 import { searchPrestashopStore } from './adapters/prestashop.js';
 import { searchMagentoStore } from './adapters/magento.js';
+import { searchMiOfficialStore } from './adapters/mi-official.js';
 
-export async function searchSingleStore(store, query, limit = 8, category = 'tecnologia') {
+export async function searchSingleStore(store, query, limit = 8, category = 'tecnologia', options = {}) {
   switch (store.engine) {
     case 'vtex':
-      return searchVtexStore(store, query, limit, category);
+      return searchVtexStore(store, query, limit, category, options);
     case 'falabella':
       return searchFalabellaStore(store, query, limit, category);
     case 'prestashop':
       return searchPrestashopStore(store, query, limit, category);
     case 'magento':
       return searchMagentoStore(store, query, limit, category);
+    case 'mi_official':
+      return searchMiOfficialStore(store, query, limit, category);
     default:
       return [];
   }
