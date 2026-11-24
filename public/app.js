@@ -1747,7 +1747,10 @@ function getSavedGhToken() {
     return localStorage.getItem(GH_TOKEN_KEY) || localStorage.getItem(LEGACY_GH_TOKEN_KEY) || '';
   } catch {
     return '';
-  }function isAdminMode() {
+  }
+}
+
+function isAdminMode() {
   try {
     const params = new URLSearchParams(window.location.search);
     if (params.get('admin') === '1') {
@@ -1766,8 +1769,6 @@ function getSavedGhToken() {
     return false;
   }
 }
-}
-
 function setProgressBar(visible, pct = 0, text = '') {
   const btn = document.getElementById('refresh-daily-btn');
   const label = document.getElementById('refresh-daily-label');
@@ -2558,9 +2559,13 @@ function bindEvents() {
     refreshGhTokenUi();
     document.getElementById('gh-token-details').open = false;
     showToast('Token guardado solo en tu navegador. ¡Botón en 1 clic activado!');
+   document.getElementById('clear-gh-token-btn').addEventListener('click', () => {
+    localStorage.removeItem(GH_TOKEN_KEY);
+    localStorage.removeItem(LEGACY_GH_TOKEN_KEY);
+    refreshGhTokenUi();
+    showToast('Token eliminado de este navegador.');
   });
-  document.getElementById('clear-gh-token-btn').addEventListener('click', () => {
-      document.getElementById('exit-admin-mode-btn')?.addEventListener('click', () => {
+  document.getElementById('exit-admin-mode-btn')?.addEventListener('click', () => {
     try {
       localStorage.setItem(ADMIN_MODE_KEY, 'hidden');
       const url = new URL(window.location.href);
@@ -2575,10 +2580,6 @@ function bindEvents() {
   });
   // Persist ?admin=1 / ?admin=0 if present in URL on initial load
   isAdminMode();
-    localStorage.removeItem(GH_TOKEN_KEY);
-    localStorage.removeItem(LEGACY_GH_TOKEN_KEY);
-    refreshGhTokenUi();
-    showToast('Token eliminado de este navegador.');
   });
 
   // Track URL modal
@@ -2750,7 +2751,7 @@ const TOUR_STEPS = [
     title: 'Actualización automática y botón «Actualizar hoy»',
     body: `
       <p>Los precios se actualizan solos <strong>3 veces al día</strong> (7:00 AM, 1:00 PM y 8:00 PM hora Lima).</p>
-      <p>En <strong>Actualizar hoy</strong> puedes recargar datos sin caché, recargar los precios más recientes sin caché y unirte gratis al bot de alertas en <strong>Telegram (@Chapaaltoque_pe_bot)</strong>. Siempre puedes repetir esta guía desde el ícono <strong>?</strong>.</p>
+      <p>En <strong>Actualizar hoy</strong> puedes recargar los precios más recientes sin caché, recargar los precios más recientes sin caché y unirte gratis al bot de alertas en <strong>Telegram (@Chapaaltoque_pe_bot)</strong>. Siempre puedes repetir esta guía desde el ícono <strong>?</strong>.</p>
     `,
     nextLabel: '¡Listo, empezar!'
   }
