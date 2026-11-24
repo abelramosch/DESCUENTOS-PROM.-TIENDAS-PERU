@@ -5,6 +5,7 @@ const LEGACY_WATCHLIST_KEYS = ['nadamenos_pe_watchlist_v1', 'precioreal_pe_watch
 const THEME_KEY = 'chapaaltoque_pe_theme';
 const GH_TOKEN_KEY = 'chapaaltoque_pe_gh_token';
 const LEGACY_GH_TOKEN_KEY = 'nadamenos_pe_gh_token';
+const ADMIN_MODE_KEY = 'chapaaltoque_pe_admin_v1';
 const WORKFLOW_FILE = 'daily-scrape.yml';
 const DEFAULT_GH_REPO = { owner: 'abelramosch', repo: 'chapaaltoque' };
 
@@ -1746,7 +1747,25 @@ function getSavedGhToken() {
     return localStorage.getItem(GH_TOKEN_KEY) || localStorage.getItem(LEGACY_GH_TOKEN_KEY) || '';
   } catch {
     return '';
+  }function isAdminMode() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('admin') === '1') {
+      localStorage.setItem(ADMIN_MODE_KEY, '1');
+      return true;
+    }
+    if (params.get('admin') === '0') {
+      localStorage.setItem(ADMIN_MODE_KEY, 'hidden');
+      return false;
+    }
+    const stored = localStorage.getItem(ADMIN_MODE_KEY);
+    if (stored === 'hidden') return false;
+    if (stored === '1') return true;
+    return Boolean(getSavedGhToken());
+  } catch {
+    return false;
   }
+}
 }
 
 function setProgressBar(visible, pct = 0, text = '') {
@@ -1768,7 +1787,20 @@ function setProgressBar(visible, pct = 0, text = '') {
     textEl.textContent = text;
   }
 }
+  const admin = isAdminMode();
+  const adminBox = document.getElementById('gh-admin-controls');
+  if (adminBox) adminBox.hidden = !admin;
 
+  if (!admin) {
+    const rel = state.meta?.lastUpdatedAt ? formatRelativeTime(state.meta.lastUpdatedAt) : 'reciente';
+    const storesCount = state.meta?.activeStores || 30;
+    setSyncStatus(
+      'ok',
+      `Catálogo actualizado (${rel})`,
+      `${state.catalog.length.toLocaleString('es-PE')} productos en ${storesCount} tiendas del Perú`
+    );
+    return;
+  }
 async function openUpdateModal() {
   const backdrop = document.getElementById('update-modal-backdrop');
   const feedback = document.getElementById('update-modal-feedback');
@@ -1807,6 +1839,8 @@ function setSyncStatus(dotClass, title, sub) {
 function refreshGhTokenUi() {
   const token = getSavedGhToken();
   const hasToken = Boolean(token);
+    const adminBox = document.getElementById('gh-admin-controls');
+  if (adminBox) adminBox.hidden = !isAdminMode();
   document.getElementById('gh-dispatch-buttons').hidden = !hasToken;
   document.getElementById('clear-gh-token-btn').hidden = !hasToken;
   document.getElementById('gh-token-input').value = hasToken ? '••••••••••••••••••••' : '';
@@ -2525,6 +2559,21 @@ function bindEvents() {
     showToast('Token guardado solo en tu navegador. ¡Botón en 1 clic activado!');
   });
   document.getElementById('clear-gh-token-btn').addEventListener('click', () => {
+      document.getElementById('exit-admin-mode-btn')?.addEventListener('click', () => {
+    try {
+      localStorage.setItem(ADMIN_MODE_KEY, 'hidden');
+      const url = new URL(window.location.href);
+      url.searchParams.delete('admin');
+      window.history.replaceState({}, '', url.toString());
+    } catch {
+      // ignore
+    }
+    const adminBox = document.getElementById('gh-admin-controls');
+    if (adminBox) adminBox.hidden = true;
+    showToast('Controles de administrador ocultos. Entra con ?admin=1 para volver a verlos.');
+  });
+  // Persist ?admin=1 / ?admin=0 if present in URL on initial load
+  isAdminMode();
     localStorage.removeItem(GH_TOKEN_KEY);
     localStorage.removeItem(LEGACY_GH_TOKEN_KEY);
     refreshGhTokenUi();
@@ -2700,7 +2749,7 @@ const TOUR_STEPS = [
     title: 'Actualización automática y botón «Actualizar hoy»',
     body: `
       <p>Los precios se actualizan solos <strong>3 veces al día</strong> (7:00 AM, 1:00 PM y 8:00 PM hora Lima).</p>
-      <p>En <strong>Actualizar hoy</strong> puedes recargar datos sin caché, disparar un escaneo nuevo al instante o activar alertas gratis en <strong>Telegram (@Chapaaltoque_pe_bot)</strong>. Siempre puedes repetir esta guía desde el ícono <strong>?</strong>.</p>
+      <p>En <strong>Actualizar hoy</strong> puedes recargar datos sin caché, recargar los precios más recientes sin caché y unirte gratis al bot de alertas en <strong>Telegram (@Chapaaltoque_pe_bot)</strong>. Siempre puedes repetir esta guía desde el ícono <strong>?</strong>.</p>
     `,
     nextLabel: '¡Listo, empezar!'
   }
