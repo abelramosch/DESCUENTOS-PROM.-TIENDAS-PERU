@@ -674,47 +674,60 @@
       </div>
 
       <!-- Mode B: GitHub Pages Remote 1-Click Update -->
+      <!-- Mode B: GitHub Pages Public + Admin Controls -->
       <div id="update-github-section" hidden>
-        <div class="update-action-grid" id="gh-dispatch-buttons" hidden>
-          <button type="button" class="btn btn-primary" id="run-gh-full-btn">
-            Actualizar ahora (30 tiendas)
-          </button>
-          <button type="button" class="btn btn-secondary" id="run-gh-quick-btn">
-            Actualización rápida
-          </button>
-        </div>
+        <p class="muted small" style="margin: 12px 0 0;">
+          Los precios de las 30 tiendas se actualizan automáticamente <strong>3 veces al día</strong> (7:00 AM, 1:00 PM y 8:00 PM hora Lima). Usa <strong>Recargar datos</strong> arriba para ver la última versión sin caché.
+        </p>
 
-        <div class="update-manual-row">
-          <a id="open-gh-actions-link" href="https://github.com/abelramosch/chapaaltoque/actions/workflows/daily-scrape.yml" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
-            Ejecutar en GitHub Actions ↗
-          </a>
-          <button type="button" class="btn btn-secondary" id="watch-gh-run-btn">
-            Vigilar progreso en vivo
-          </button>
-        </div>
-
-        <details class="token-setup-box" id="gh-token-details">
-          <summary id="gh-token-summary">Configurar botón en 1 clic desde esta web (opcional, solo 1 vez)</summary>
-          <div class="token-setup-body">
-            <p class="small muted">
-              Guarda un <strong>Fine-grained Personal Access Token</strong> solo en este navegador (nunca se sube a GitHub) para disparar el escaneo directamente sin salir de ChapaAlToque PE:
-            </p>
-            <ol class="small muted token-steps">
-              <li>
-                Abre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer" class="link-btn">Crear token en GitHub ↗</a>.
-              </li>
-              <li>En <strong>Repository access</strong>, elige <em>Only select repositories</em> → <code>chapaaltoque</code>.</li>
-              <li>En <strong>Repository permissions → Actions</strong>, selecciona <strong>Read and write</strong> y genera el token.</li>
-            </ol>
-            <div class="target-input-row">
-              <input type="password" id="gh-token-input" placeholder="github_pat_..." autocomplete="off" />
-              <button type="button" class="btn btn-primary btn-sm" id="save-gh-token-btn">Guardar</button>
-              <button type="button" class="btn btn-secondary btn-sm" id="clear-gh-token-btn" hidden>Borrar</button>
-            </div>
-            <p class="small muted" id="gh-token-feedback" style="margin: 6px 0 0;"></p>
+        <!-- Admin-only controls (visible only via ?admin=1 or saved admin token in this browser) -->
+        <div id="gh-admin-controls" hidden>
+          <div class="update-action-grid" id="gh-dispatch-buttons" hidden>
+            <button type="button" class="btn btn-primary" id="run-gh-full-btn">
+              Actualizar ahora (30 tiendas)
+            </button>
+            <button type="button" class="btn btn-secondary" id="run-gh-quick-btn">
+              Actualización rápida
+            </button>
           </div>
-        </details>
-        <details class="token-setup-box">
+
+          <div class="update-manual-row">
+            <a id="open-gh-actions-link" href="https://github.com/abelramosch/chapaaltoque/actions/workflows/daily-scrape.yml" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+              Ejecutar en GitHub Actions ↗
+            </a>
+            <button type="button" class="btn btn-secondary" id="watch-gh-run-btn">
+              Vigilar progreso en vivo
+            </button>
+          </div>
+
+          <details class="token-setup-box" id="gh-token-details">
+            <summary id="gh-token-summary">Configurar botón en 1 clic desde esta web (opcional, solo 1 vez)</summary>
+            <div class="token-setup-body">
+              <p class="small muted">
+                Guarda un <strong>Fine-grained Personal Access Token</strong> solo en este navegador (nunca se sube a GitHub) para disparar el escaneo directamente sin salir de ChapaAlToque PE:
+              </p>
+              <ol class="small muted token-steps">
+                <li>
+                  Abre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer" class="link-btn">Crear token en GitHub ↗</a>.
+                </li>
+                <li>En <strong>Repository access</strong>, elige <em>Only select repositories</em> → <code>chapaaltoque</code>.</li>
+                <li>En <strong>Repository permissions → Actions</strong>, selecciona <strong>Read and write</strong> y genera el token.</li>
+              </ol>
+              <div class="target-input-row">
+                <input type="password" id="gh-token-input" placeholder="github_pat_..." autocomplete="off" />
+                <button type="button" class="btn btn-primary btn-sm" id="save-gh-token-btn">Guardar</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="clear-gh-token-btn" hidden>Borrar</button>
+              </div>
+              <p class="small muted" id="gh-token-feedback" style="margin: 6px 0 0;"></p>
+            </div>
+          </details>
+
+          <div style="margin-top: 8px; text-align: right;">
+            <button type="button" class="link-btn small muted" id="exit-admin-mode-btn">Ocultar controles de administrador</button>
+          </div>
+        </div>
+
+        <details class="token-setup-box" open>
           <summary>Alertas automáticas en Telegram (@Chapaaltoque_pe_bot · gratis)</summary>
           <div class="token-setup-body">
             <p class="small muted" style="margin: 0 0 10px;">
