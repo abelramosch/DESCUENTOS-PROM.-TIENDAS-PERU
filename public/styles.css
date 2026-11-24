@@ -2313,6 +2313,152 @@ html, body {
 }
 
 /* ==========================================================================
+   Active Seasonal Campaigns Strip & Store Campaign Badges
+   ========================================================================== */
+.campaigns-strip {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.campaigns-strip-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.campaigns-strip-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+
+.campaigns-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft, rgba(217, 38, 56, 0.16));
+  flex-shrink: 0;
+}
+
+.campaigns-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.campaign-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border-hairline);
+  background: var(--bg-canvas);
+  color: var(--ink-primary);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.12s ease, background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.campaign-chip:hover {
+  border-color: var(--accent);
+  background: var(--bg-surface);
+  transform: translateY(-1px);
+}
+
+.campaign-chip-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  color: var(--ink-secondary);
+}
+
+.campaign-chip.is-black .campaign-chip-tag {
+  background: rgba(217, 38, 56, 0.12);
+  color: var(--crimson);
+}
+
+.campaign-chip-auth {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.campaign-chip-auth.real { background: var(--emerald); }
+.campaign-chip-auth.mixed { background: var(--sky); }
+.campaign-chip-auth.hype { background: var(--amber); }
+
+.store-campaign-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 9px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-hairline);
+  font-size: 0.74rem;
+  margin-top: 2px;
+}
+
+.store-campaign-banner.is-black {
+  border-color: rgba(217, 38, 56, 0.35);
+  background: rgba(217, 38, 56, 0.05);
+}
+
+.store-campaign-name {
+  font-weight: 700;
+  color: var(--ink-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.auth-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.auth-pill.real {
+  background: var(--emerald-bg);
+  color: var(--emerald);
+}
+
+.auth-pill.mixed {
+  background: var(--bg-subtle);
+  color: var(--ink-secondary);
+}
+
+.auth-pill.hype {
+  background: var(--amber-bg, rgba(217, 119, 6, 0.14));
+  color: var(--amber);
+}
+
+/* ==========================================================================
    Responsive Breakpoints
    ========================================================================== */
 @media (max-width: 900px) {

@@ -9,9 +9,11 @@ import { discoverMagentoSeasonalPaths, fetchMagentoCategoryPage } from './adapte
 import { scrapeProductUrl } from './adapters/url-scraper.js';
 import { analyzeProduct } from './analyzer.js';
 import { buildMultiStoreGroups } from './grouper.js';
+import { detectActiveCampaigns } from './campaigns.js';
 import {
   loadCatalog,
   loadHistory,
+  loadMeta,
   loadWatchlist,
   recordPricePoint,
   ROOT_DIR,
@@ -30,6 +32,7 @@ export async function runDailyScrape(options = {}) {
   const watchlist = loadWatchlist();
   const history = loadHistory();
   const prevCatalog = loadCatalog();
+  const prevMeta = loadMeta();
 
   // Map previous catalog by id so temporarily unreachable items retain metadata
   const productMap = new Map();
@@ -189,6 +192,7 @@ export async function runDailyScrape(options = {}) {
 
   let completed = 0;
   let fetchedCount = 0;
+  const preDiscoveredCampaignPaths = {};
 
   const mergeFetchedItems = (storeId, items, isCustomWatch = false) => {
     const st = storesStatus[storeId];
@@ -233,6 +237,9 @@ export async function runDailyScrape(options = {}) {
         mergeFetchedItems(job.store.id, items, false);
       } else if (job.type === 'magento_categories') {
         const seasonalPaths = await discoverMagentoSeasonalPaths(job.store);
+        if (seasonalPaths.length) {
+          preDiscoveredCampaignPaths[job.store.id] = seasonalPaths;
+        }
         const allPages = [
           ...seasonalPaths.map((sPath) => ({ path: sPath, category: 'seasonal', limit: 20 })),
           ...job.pages
@@ -315,6 +322,24 @@ export async function runDailyScrape(options = {}) {
     storesStatus[id].catalogCount = storeCounts[id] || 0;
   }
 
+  // Detect active seasonal campaigns (Black Friday, Cyber, Navidad, Cierra Puertas, etc.)
+  onProgress({
+    phase: 'scraping',
+    completed: jobs.length,
+    total: jobs.length,
+    fetchedCount,
+    message: `Detectando temporadas y campañas activas en ${enabledStores.length} tiendas...`
+  });
+  const campaignData = await detectActiveCampaigns(
+    enabledStores,
+    analyzedCatalog,
+    prevMeta,
+    preDiscoveredCampaignPaths
+  );
+  for (const id of Object.keys(storesStatus)) {
+    storesStatus[id].campaign = campaignData.byStore[id] || null;
+  }
+
   const allTimeLows = analyzedCatalog.filter((p) => p.stats.isAllTimeLow).length;
   const droppedToday = analyzedCatalog.filter((p) => p.stats.delta24h < 0).length;
   const fakeDiscounts = analyzedCatalog.filter((p) => p.stats.isFakeDiscount).length;
@@ -334,6 +359,8 @@ export async function runDailyScrape(options = {}) {
     fakeDiscounts,
     bugazosCount,
     groupsCount: groups.length,
+    activeCampaignsCount: campaignData.campaigns.length,
+    campaigns: campaignData.campaigns,
     storesStatus
   };
 
@@ -345,7 +372,7 @@ export async function runDailyScrape(options = {}) {
     total: jobs.length,
     fetchedCount,
     meta,
-    message: `¡Listo! ${analyzedCatalog.length} productos actualizados (${groups.length} comparativas multi-tienda, ${bugazosCount} posibles bugazos) en ${(meta.elapsedMs / 1000).toFixed(1)}s.`
+    message: `¡Listo! ${analyzedCatalog.length} productos actualizados (${groups.length} comparativas multi-tienda, ${campaignData.campaigns.length} tiendas en campaña, ${bugazosCount} posibles bugazos) en ${(meta.elapsedMs / 1000).toFixed(1)}s.`
   });
 
   return { catalog: analyzedCatalog, groups, meta };

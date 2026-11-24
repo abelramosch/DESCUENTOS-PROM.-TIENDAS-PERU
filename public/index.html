@@ -126,6 +126,20 @@
       </div>
     </section>
 
+    <!-- Active Seasonal Campaigns Strip (Auto-detected across 30 stores) -->
+    <section class="campaigns-strip" id="campaigns-strip" aria-label="Tiendas en temporada de descuento hoy" hidden>
+      <div class="campaigns-strip-head">
+        <div class="campaigns-strip-title">
+          <span class="campaigns-live-dot" aria-hidden="true"></span>
+          <strong>En temporada hoy</strong>
+          <span class="tab-badge mono" id="campaigns-count-badge">0</span>
+          <span class="small muted campaigns-strip-sub">Detectado automáticamente en portadas y cruzado con precios reales</span>
+        </div>
+        <button type="button" class="link-btn small" id="campaigns-view-all-btn">Ver en Tiendas Perú →</button>
+      </div>
+      <div class="campaigns-chips-row" id="campaigns-chips-row"></div>
+    </section>
+
     <!-- Primary Navigation Tabs -->
     <nav class="tabs-bar" aria-label="Secciones principales">
       <div class="tabs-list" role="tablist">
@@ -394,8 +408,13 @@
         <div>
           <h2>Tiendas del Perú Monitoreadas</h2>
           <p class="muted" id="stores-meta-desc">
-            Estado de la última actualización diaria por tienda. Haz clic en cualquier tienda para ver sus productos.
+            Estado de la última actualización diaria y campañas de temporada activas. Haz clic en cualquier tienda para ver sus productos.
           </p>
+        </div>
+        <div class="filter-chips" id="stores-campaign-filters" aria-label="Filtrar tiendas por temporada">
+          <button type="button" class="chip-btn active" data-store-filter="all">Todas</button>
+          <button type="button" class="chip-btn" data-store-filter="campaign">🔥 En campaña hoy</button>
+          <button type="button" class="chip-btn" data-store-filter="real">✓ Rebajas reales</button>
         </div>
       </div>
       <div class="stores-grid" id="stores-grid"></div>
@@ -696,15 +715,17 @@
           </div>
         </details>
         <details class="token-setup-box">
-          <summary>Activar alertas automáticas en Telegram o Discord (gratis)</summary>
+          <summary>Alertas automáticas en Telegram (@ChapaAltoque_pe_bot · gratis)</summary>
           <div class="token-setup-body">
             <p class="small muted">
-              Cada vez que corra el escaneo automático (7:00 AM, 1:00 PM y 8:00 PM hora Lima), ChapaAlToque PE puede enviarte los mejores bugazos y mínimos históricos a tu celular. Solo agrega estos secretos en <strong>Settings → Secrets and variables → Actions</strong> de tu repositorio:
+              Cada vez que corra el escaneo automático (7:00 AM, 1:00 PM y 8:00 PM hora Lima), el bot
+              <a href="https://t.me/ChapaAltoque_pe_bot" target="_blank" rel="noopener noreferrer" class="link-btn">@ChapaAltoque_pe_bot ↗</a>
+              te envía gratis los mejores bugazos, mínimos históricos y nuevas temporadas de descuento activadas en Perú.
             </p>
-            <ul class="small muted token-steps">
-              <li><strong>Telegram</strong>: <code>TELEGRAM_BOT_TOKEN</code> (creado con <code>@BotFather</code>) y <code>TELEGRAM_CHAT_ID</code>.</li>
-              <li><strong>Discord</strong>: <code>DISCORD_WEBHOOK_URL</code> (creado en Configuración del canal → Integraciones → Webhooks).</li>
-            </ul>
+            <ol class="small muted token-steps">
+              <li>Abre <a href="https://t.me/ChapaAltoque_pe_bot" target="_blank" rel="noopener noreferrer" class="link-btn">t.me/ChapaAltoque_pe_bot ↗</a> y presiona <strong>Iniciar</strong> (o agrégalo a tu grupo/canal).</li>
+              <li>En tu repositorio ve a <strong>Settings → Secrets and variables → Actions</strong> y agrega <code>TELEGRAM_BOT_TOKEN</code> y <code>TELEGRAM_CHAT_ID</code>.</li>
+            </ol>
           </div>
         </details>
       </div>

@@ -312,6 +312,7 @@ const state = {
   categories: [],
   watchlist: { urls: [], customQueries: [], starredIds: [], targetPrices: {} },
   userCards: loadUserCards(),
+  storesCampaignFilter: 'all',
   isUpdating: false,
   ghPollTimer: null,
 
@@ -659,7 +660,56 @@ function getFilteredProducts() {
 // ============================================================================
 function renderAll() {
   renderKpis();
+  renderCampaignsStrip();
   renderActivePanel();
+}
+
+function renderCampaignsStrip() {
+  const strip = document.getElementById('campaigns-strip');
+  const row = document.getElementById('campaigns-chips-row');
+  if (!strip || !row) return;
+
+  const campaigns = Array.isArray(state.meta?.campaigns) ? state.meta.campaigns : [];
+  if (!campaigns.length) {
+    strip.hidden = true;
+    return;
+  }
+
+  strip.hidden = false;
+  setText('campaigns-count-badge', `${campaigns.length} tiendas`);
+
+  row.innerHTML = campaigns
+    .map((c) => {
+      const isBlack = /black/i.test(c.primaryId || c.label || '');
+      const promoText = c.maxPromoPct
+        ? `${c.label} · hasta ${c.maxPromoPct}%`
+        : c.avgDiscountPct >= 10
+          ? `${c.label} · -${c.avgDiscountPct}%`
+          : c.label;
+      const tip = `${c.storeName}: ${c.label} — ${c.authenticityLabel} (${c.realDealsCount} ofertas reales de ${c.totalProducts} productos)`;
+      return `
+        <button type="button" class="campaign-chip ${isBlack ? 'is-black' : ''}" data-campaign-store="${escapeHtml(c.storeId)}" title="${escapeHtml(tip)}">
+          <span class="campaign-chip-auth ${escapeHtml(c.authenticity || 'mixed')}" aria-hidden="true"></span>
+          <span>${c.emoji || '🔥'} ${escapeHtml(c.storeName)}</span>
+          <span class="campaign-chip-tag mono">${escapeHtml(promoText)}</span>
+        </button>
+      `;
+    })
+    .join('');
+
+  row.querySelectorAll('[data-campaign-store]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.filters.store = btn.dataset.campaignStore;
+      state.filters.brand = 'all';
+      state.filters.verdict = 'all';
+      const storeSel = document.getElementById('filter-store');
+      const verdictSel = document.getElementById('filter-verdict');
+      if (storeSel) storeSel.value = state.filters.store;
+      if (verdictSel) verdictSel.value = 'all';
+      populateBrandOptions();
+      switchTab('deals');
+    });
+  });
 }
 
 function renderKpis() {
@@ -1177,6 +1227,9 @@ function renderWatchlistPicker() {
 function renderStoresPanel() {
   const grid = document.getElementById('stores-grid');
   const statusMap = state.meta?.storesStatus || {};
+  const campaignByStore = Object.fromEntries(
+    (state.meta?.campaigns || []).map((c) => [c.storeId, c])
+  );
   const storeStats = {};
 
   for (const p of state.catalog) {
@@ -1190,13 +1243,51 @@ function renderStoresPanel() {
     }
   }
 
-  const list = state.stores
-    .filter((s) => s.enabled !== false)
-    .sort((a, b) => (storeStats[b.id]?.count || 0) - (storeStats[a.id]?.count || 0));
+  const enabledList = state.stores.filter((s) => s.enabled !== false);
+  const withCampaignCount = enabledList.filter(
+    (s) => Boolean(campaignByStore[s.id] || statusMap[s.id]?.campaign)
+  ).length;
+  const realCampaignCount = enabledList.filter((s) => {
+    const camp = campaignByStore[s.id] || statusMap[s.id]?.campaign;
+    return camp?.authenticity === 'real';
+  }).length;
+
+  // Update Tiendas Perú filter chip counts & active state
+  const filterWrap = document.getElementById('stores-campaign-filters');
+  if (filterWrap) {
+    const bAll = filterWrap.querySelector('[data-store-filter="all"]');
+    const bCamp = filterWrap.querySelector('[data-store-filter="campaign"]');
+    const bReal = filterWrap.querySelector('[data-store-filter="real"]');
+    if (bAll) bAll.textContent = `Todas (${enabledList.length})`;
+    if (bCamp) bCamp.textContent = `🔥 En campaña hoy (${withCampaignCount})`;
+    if (bReal) bReal.textContent = `✓ Rebajas reales (${realCampaignCount})`;
+    filterWrap.querySelectorAll('[data-store-filter]').forEach((b) => {
+      b.classList.toggle('active', b.dataset.storeFilter === state.storesCampaignFilter);
+    });
+  }
+
+  const list = enabledList
+    .filter((s) => {
+      const camp = campaignByStore[s.id] || statusMap[s.id]?.campaign || null;
+      if (state.storesCampaignFilter === 'campaign') return Boolean(camp);
+      if (state.storesCampaignFilter === 'real') return camp?.authenticity === 'real';
+      return true;
+    })
+    .sort((a, b) => {
+      const ca = campaignByStore[a.id] || statusMap[a.id]?.campaign || null;
+      const cb = campaignByStore[b.id] || statusMap[b.id]?.campaign || null;
+      if (state.storesCampaignFilter !== 'all') {
+        const pa = ca?.priority || 0;
+        const pb = cb?.priority || 0;
+        if (pb !== pa) return pb - pa;
+      }
+      return (storeStats[b.id]?.count || 0) - (storeStats[a.id]?.count || 0);
+    });
 
   grid.innerHTML = list
     .map((store) => {
       const st = storeStats[store.id] || { count: 0, discountSum: 0, deals: 0 };
+      const camp = campaignByStore[store.id] || statusMap[store.id]?.campaign || null;
       const avgDisc = st.count ? Math.round(st.discountSum / st.count) : 0;
       const pillStyle = getStorePillStyle(store.id);
       const isActive = st.count > 0;
@@ -1213,6 +1304,15 @@ function renderStoresPanel() {
       const displayHost = store.baseUrl
         ? store.baseUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')
         : store.domain || '';
+      const isBlack = camp && /black/i.test(camp.primaryId || camp.label || '');
+      const campHtml = camp
+        ? `
+          <div class="store-campaign-banner ${isBlack ? 'is-black' : ''}">
+            <span class="store-campaign-name">${camp.emoji || '🔥'} ${escapeHtml(camp.label)}${camp.maxPromoPct ? ` · hasta ${camp.maxPromoPct}%` : ''}</span>
+            <span class="auth-pill ${escapeHtml(camp.authenticity || 'mixed')}">${escapeHtml(camp.authenticityLabel || 'En campaña')}</span>
+          </div>
+        `
+        : '';
 
       return `
         <div class="store-card" data-jump-store="${escapeHtml(store.id)}">
@@ -1224,6 +1324,7 @@ function renderStoresPanel() {
             </span>
           </div>
           ${displayHost ? `<div class="small muted mono" style="font-size:0.72rem;margin-top:-2px;">${escapeHtml(displayHost)}</div>` : ''}
+          ${campHtml}
           <div style="display:flex;justify-content:space-between;align-items:baseline;">
             <div>
               <div class="mono" style="font-size:1.3rem;font-weight:800;">${st.count}</div>
@@ -2307,6 +2408,20 @@ function bindEvents() {
     renderGroupsPanel();
   });
 
+  // Active campaigns strip "Ver en Tiendas Perú" button
+  document.getElementById('campaigns-view-all-btn')?.addEventListener('click', () => {
+    state.storesCampaignFilter = 'campaign';
+    switchTab('stores');
+  });
+
+  // Tiendas Perú campaign filter chips
+  document.getElementById('stores-campaign-filters')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-store-filter]');
+    if (!btn) return;
+    state.storesCampaignFilter = btn.dataset.storeFilter;
+    renderStoresPanel();
+  });
+
   // Category chips delegation
   document.getElementById('category-chips').addEventListener('click', (e) => {
     const btn = e.target.closest('[data-category]');
@@ -2585,7 +2700,7 @@ const TOUR_STEPS = [
     title: 'Actualización automática y botón «Actualizar hoy»',
     body: `
       <p>Los precios se actualizan solos <strong>3 veces al día</strong> (7:00 AM, 1:00 PM y 8:00 PM hora Lima).</p>
-      <p>En <strong>Actualizar hoy</strong> puedes recargar datos sin caché, disparar un escaneo nuevo al instante o activar alertas gratis en Telegram/Discord. Siempre puedes repetir esta guía desde el ícono <strong>?</strong>.</p>
+      <p>En <strong>Actualizar hoy</strong> puedes recargar datos sin caché, disparar un escaneo nuevo al instante o activar alertas gratis en <strong>Telegram (@ChapaAltoque_pe_bot)</strong>. Siempre puedes repetir esta guía desde el ícono <strong>?</strong>.</p>
     `,
     nextLabel: '¡Listo, empezar!'
   }

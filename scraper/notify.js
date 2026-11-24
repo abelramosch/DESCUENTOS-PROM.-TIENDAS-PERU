@@ -1,6 +1,7 @@
 import { loadCatalog, loadMeta, loadWatchlist } from './storage.js';
 
 const SITE_URL = process.env.SITE_URL || 'https://abelramosch.github.io/chapaaltoque/';
+const TELEGRAM_BOT_USERNAME = 'ChapaAltoque_pe_bot';
 
 function formatPen(n) {
   return (
@@ -55,6 +56,23 @@ function buildTelegramHtml(picks, meta) {
     ''
   ];
 
+  // Include active seasonal campaigns summary (especially newly launched campaigns)
+  const campaigns = Array.isArray(meta.campaigns) ? meta.campaigns : [];
+  const newCampaigns = campaigns.filter((c) => c.isNewToday);
+  if (newCampaigns.length) {
+    const newText = newCampaigns
+      .slice(0, 5)
+      .map((c) => `${c.emoji || '🔥'} <b>${escapeHtml(c.storeName)}</b> (${escapeHtml(c.label)})`)
+      .join(', ');
+    lines.push(`🆕 <b>Nuevas temporadas activadas hoy:</b> ${newText}`, '');
+  } else if (campaigns.length) {
+    const topCamps = campaigns
+      .slice(0, 5)
+      .map((c) => `${escapeHtml(c.storeName)} (${escapeHtml(c.label)})`)
+      .join(' · ');
+    lines.push(`🔥 <b>${campaigns.length} tiendas en campaña hoy:</b> ${topCamps}`, '');
+  }
+
   for (const p of picks) {
     const tag = p.stats.isBugazo
       ? '⚡ BUGAZO'
@@ -76,33 +94,6 @@ function buildTelegramHtml(picks, meta) {
   return lines.join('\n');
 }
 
-function buildDiscordPayload(picks, meta) {
-  const fields = picks.slice(0, 6).map((p) => {
-    const tag = p.stats.isBugazo ? '⚡ Bugazo' : p.stats.isAllTimeLow ? '🔥 Mínimo Histórico' : '📉 Bajada';
-    const link = `${SITE_URL}?p=${encodeURIComponent(p.id)}`;
-    return {
-      name: `${tag} · ${p.storeName} — ${formatPen(p.price)}`,
-      value: `[${p.title.slice(0, 95)}](${link})\nDescuento: **-${p.stats.storeDiscountPct}%** · Score: **${p.stats.dealScore}/100**`,
-      inline: false
-    };
-  });
-
-  return {
-    username: 'ChapaAlToque PE',
-    embeds: [
-      {
-        title: `🇵🇪 ChapaAlToque PE — Alertas de Ofertas (${meta.lastUpdatedDate || 'Hoy'})`,
-        url: SITE_URL,
-        color: 0xd92638,
-        description: `Se actualizaron **${meta.totalProducts || 0} productos** en **${meta.activeStores || 0} tiendas peruanas** (${meta.bugazosCount || 0} posibles bugazos, ${meta.allTimeLows || 0} mínimos históricos).`,
-        fields,
-        footer: { text: 'ChapaAlToque PE · Actualización automática' },
-        timestamp: new Date().toISOString()
-      }
-    ]
-  };
-}
-
 function escapeHtml(s) {
   return String(s || '')
     .replace(/&/g, '&amp;')
@@ -113,62 +104,45 @@ function escapeHtml(s) {
 export async function sendDealNotifications() {
   const tgToken = process.env.TELEGRAM_BOT_TOKEN;
   const tgChat = process.env.TELEGRAM_CHAT_ID;
-  const discordUrl = process.env.DISCORD_WEBHOOK_URL;
 
-  if ((!tgToken || !tgChat) && !discordUrl) {
-    console.log('ℹ️ Alertas Telegram/Discord omitidas (agrega TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID o DISCORD_WEBHOOK_URL en GitHub Secrets para activarlas).');
-    return { sentTelegram: false, sentDiscord: false };
+  if (!tgToken || !tgChat) {
+    console.log(
+      `ℹ️ Alertas de Telegram (@${TELEGRAM_BOT_USERNAME}) omitidas (agrega TELEGRAM_BOT_TOKEN y TELEGRAM_CHAT_ID en GitHub Secrets para activarlas).`
+    );
+    return { sentTelegram: false };
   }
 
   const catalog = loadCatalog();
   const meta = loadMeta();
   const watchlist = loadWatchlist();
   const { picks } = pickTopAlerts(catalog, watchlist);
+  const hasNewCampaigns = (meta.campaigns || []).some((c) => c.isNewToday);
 
-  if (!picks.length) {
+  if (!picks.length && !hasNewCampaigns) {
     console.log('ℹ️ Sin alertas destacadas que enviar en esta corrida.');
-    return { sentTelegram: false, sentDiscord: false };
+    return { sentTelegram: false };
   }
 
   let sentTelegram = false;
-  let sentDiscord = false;
-
-  if (tgToken && tgChat) {
-    try {
-      const res = await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: tgChat,
-          text: buildTelegramHtml(picks, meta),
-          parse_mode: 'HTML',
-          disable_web_page_preview: true
-        })
-      });
-      if (!res.ok) throw new Error(`Telegram HTTP ${res.status}`);
-      sentTelegram = true;
-      console.log(`✅ Alerta enviada por Telegram (${picks.length} ofertas).`);
-    } catch (err) {
-      console.error('⚠️ Error enviando alerta Telegram:', err.message);
-    }
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: tgChat,
+        text: buildTelegramHtml(picks, meta),
+        parse_mode: 'HTML',
+        disable_web_page_preview: true
+      })
+    });
+    if (!res.ok) throw new Error(`Telegram HTTP ${res.status}`);
+    sentTelegram = true;
+    console.log(`✅ Alerta enviada por Telegram vía @${TELEGRAM_BOT_USERNAME} (${picks.length} ofertas).`);
+  } catch (err) {
+    console.error('⚠️ Error enviando alerta Telegram:', err.message);
   }
 
-  if (discordUrl) {
-    try {
-      const res = await fetch(discordUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(buildDiscordPayload(picks, meta))
-      });
-      if (!res.ok) throw new Error(`Discord HTTP ${res.status}`);
-      sentDiscord = true;
-      console.log(`✅ Alerta enviada por Discord (${picks.length} ofertas).`);
-    } catch (err) {
-      console.error('⚠️ Error enviando alerta Discord:', err.message);
-    }
-  }
-
-  return { sentTelegram, sentDiscord };
+  return { sentTelegram };
 }
 
 // Direct CLI execution: `node scraper/notify.js`
