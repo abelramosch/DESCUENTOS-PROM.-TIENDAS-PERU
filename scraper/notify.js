@@ -1,7 +1,7 @@
 import { loadCatalog, loadMeta, loadWatchlist } from './storage.js';
 
 const SITE_URL = process.env.SITE_URL || 'https://abelramosch.github.io/chapaaltoque/';
-const TELEGRAM_BOT_USERNAME = 'ChapaAltoque_pe_bot';
+const TELEGRAM_BOT_USERNAME = 'Chapaaltoque_pe_bot';
 
 function formatPen(n) {
   return (

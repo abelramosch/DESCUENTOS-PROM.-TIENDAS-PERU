@@ -2700,7 +2700,7 @@ const TOUR_STEPS = [
     title: 'Actualización automática y botón «Actualizar hoy»',
     body: `
       <p>Los precios se actualizan solos <strong>3 veces al día</strong> (7:00 AM, 1:00 PM y 8:00 PM hora Lima).</p>
-      <p>En <strong>Actualizar hoy</strong> puedes recargar datos sin caché, disparar un escaneo nuevo al instante o activar alertas gratis en <strong>Telegram (@ChapaAltoque_pe_bot)</strong>. Siempre puedes repetir esta guía desde el ícono <strong>?</strong>.</p>
+      <p>En <strong>Actualizar hoy</strong> puedes recargar datos sin caché, disparar un escaneo nuevo al instante o activar alertas gratis en <strong>Telegram (@Chapaaltoque_pe_bot)</strong>. Siempre puedes repetir esta guía desde el ícono <strong>?</strong>.</p>
     `,
     nextLabel: '¡Listo, empezar!'
   }

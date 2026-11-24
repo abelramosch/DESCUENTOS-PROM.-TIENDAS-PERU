@@ -67,7 +67,7 @@ jobs:
             git push
           fi
 
-      - name: Enviar alertas de ofertas a Telegram (@ChapaAltoque_pe_bot)
+      - name: Enviar alertas de ofertas a Telegram (@Chapaaltoque_pe_bot)
         if: github.event_name != 'push'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
