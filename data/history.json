@@ -4732,10 +4732,10 @@
     },
     {
       "date": "2026-11-24",
-      "price": 449,
-      "listPrice": 449,
+      "price": 379,
+      "listPrice": 379,
       "cardPrice": null,
-      "inStock": false
+      "inStock": true
     }
   ],
   "plazavea:101144422": [
@@ -16038,6 +16038,13 @@
   "carsa:4974": [
     {
       "date": "2026-11-23",
+      "price": 103,
+      "listPrice": 129,
+      "cardPrice": null,
+      "inStock": true
+    },
+    {
+      "date": "2026-11-24",
       "price": 103,
       "listPrice": 129,
       "cardPrice": null,
@@ -31357,6 +31364,13 @@
   "coolbox:22685": [
     {
       "date": "2026-11-23",
+      "price": 354,
+      "listPrice": 399,
+      "cardPrice": null,
+      "inStock": true
+    },
+    {
+      "date": "2026-11-24",
       "price": 354,
       "listPrice": 399,
       "cardPrice": null,
@@ -56504,6 +56518,13 @@
       "listPrice": 1890,
       "cardPrice": null,
       "inStock": true
+    },
+    {
+      "date": "2026-11-24",
+      "price": 850.5,
+      "listPrice": 1890,
+      "cardPrice": null,
+      "inStock": true
     }
   ],
   "falabella:158768963": [
@@ -57887,6 +57908,13 @@
   "falabella:130507437": [
     {
       "date": "2026-11-23",
+      "price": 5999.9,
+      "listPrice": 9394,
+      "cardPrice": null,
+      "inStock": true
+    },
+    {
+      "date": "2026-11-24",
       "price": 5999.9,
       "listPrice": 9394,
       "cardPrice": null,
@@ -68421,8 +68449,8 @@
   "falabella:157169037": [
     {
       "date": "2026-11-24",
-      "price": 955,
-      "listPrice": 1146,
+      "price": 966,
+      "listPrice": 1159,
       "cardPrice": null,
       "inStock": true
     }
@@ -70043,6 +70071,78 @@
       "date": "2026-11-24",
       "price": 699,
       "listPrice": 879,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:1278621": [
+    {
+      "date": "2026-11-24",
+      "price": 599,
+      "listPrice": 899,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "sony:1856": [
+    {
+      "date": "2026-11-24",
+      "price": 599,
+      "listPrice": 899,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "miniso:33667": [
+    {
+      "date": "2026-11-24",
+      "price": 69.9,
+      "listPrice": 69.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:157330593": [
+    {
+      "date": "2026-11-24",
+      "price": 299,
+      "listPrice": 399,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:130880375": [
+    {
+      "date": "2026-11-24",
+      "price": 459.9,
+      "listPrice": 650,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "renzocosta:871": [
+    {
+      "date": "2026-11-24",
+      "price": 903,
+      "listPrice": 1290,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:21175297": [
+    {
+      "date": "2026-11-24",
+      "price": 1169,
+      "listPrice": 1169,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "coolbox:100445410": [
+    {
+      "date": "2026-11-24",
+      "price": 530,
+      "listPrice": 700,
       "cardPrice": null,
       "inStock": true
     }
