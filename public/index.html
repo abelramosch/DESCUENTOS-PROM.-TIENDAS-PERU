@@ -4,7 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ChapaAlToque PE — Historial de Precios y Ofertas Reales en Tiendas del Perú</title>
-  <meta name="description" content="ChapaAlToque PE: compara precios históricos diarios en más de 20 tiendas del Perú (Falabella, PlazaVea, Oechsle, Coolbox, Promart, Wong, Metro, Hiraoka y más). Detecta mínimos históricos y descuentos inflados." />
+  <meta name="description" content="ChapaAlToque PE: compara precios históricos diarios en 30 tiendas del Perú (Falabella, PlazaVea, Oechsle, Coolbox, Promart, Wong, Metro, Hiraoka y más). Detecta mínimos históricos, bugazos y descuentos inflados." />
+  <meta name="theme-color" content="#d92638" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_PE" />
+  <meta property="og:site_name" content="ChapaAlToque PE" />
+  <meta property="og:title" content="ChapaAlToque PE — Historial de Precios y Ofertas Reales en Perú" />
+  <meta property="og:description" content="Compara precios diarios en 30 tiendas del Perú, detecta mínimos históricos, bugazos y descuentos inflados." />
+  <meta property="og:url" content="https://abelramosch.github.io/chapaaltoque/" />
+  <meta property="og:image" content="https://abelramosch.github.io/chapaaltoque/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ChapaAlToque PE — Historial de Precios y Ofertas Reales en Perú" />
+  <meta name="twitter:description" content="Compara precios diarios en 30 tiendas del Perú, detecta mínimos históricos, bugazos y descuentos inflados." />
+  <meta name="twitter:image" content="https://abelramosch.github.io/chapaaltoque/og-image.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -33,23 +48,31 @@
         <input
           type="search"
           id="global-search-input"
-          placeholder="Buscar producto, marca o modelo (Enter para buscar en vivo en Perú)..."
+          placeholder="Buscar producto, marca, modelo o tienda..."
           autocomplete="off"
         />
-        <button type="submit" class="search-submit-btn" id="global-search-btn" title="Buscar en vivo en todas las tiendas">
-          En vivo
+        <button type="button" class="search-clear-btn" id="global-search-clear-btn" aria-label="Limpiar búsqueda" title="Limpiar búsqueda" hidden>×</button>
+        <button type="submit" class="search-submit-btn" id="global-search-btn" title="Buscar en el catálogo">
+          Buscar
         </button>
       </form>
 
       <div class="topbar-actions">
-        <button type="button" class="btn btn-secondary" id="open-track-modal-btn">
+        <a href="https://t.me/chapaaltoque_pe" target="_blank" rel="noopener noreferrer" class="btn btn-telegram" id="topbar-telegram-btn" title="Unirme gratis al canal de alertas en Telegram (@chapaaltoque_pe)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+            <path d="M21.9 4.6c.3-1.2-.5-2-1.7-1.6L2.7 9.7c-1.2.5-1.2 1.2-.2 1.5l4.5 1.4 10.4-6.6c.5-.3.9-.1.6.2l-8.4 7.6-.3 4.6c.5 0 .7-.2 1-.5l2.3-2.2 4.7 3.5c.9.5 1.5.2 1.7-.8l2.9-13.8z"/>
+          </svg>
+          <span>Telegram</span>
+        </a>
+
+        <button type="button" class="btn btn-secondary" id="open-track-modal-btn" hidden>
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 5v14M5 12h14"></path>
           </svg>
           <span>Seguir URL</span>
         </button>
 
-        <button type="button" class="btn btn-primary" id="refresh-daily-btn">
+        <button type="button" class="btn btn-primary" id="refresh-daily-btn" title="Ver estado de actualización y alertas">
           <svg class="icon-refresh" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"></path>
             <path d="M21 3v5h-5"></path>
@@ -103,26 +126,26 @@
       </div>
 
       <div class="kpi-strip" id="kpi-strip">
-        <div class="kpi-item">
+        <button type="button" class="kpi-item kpi-btn" data-kpi-action="all" title="Ver todos los productos">
           <span class="kpi-label">Productos</span>
           <strong class="kpi-value mono" id="kpi-total">—</strong>
-        </div>
-        <div class="kpi-item">
+        </button>
+        <button type="button" class="kpi-item kpi-btn" data-kpi-action="stores" title="Explorar tiendas peruanas">
           <span class="kpi-label">Tiendas PE</span>
           <strong class="kpi-value mono" id="kpi-stores">—</strong>
-        </div>
-        <div class="kpi-item kpi-positive">
+        </button>
+        <button type="button" class="kpi-item kpi-btn kpi-positive" data-kpi-action="deals" title="Filtrar solo los que convienen hoy">
           <span class="kpi-label">Conviene hoy</span>
           <strong class="kpi-value mono" id="kpi-deals">—</strong>
-        </div>
-        <div class="kpi-item kpi-alert">
+        </button>
+        <button type="button" class="kpi-item kpi-btn kpi-alert" data-kpi-action="drops" title="Ordenar por mayor bajada de hoy">
           <span class="kpi-label">Bajaron hoy</span>
           <strong class="kpi-value mono" id="kpi-drops">—</strong>
-        </div>
-        <div class="kpi-item kpi-warn">
+        </button>
+        <button type="button" class="kpi-item kpi-btn kpi-warn" data-kpi-action="inflated" title="Ver trampas y precios inflados en Anti-Cyber">
           <span class="kpi-label">Inflados</span>
           <strong class="kpi-value mono" id="kpi-inflated">—</strong>
-        </div>
+        </button>
       </div>
     </section>
 
@@ -162,7 +185,7 @@
           Mi Lista
           <span class="tab-badge mono" id="badge-watchlist">0</span>
         </button>
-        <button type="button" role="tab" class="tab-btn" data-tab="live-search" id="tab-live-search" aria-selected="false">
+        <button type="button" role="tab" class="tab-btn" data-tab="live-search" id="tab-live-search" aria-selected="false" hidden>
           En Vivo
         </button>
         <button type="button" role="tab" class="tab-btn" data-tab="stores" id="tab-stores" aria-selected="false">
@@ -198,72 +221,96 @@
       </div>
 
       <!-- Filters Toolbar -->
-      <div class="filters-panel">
-        <div class="filter-row">
-          <div class="filter-chips" id="category-chips" aria-label="Filtrar por categoría"></div>
+      <div class="filters-panel" id="filters-panel">
+        <div class="filter-row filter-row-categories">
+          <div class="filter-chips category-chips-scroll" id="category-chips" aria-label="Filtrar por categoría"></div>
         </div>
 
-        <div class="filter-row cards-wallet-row">
-          <span class="wallet-label">¿Qué tarjetas tienes?</span>
-          <div class="filter-chips" id="wallet-cards-chips" aria-label="Seleccionar tus tarjetas bancarias en Perú">
-            <button type="button" class="chip-btn card-chip" data-card="BCP">BCP</button>
-            <button type="button" class="chip-btn card-chip" data-card="CMR">CMR</button>
-            <button type="button" class="chip-btn card-chip" data-card="Tarjeta Oh!">Tarjeta Oh!</button>
-            <button type="button" class="chip-btn card-chip" data-card="Interbank">Interbank</button>
-            <button type="button" class="chip-btn card-chip" data-card="BBVA">BBVA</button>
-            <button type="button" class="chip-btn card-chip" data-card="Cencosud">Cencosud</button>
-          </div>
-          <span class="small muted" id="wallet-cards-hint">Mostrando precio internet (marca tus tarjetas para ver tu precio real)</span>
+        <div class="filters-mobile-bar">
+          <button type="button" class="btn btn-secondary btn-sm filters-mobile-toggle" id="filters-mobile-toggle" aria-expanded="false" aria-controls="filters-collapsible">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span>Filtros y tarjetas</span>
+            <span class="filter-active-badge mono" id="filters-active-badge" hidden>0</span>
+            <span class="filters-toggle-caret" aria-hidden="true">▾</span>
+          </button>
+          <span id="results-count-mobile" class="mono small muted"></span>
         </div>
 
-        <div class="filter-row filter-row-controls">
-          <div class="filter-group">
-            <label for="filter-store">Tienda</label>
-            <select id="filter-store">
-              <option value="all">Todas las tiendas</option>
-            </select>
+        <div class="filters-collapsible" id="filters-collapsible">
+          <div class="filter-row cards-wallet-row">
+            <span class="wallet-label">¿Qué tarjetas tienes?</span>
+            <div class="filter-chips" id="wallet-cards-chips" aria-label="Seleccionar tus tarjetas bancarias en Perú">
+              <button type="button" class="chip-btn card-chip" data-card="BCP">BCP</button>
+              <button type="button" class="chip-btn card-chip" data-card="CMR">CMR</button>
+              <button type="button" class="chip-btn card-chip" data-card="Tarjeta Oh!">Tarjeta Oh!</button>
+              <button type="button" class="chip-btn card-chip" data-card="Interbank">Interbank</button>
+              <button type="button" class="chip-btn card-chip" data-card="BBVA">BBVA</button>
+              <button type="button" class="chip-btn card-chip" data-card="Cencosud">Cencosud</button>
+            </div>
+            <span class="small muted" id="wallet-cards-hint">Mostrando precio internet (marca tus tarjetas para ver tu precio real)</span>
           </div>
 
-          <div class="filter-group">
-            <label for="filter-brand">Marca</label>
-            <select id="filter-brand">
-              <option value="all">Todas las marcas</option>
-            </select>
-          </div>
+          <div class="filter-row filter-row-controls">
+            <div class="filter-group">
+              <label for="filter-store">Tienda</label>
+              <select id="filter-store">
+                <option value="all">Todas las tiendas</option>
+              </select>
+            </div>
 
-          <div class="filter-group">
-            <label for="filter-verdict">Veredicto</label>
-            <select id="filter-verdict">
-              <option value="all">Todos los veredictos</option>
-              <option value="buy">Solo los que convienen (ATL / Oferta)</option>
-              <option value="bugazo">⚡ Posibles Bugazos</option>
-              <option value="all_time_low">Mínimo histórico</option>
-              <option value="great_deal">Excelente / Fuerte oferta</option>
-              <option value="good_deal">Buen precio</option>
-              <option value="inflated">Trampa Cyber / Inflados</option>
-            </select>
-          </div>
+            <div class="filter-group">
+              <label for="filter-brand">Marca</label>
+              <select id="filter-brand">
+                <option value="all">Todas las marcas</option>
+              </select>
+            </div>
 
-          <div class="filter-group">
-            <label for="filter-sort">Ordenar por</label>
-            <select id="filter-sort">
-              <option value="score">Mejor compra hoy (Score)</option>
-              <option value="real_discount">Mayor descuento real</option>
-              <option value="store_discount">Mayor % descuento tienda</option>
-              <option value="drop_today">Mayor bajada de hoy</option>
-              <option value="price_asc">Menor precio (S/)</option>
-              <option value="price_desc">Mayor precio (S/)</option>
-            </select>
-          </div>
+            <div class="filter-group">
+              <label for="filter-verdict">Veredicto</label>
+              <select id="filter-verdict">
+                <option value="all">Todos los veredictos</option>
+                <option value="buy">Solo los que convienen (ATL / Oferta)</option>
+                <option value="bugazo">⚡ Posibles Bugazos</option>
+                <option value="all_time_low">Mínimo histórico</option>
+                <option value="great_deal">Excelente / Fuerte oferta</option>
+                <option value="good_deal">Buen precio</option>
+                <option value="inflated">Trampa Cyber / Inflados</option>
+              </select>
+            </div>
 
-          <div class="filter-group filter-price-group">
-            <label for="filter-max-price">Precio máx. (S/)</label>
-            <input type="number" id="filter-max-price" placeholder="Ej. 1500" min="1" step="50" />
-          </div>
+            <div class="filter-group">
+              <label for="filter-sort">Ordenar por</label>
+              <select id="filter-sort">
+                <option value="featured">Destacados variados</option>
+                <option value="score">Mejor compra hoy (Score)</option>
+                <option value="real_discount">Mayor descuento real</option>
+                <option value="store_discount">Mayor % descuento tienda</option>
+                <option value="drop_today">Mayor bajada de hoy</option>
+                <option value="price_asc">Menor precio (S/)</option>
+                <option value="price_desc">Mayor precio (S/)</option>
+              </select>
+            </div>
 
-          <div class="filter-meta">
-            <span id="results-count" class="mono results-count">0 productos</span>
-            <button type="button" class="link-btn" id="clear-filters-btn" hidden>Limpiar filtros</button>
+            <div class="filter-group filter-price-range-group">
+              <label for="filter-min-price">Precio (S/)</label>
+              <div class="price-range-inputs">
+                <input type="number" id="filter-min-price" placeholder="Mín." min="0" step="50" aria-label="Precio mínimo en soles" />
+                <span class="muted small">–</span>
+                <input type="number" id="filter-max-price" placeholder="Máx." min="1" step="50" aria-label="Precio máximo en soles" />
+              </div>
+            </div>
+
+            <label class="filter-stock-toggle" for="filter-in-stock" title="Ocultar productos agotados">
+              <input type="checkbox" id="filter-in-stock" checked />
+              <span>Solo en stock</span>
+            </label>
+
+            <div class="filter-meta">
+              <span id="results-count" class="mono results-count">0 productos</span>
+              <button type="button" class="link-btn" id="clear-filters-btn" hidden>Limpiar filtros</button>
+            </div>
           </div>
         </div>
       </div>
@@ -301,8 +348,8 @@
       <!-- Empty State -->
       <div class="empty-state" id="catalog-empty" hidden>
         <h3>No hay productos que coincidan con estos filtros</h3>
-        <p>Prueba quitando un filtro o busca el producto en vivo en las tiendas de Perú.</p>
-        <button type="button" class="btn btn-primary" id="empty-live-search-btn">Buscar en vivo</button>
+        <p id="catalog-empty-desc">Prueba quitando algún filtro o cambiando el término de búsqueda.</p>
+        <button type="button" class="btn btn-primary" id="empty-live-search-btn">Limpiar filtros</button>
       </div>
     </section>
 
@@ -337,7 +384,7 @@
         </div>
         <div class="watchlist-header-actions">
           <button type="button" class="btn btn-secondary" id="watchlist-clear-all-btn" hidden>Vaciar lista</button>
-          <button type="button" class="btn btn-primary" id="watchlist-add-url-btn">+ Agregar por URL</button>
+          <button type="button" class="btn btn-primary" id="watchlist-add-url-btn" hidden>+ Agregar por URL</button>
         </div>
       </div>
 
@@ -357,10 +404,10 @@
 
       <div class="custom-queries-box">
         <div class="custom-queries-head">
-          <h3>Búsquedas automáticas diarias</h3>
+          <h3 id="custom-queries-title">Búsquedas rápidas guardadas</h3>
           <form class="inline-form" id="add-query-form">
             <input type="text" id="new-query-input" placeholder="Ej: RTX 4060, AirPods Pro, Cafetera Oster..." required />
-            <button type="submit" class="btn btn-secondary">Vigilar cada día</button>
+            <button type="submit" class="btn btn-secondary" id="add-query-submit-btn">Guardar filtro</button>
           </form>
         </div>
         <div class="query-tags" id="custom-queries-list"></div>
@@ -448,7 +495,7 @@
 
     <div class="drawer-body" id="drawer-body">
       <div class="drawer-hero">
-        <img id="drawer-img" class="drawer-thumb" alt="" />
+        <img id="drawer-img" class="drawer-thumb" alt="" hidden />
         <div class="drawer-hero-info">
           <span class="drawer-brand" id="drawer-brand"></span>
           <h2 id="drawer-title">Cargando...</h2>
@@ -767,6 +814,13 @@
 
   <!-- Toast Notification -->
   <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Floating Back to Top Button -->
+  <button type="button" class="back-to-top-btn" id="back-to-top-btn" aria-label="Volver arriba" title="Volver arriba" hidden>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m18 15-6-6-6 6"></path>
+    </svg>
+  </button>
 
   <footer class="site-footer">
     <div class="container footer-inner">

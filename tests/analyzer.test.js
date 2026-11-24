@@ -1,9 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { analyzeProduct, extractMatchTokens } from '../scraper/analyzer.js';
+import {
+  analyzeProduct,
+  deduplicateStoreListings,
+  extractMatchTokens,
+  normalizeProductCategory
+} from '../scraper/analyzer.js';
 import { buildMultiStoreGroups } from '../scraper/grouper.js';
 import { parsePriceNumber } from '../scraper/http.js';
-import { recordPricePoint } from '../scraper/storage.js';
+import { compactCatalogForPublic, recordPricePoint } from '../scraper/storage.js';
 
 test('parsePriceNumber parses Peruvian PEN, USD, and EU formatted prices', () => {
   assert.equal(parsePriceNumber('S/ 1,299.90'), 1299.9);
@@ -242,3 +247,53 @@ test('extractMatchTokens extracts normalized model keywords', () => {
   assert.ok(tokens.includes('oled'));
   assert.ok(tokens.includes('oled55c4'));
 });
+
+test('normalizeProductCategory reclassifies baby toys out of tech and electro categories', () => {
+  assert.equal(
+    normalizeProductCategory({ title: 'Primer Laptop Aprendizaje Fisher-Price', brand: 'Fisher-Price', category: 'tecnologia' }),
+    'hogar'
+  );
+  assert.equal(
+    normalizeProductCategory({ title: 'Microondas de Juguete Happy Line', brand: 'Happy Line', category: 'electro' }),
+    'hogar'
+  );
+  assert.equal(
+    normalizeProductCategory({ title: 'Laptop Lenovo IdeaPad Slim 5 16GB', brand: 'Lenovo', category: 'tecnologia' }),
+    'tecnologia'
+  );
+});
+
+test('deduplicateStoreListings collapses identical same-store listings keeping best in-stock offer', () => {
+  const items = [
+    { id: 'falabella:1', storeId: 'falabella', title: 'Televisor 65" 4K UHD 65P6K', price: 1518, inStock: true },
+    { id: 'falabella:2', storeId: 'falabella', title: 'Televisor 65" 4K UHD 65P6K', price: 1399, inStock: true },
+    { id: 'falabella:3', storeId: 'falabella', title: 'Televisor 65" 4K UHD 65P6K', price: 1299, inStock: false },
+    { id: 'coolbox:1', storeId: 'coolbox', title: 'Televisor 65" 4K UHD 65P6K', price: 1449, inStock: true }
+  ];
+  const deduped = deduplicateStoreListings(items);
+  assert.equal(deduped.length, 2);
+  assert.equal(deduped.find((p) => p.storeId === 'falabella').id, 'falabella:2');
+  assert.equal(deduped.find((p) => p.storeId === 'coolbox').id, 'coolbox:1');
+});
+
+test('compactCatalogForPublic removes matchTokens and null defaults while preserving false inStock', () => {
+  const compact = compactCatalogForPublic([
+    {
+      id: 'falabella:1',
+      title: 'TV Test',
+      price: 999,
+      cardPrice: null,
+      inStock: false,
+      isCustomWatch: false,
+      originalCurrency: 'PEN',
+      matchTokens: ['tv', 'test'],
+      stats: { dealScore: 80, bugazoReason: null, isBugazo: false, isAllTimeLow: true }
+    }
+  ]);
+  assert.equal(compact[0].matchTokens, undefined);
+  assert.equal('cardPrice' in compact[0], false);
+  assert.equal(compact[0].inStock, false);
+  assert.equal('bugazoReason' in compact[0].stats, false);
+  assert.equal(compact[0].stats.isAllTimeLow, true);
+});
+

@@ -307,7 +307,12 @@ const state = {
   catalog: [],
   groups: [],
   groupMap: {},
+  groupsLoaded: false,
+  groupsPromise: null,
   historyCache: {},
+  historyLoaded: false,
+  historyPromise: null,
+  dataCacheBust: '',
   stores: [],
   storeMap: {},
   categories: [],
@@ -319,7 +324,7 @@ const state = {
 
   // UI state
   activeTab: 'deals', // deals | bugazos | anticyber | groups | watchlist | live-search | stores
-  viewMode: 'table',  // table | grid
+  viewMode: typeof window !== 'undefined' && window.innerWidth < 768 ? 'grid' : 'table',
   pageSize: 60,
   groupsQuery: '',
   filters: {
@@ -329,8 +334,10 @@ const state = {
     brand: 'all',
     verdict: 'all',
     cyber: 'all',
-    sort: 'score',
-    maxPrice: ''
+    sort: 'featured',
+    minPrice: '',
+    maxPrice: '',
+    inStockOnly: true
   },
   selectedProduct: null,
   selectedHistory: [],
@@ -338,15 +345,163 @@ const state = {
   chartRange: 'all'
 };
 
+function syncViewModeButtons() {
+  document.querySelectorAll('#catalog-view-controls .seg-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.view === state.viewMode);
+  });
+}
+
+function applyModeUi() {
+  const isServer = state.mode === 'server';
+
+  const trackTopBtn = document.getElementById('open-track-modal-btn');
+  if (trackTopBtn) trackTopBtn.hidden = !isServer;
+
+  const trackWatchBtn = document.getElementById('watchlist-add-url-btn');
+  if (trackWatchBtn) trackWatchBtn.hidden = !isServer;
+
+  const liveTab = document.getElementById('tab-live-search');
+  if (liveTab) liveTab.hidden = !isServer;
+  if (!isServer && state.activeTab === 'live-search') {
+    state.activeTab = 'deals';
+  }
+
+  const searchInput = document.getElementById('global-search-input');
+  const searchBtn = document.getElementById('global-search-btn');
+  if (searchInput) {
+    searchInput.placeholder = isServer
+      ? 'Buscar producto, marca o modelo (Enter para buscar en vivo en Perú)...'
+      : 'Buscar producto, marca, modelo o tienda...';
+  }
+  if (searchBtn) {
+    searchBtn.textContent = isServer ? 'En vivo' : 'Buscar';
+    searchBtn.title = isServer ? 'Buscar en vivo en todas las tiendas' : 'Buscar en el catálogo';
+  }
+
+  const queriesTitle = document.getElementById('custom-queries-title');
+  const queriesBtn = document.getElementById('add-query-submit-btn');
+  if (queriesTitle) {
+    queriesTitle.textContent = isServer ? 'Búsquedas automáticas diarias' : 'Búsquedas rápidas guardadas';
+  }
+  if (queriesBtn) {
+    queriesBtn.textContent = isServer ? 'Vigilar cada día' : 'Guardar filtro';
+  }
+
+  const emptyDesc = document.getElementById('catalog-empty-desc');
+  const emptyBtn = document.getElementById('empty-live-search-btn');
+  if (emptyDesc) {
+    emptyDesc.textContent = isServer
+      ? 'Prueba quitando un filtro o busca el producto en vivo en las tiendas de Perú.'
+      : 'Prueba quitando algún filtro o cambiando el término de búsqueda.';
+  }
+  if (emptyBtn) {
+    emptyBtn.textContent = isServer ? 'Buscar en vivo' : 'Limpiar filtros';
+  }
+}
+
+function restoreStateFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const validTabs = new Set(['deals', 'bugazos', 'anticyber', 'groups', 'watchlist', 'live-search', 'stores']);
+    const tab = params.get('tab');
+    if (tab && validTabs.has(tab)) {
+      state.activeTab = tab;
+    }
+    const q = params.get('q');
+    if (q) state.filters.search = q;
+    const cat = params.get('cat');
+    if (cat) state.filters.category = cat;
+    const store = params.get('store');
+    if (store) state.filters.store = store;
+    const brand = params.get('brand');
+    if (brand) state.filters.brand = brand;
+    const verdict = params.get('verdict');
+    if (verdict) state.filters.verdict = verdict;
+    const cyber = params.get('cyber');
+    if (cyber && ['all', 'real_drop', 'cyber_trap'].includes(cyber)) state.filters.cyber = cyber;
+    const sort = params.get('sort');
+    const validSorts = new Set(['featured', 'score', 'real_discount', 'store_discount', 'drop_today', 'price_asc', 'price_desc']);
+    if (sort && validSorts.has(sort)) state.filters.sort = sort;
+    const min = params.get('min');
+    if (min && Number(min) > 0) state.filters.minPrice = min;
+    const max = params.get('max');
+    if (max && Number(max) > 0) state.filters.maxPrice = max;
+    if (params.get('stock') === 'all') state.filters.inStockOnly = false;
+  } catch {
+    // ignore invalid URL params
+  }
+}
+
+function syncUrlWithState() {
+  try {
+    const url = new URL(window.location.href);
+    const setOrDel = (k, val, defVal) => {
+      if (val && val !== defVal) url.searchParams.set(k, String(val));
+      else url.searchParams.delete(k);
+    };
+    setOrDel('tab', state.activeTab, 'deals');
+    setOrDel('q', state.filters.search.trim(), '');
+    setOrDel('cat', state.filters.category, 'all');
+    setOrDel('store', state.filters.store, 'all');
+    setOrDel('brand', state.filters.brand, 'all');
+    setOrDel('verdict', state.filters.verdict, 'all');
+    setOrDel('cyber', state.filters.cyber, 'all');
+    setOrDel('sort', state.filters.sort, 'featured');
+    setOrDel('min', state.filters.minPrice, '');
+    setOrDel('max', state.filters.maxPrice, '');
+    if (state.filters.inStockOnly) url.searchParams.delete('stock');
+    else url.searchParams.set('stock', 'all');
+    window.history.replaceState({}, '', url.toString());
+  } catch {
+    // ignore history errors
+  }
+}
+
+function syncFilterInputsFromState() {
+  const searchInput = document.getElementById('global-search-input');
+  if (searchInput) searchInput.value = state.filters.search;
+  const clearSearchBtn = document.getElementById('global-search-clear-btn');
+  if (clearSearchBtn) clearSearchBtn.hidden = !state.filters.search;
+
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  };
+  setVal('filter-store', state.filters.store);
+  setVal('filter-brand', state.filters.brand);
+  setVal('filter-verdict', state.filters.verdict);
+  setVal('filter-sort', state.filters.sort);
+  setVal('filter-min-price', state.filters.minPrice);
+  setVal('filter-max-price', state.filters.maxPrice);
+
+  const stockEl = document.getElementById('filter-in-stock');
+  if (stockEl) stockEl.checked = state.filters.inStockOnly;
+
+  document.querySelectorAll('#anticyber-subfilters .chip-btn').forEach((b) => {
+    b.classList.toggle('active', b.dataset.cyber === state.filters.cyber);
+  });
+  document.querySelectorAll('.tab-btn').forEach((b) => {
+    const active = b.dataset.tab === state.activeTab;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', String(active));
+  });
+}
+
 // ============================================================================
 // Bootstrap & Data Loading
 // ============================================================================
 async function init() {
   initTheme();
+  syncViewModeButtons();
+  restoreStateFromUrl();
   renderWalletCardsUi();
   bindEvents();
   await loadInitialData();
+  applyModeUi();
+  populateFilterOptions();
+  syncFilterInputsFromState();
   renderAll();
+  scheduleBackgroundPrefetch();
 
   // Auto-open shared product link (?p=<productId>)
   const sharedId = new URLSearchParams(window.location.search).get('p');
@@ -369,8 +524,50 @@ function renderWalletCardsUi() {
   }
 }
 
+async function ensureGroupsLoaded() {
+  if (state.mode === 'server' || state.groupsLoaded) return state.groups;
+  if (!state.groupsPromise) {
+    const bust = state.dataCacheBust || `t=${Date.now()}`;
+    state.groupsPromise = fetchJsonSafe(`./data/groups.json?${bust}`, []).then((groups) => {
+      state.groups = Array.isArray(groups) ? groups : [];
+      state.groupMap = Object.fromEntries(state.groups.map((g) => [g.groupId, g]));
+      state.groupsLoaded = true;
+      setText('badge-groups', state.groups.length);
+      return state.groups;
+    });
+  }
+  return state.groupsPromise;
+}
+
+async function ensureHistoryLoaded() {
+  if (state.mode === 'server' || state.historyLoaded) return state.historyCache;
+  if (!state.historyPromise) {
+    const bust = state.dataCacheBust || `t=${Date.now()}`;
+    state.historyPromise = fetchJsonSafe(`./data/history.json?${bust}`, {}).then((history) => {
+      state.historyCache = history && typeof history === 'object' ? history : {};
+      state.historyLoaded = true;
+      return state.historyCache;
+    });
+  }
+  return state.historyPromise;
+}
+
+function scheduleBackgroundPrefetch() {
+  if (state.mode === 'server') return;
+  const run = () => {
+    ensureGroupsLoaded();
+    ensureHistoryLoaded();
+  };
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    window.requestIdleCallback(run, { timeout: 3000 });
+  } else {
+    setTimeout(run, 1800);
+  }
+}
+
 async function loadInitialData() {
   const cacheBust = `t=${Date.now()}`;
+  state.dataCacheBust = cacheBust;
   try {
     const healthRes = await fetch(`/api/health?${cacheBust}`, { cache: 'no-store' });
     if (healthRes.ok) {
@@ -380,6 +577,10 @@ async function loadInitialData() {
       state.meta = payload.meta;
       state.catalog = payload.catalog || [];
       state.groups = payload.groups || [];
+      state.groupsLoaded = true;
+      state.groupsPromise = null;
+      state.historyLoaded = true;
+      state.historyPromise = null;
       state.watchlist = payload.watchlist || state.watchlist;
       state.stores = payload.stores || [];
       state.categories = payload.categories || [];
@@ -388,16 +589,22 @@ async function loadInitialData() {
     }
   } catch {
     state.mode = 'static';
-    const [catalog, meta, history, groups] = await Promise.all([
+    state.groups = [];
+    state.groupMap = {};
+    state.groupsLoaded = false;
+    state.groupsPromise = null;
+    state.historyCache = {};
+    state.historyLoaded = false;
+    state.historyPromise = null;
+
+    // Fetch only catalog + meta initially for fast First Contentful Paint;
+    // groups.json and history.json load lazily on demand (and idle prefetch).
+    const [catalog, meta] = await Promise.all([
       fetchJsonSafe(`./data/catalog.json?${cacheBust}`, []),
-      fetchJsonSafe(`./data/meta.json?${cacheBust}`, {}),
-      fetchJsonSafe(`./data/history.json?${cacheBust}`, {}),
-      fetchJsonSafe(`./data/groups.json?${cacheBust}`, [])
+      fetchJsonSafe(`./data/meta.json?${cacheBust}`, {})
     ]);
     state.catalog = catalog;
     state.meta = meta;
-    state.historyCache = history;
-    state.groups = Array.isArray(groups) ? groups : [];
     // En modo web pública (GitHub Pages), Mi Lista es 100% personal por navegador
     state.watchlist = loadLocalWatchlist();
     state.stores = Object.values(meta?.storesStatus || {}).map((s) => ({
@@ -436,8 +643,8 @@ async function loadInitialData() {
   if (footerMode) {
     footerMode.textContent =
       state.mode === 'server'
-        ? `Modo servidor local activo · T.C. USD/PEN: S/ ${state.meta?.usdToPen || '3.75'}`
-        : `Modo estático (GitHub Pages) · Actualización automática diaria`;
+        ? `Servidor local activo · T.C. USD/PEN: S/ ${state.meta?.usdToPen || '3.75'}`
+        : `Actualización automática 3 veces al día (7:00 AM, 1:00 PM y 8:00 PM Lima) · @chapaaltoque_pe`;
   }
 }
 
@@ -502,9 +709,16 @@ function applyTheme(theme) {
 // Filter Population & Filtering Logic
 // ============================================================================
 function populateFilterOptions() {
-  // Category chips
+  // Category chips (hide "Mi Seguimiento" when empty so visitors don't see a dead 0-item tab)
   const chipsEl = document.getElementById('category-chips');
-  const allCats = [{ id: 'all', label: 'Todas las categorías' }, ...state.categories];
+  const catCounts = {};
+  for (const p of state.catalog) {
+    catCounts[p.category] = (catCounts[p.category] || 0) + 1;
+  }
+  const visibleCats = state.categories.filter(
+    (c) => c.id !== 'personal' || (catCounts.personal || 0) > 0 || state.filters.category === 'personal'
+  );
+  const allCats = [{ id: 'all', label: 'Todas las categorías' }, ...visibleCats];
   chipsEl.innerHTML = allCats
     .map(
       (c) => `
@@ -586,12 +800,72 @@ function populateBrandOptions() {
   brandSelect.value = state.filters.brand;
 }
 
+function getFamilySignature(p) {
+  const base = String(p.title || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length >= 2 && !/^(de|del|la|las|el|los|en|con|para|por|y|hombre|hombres|mujer|mujeres|unisex|negro|negra|blanco|blanca|azul|rojo|gris|beige|hueso)$/.test(w))
+    .slice(0, 3)
+    .join(' ');
+  return `${p.storeId}::${base || p.id}`;
+}
+
+function interleaveFeaturedProducts(scoreSortedList) {
+  if (scoreSortedList.length <= 6) return scoreSortedList;
+
+  const targetHead = Math.min(36, scoreSortedList.length);
+  const head = [];
+  const headIds = new Set();
+  const seenFamily = new Set();
+  const seenGroup = new Set();
+  const storeCounts = new Map();
+  const catCounts = new Map();
+
+  // Only examine high-quality candidates first, then fall back to full list
+  const candidatePool = scoreSortedList.slice(0, Math.min(600, scoreSortedList.length));
+
+  const tryPick = (maxStore, maxCat, checkFamily) => {
+    for (const p of candidatePool) {
+      if (head.length >= targetHead) break;
+      if (headIds.has(p.id)) continue;
+      if (p.groupId && seenGroup.has(p.groupId)) continue;
+      const fam = getFamilySignature(p);
+      if (checkFamily && seenFamily.has(fam)) continue;
+      if ((storeCounts.get(p.storeId) || 0) >= maxStore) continue;
+      if ((catCounts.get(p.category) || 0) >= maxCat) continue;
+
+      head.push(p);
+      headIds.add(p.id);
+      seenFamily.add(fam);
+      if (p.groupId) seenGroup.add(p.groupId);
+      storeCounts.set(p.storeId, (storeCounts.get(p.storeId) || 0) + 1);
+      catCounts.set(p.category, (catCounts.get(p.category) || 0) + 1);
+    }
+  };
+
+  // Progressive diversity rounds: 1 per store & 1 per category first, then 2, then 3
+  tryPick(1, 1, true);
+  tryPick(1, 2, true);
+  tryPick(2, 3, true);
+  tryPick(2, 4, true);
+  tryPick(3, 5, true);
+
+  const rest = scoreSortedList.filter((p) => !headIds.has(p.id));
+  return [...head, ...rest];
+}
+
 function getFilteredProducts() {
-  const { search, category, store, brand, verdict, cyber, sort, maxPrice } = state.filters;
+  const { search, category, store, brand, verdict, cyber, sort, minPrice, maxPrice, inStockOnly } = state.filters;
   const q = search.trim().toLowerCase();
+  const minP = Number(minPrice) > 0 ? Number(minPrice) : 0;
   const maxP = Number(maxPrice) > 0 ? Number(maxPrice) : Infinity;
 
   let list = state.catalog.filter((p) => {
+    if (inStockOnly && p.inStock === false) return false;
+
     if (state.activeTab === 'bugazos') {
       if (!p.stats.isBugazo) return false;
     } else if (state.activeTab === 'anticyber') {
@@ -607,7 +881,7 @@ function getFilteredProducts() {
     if (brand !== 'all' && p.brandKey !== brand) return false;
 
     const uPrice = getUserPrice(p).price;
-    if (uPrice > maxP) return false;
+    if (uPrice < minP || uPrice > maxP) return false;
 
     if (verdict === 'buy') {
       if (!['all_time_low', 'great_deal', 'good_deal'].includes(p.stats.verdict)) return false;
@@ -631,7 +905,7 @@ function getFilteredProducts() {
 
   // Sort
   list.sort((a, b) => {
-    if (state.activeTab === 'bugazos' && sort === 'score') {
+    if (state.activeTab === 'bugazos' && (sort === 'score' || sort === 'featured')) {
       const rank = (t) => (t === 'historical_crash' ? 3 : t === 'cross_store' ? 2 : 1);
       const diff = rank(b.stats.bugazoType) - rank(a.stats.bugazoType);
       if (diff !== 0) return diff;
@@ -640,18 +914,27 @@ function getFilteredProducts() {
       case 'real_discount':
         return (b.stats.fairDiscountPct ?? b.stats.realDiscountPct ?? 0) - (a.stats.fairDiscountPct ?? a.stats.realDiscountPct ?? 0);
       case 'store_discount':
-        return b.stats.storeDiscountPct - a.stats.storeDiscountPct;
+        return (b.stats.storeDiscountPct || 0) - (a.stats.storeDiscountPct || 0);
       case 'drop_today':
-        return a.stats.delta24hPct - b.stats.delta24hPct || b.stats.dealScore - a.stats.dealScore;
+        return (a.stats.delta24hPct || 0) - (b.stats.delta24hPct || 0) || (b.stats.dealScore || 0) - (a.stats.dealScore || 0);
       case 'price_asc':
         return getUserPrice(a).price - getUserPrice(b).price;
       case 'price_desc':
         return getUserPrice(b).price - getUserPrice(a).price;
+      case 'featured':
       case 'score':
       default:
-        return b.stats.dealScore - a.stats.dealScore || (b.stats.fairDiscountPct ?? 0) - (a.stats.fairDiscountPct ?? 0);
+        return (
+          (b.stats.dealScore || 0) - (a.stats.dealScore || 0) ||
+          (b.stats.fairDiscountPct ?? 0) - (a.stats.fairDiscountPct ?? 0) ||
+          (b.stats.realDiscountPct ?? 0) - (a.stats.realDiscountPct ?? 0)
+        );
     }
   });
+
+  if (sort === 'featured' && !q && store === 'all' && brand === 'all') {
+    return interleaveFeaturedProducts(list);
+  }
 
   return list;
 }
@@ -731,9 +1014,10 @@ function renderKpis() {
   setText('kpi-drops', droppedToday.toLocaleString('es-PE'));
   setText('kpi-inflated', inflated.toLocaleString('es-PE'));
 
+  const groupsCount = state.groupsLoaded ? state.groups.length : (state.meta?.groupsCount || state.groups.length || 0);
   setText('badge-bugazos', bugazos);
   setText('badge-anticyber', antiCyberTotal);
-  setText('badge-groups', state.groups.length);
+  setText('badge-groups', groupsCount);
   setText('badge-watchlist', getWatchlistProducts().length);
 
   // Update Anti-Cyber subfilter chip counts
@@ -754,7 +1038,7 @@ function renderKpis() {
       dateStyle: 'medium',
       timeStyle: 'short'
     });
-    summary.textContent = `Última actualización: ${formatted} · ${activeStores} tiendas activas · ${state.groups.length} comparativas multi-tienda · T.C. S/ ${state.meta.usdToPen || '3.75'}`;
+    summary.textContent = `Última actualización: ${formatted} · ${activeStores} tiendas activas · ${groupsCount} comparativas multi-tienda · T.C. S/ ${state.meta.usdToPen || '3.75'}`;
   } else {
     summary.textContent = 'Haz clic en "Actualizar hoy" para descargar los precios del día en Perú.';
   }
@@ -773,6 +1057,7 @@ function renderActivePanel() {
   if (state.activeTab === 'groups') renderGroupsPanel();
   if (state.activeTab === 'watchlist') renderWatchlist();
   if (state.activeTab === 'stores') renderStoresPanel();
+  syncUrlWithState();
 }
 
 function renderCatalog() {
@@ -801,16 +1086,38 @@ function renderCatalog() {
 
   const filtered = getFilteredProducts();
   const visible = filtered.slice(0, state.pageSize);
+  const countLabel = `${filtered.length.toLocaleString('es-PE')} ${filtered.length === 1 ? 'producto' : 'productos'}`;
 
-  setText('results-count', `${filtered.length.toLocaleString('es-PE')} productos`);
+  setText('results-count', countLabel);
+  setText('results-count-mobile', countLabel);
+
+  const activeAdvancedCount =
+    (state.filters.store !== 'all' ? 1 : 0) +
+    (state.filters.brand !== 'all' ? 1 : 0) +
+    (state.filters.verdict !== 'all' ? 1 : 0) +
+    (state.filters.minPrice ? 1 : 0) +
+    (state.filters.maxPrice ? 1 : 0) +
+    (!state.filters.inStockOnly ? 1 : 0) +
+    (state.userCards.length ? 1 : 0);
+
+  const mobileBadge = document.getElementById('filters-active-badge');
+  if (mobileBadge) {
+    mobileBadge.hidden = activeAdvancedCount === 0;
+    mobileBadge.textContent = String(activeAdvancedCount);
+  }
+
   const hasFilters =
-    state.filters.search ||
+    Boolean(state.filters.search) ||
     state.filters.category !== 'all' ||
     state.filters.store !== 'all' ||
     state.filters.brand !== 'all' ||
     state.filters.verdict !== 'all' ||
-    state.filters.maxPrice;
+    Boolean(state.filters.minPrice) ||
+    Boolean(state.filters.maxPrice) ||
+    !state.filters.inStockOnly;
   document.getElementById('clear-filters-btn').hidden = !hasFilters;
+
+  syncUrlWithState();
 
   const emptyEl = document.getElementById('catalog-empty');
   const tableWrap = document.getElementById('products-table-wrap');
@@ -906,6 +1213,7 @@ function renderTableRows(items) {
                   ${p.originalCurrency === 'USD' ? `<span class="mono">(US$ ${p.originalPrice})</span>` : ''}
                   ${s.isBugazo ? `<span class="bugazo-tag">⚡ Bugazo</span>` : ''}
                   ${p.peerCount >= 2 ? `<span class="peer-badge">En ${p.peerCount} tiendas</span>` : ''}
+                  ${p.inStock === false ? `<span class="out-of-stock-badge">Agotado</span>` : ''}
                   ${targetHit ? `<span class="target-hit-badge">¡Meta ≤ ${formatPen(targetPrice)}!</span>` : ''}
                 </span>
               </div>
@@ -963,6 +1271,18 @@ function renderCards(container, items, isLiveSearch = false) {
       const targetPrice = targets[p.id];
       const targetHit = targetPrice && uPrice.price <= targetPrice;
 
+      const cardDiscHtml = s.listPriceInflated
+        ? `<span class="discount-tag warn mono" title="Precio base inflado frente al mercado">⚠ Inflado</span>`
+        : s.isFakeDiscount
+          ? `<span class="discount-tag warn mono" title="Descuento inflado frente al historial">⚠ -${s.storeDiscountPct}%?</span>`
+          : s.referenceSource === 'market' && s.fairDiscountPct >= 3
+            ? `<span class="discount-tag mono">-${s.fairDiscountPct}% real</span>`
+            : s.daysTracked >= 2 && s.realDiscountPct >= 3
+              ? `<span class="discount-tag mono">-${s.realDiscountPct}% real</span>`
+              : s.storeDiscountPct > 0
+                ? `<span class="discount-tag neutral mono">-${s.storeDiscountPct}%</span>`
+                : '';
+
       return `
         <article class="deal-card" ${isLiveSearch ? '' : `data-product-id="${escapeHtml(p.id)}"`}>
           <div class="card-media">
@@ -979,10 +1299,11 @@ function renderCards(container, items, isLiveSearch = false) {
           <div class="card-body">
             <div class="card-brand-row">
               <span class="small muted">${escapeHtml(p.brand || p.storeName)}</span>
-              <div style="display:flex;gap:4px;align-items:center;">
+              <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
                 ${s.isBugazo ? `<span class="bugazo-tag">⚡</span>` : ''}
                 ${p.peerCount >= 2 ? `<span class="peer-badge">${p.peerCount} tiendas</span>` : ''}
-                ${s.storeDiscountPct > 0 ? `<span class="discount-tag mono">-${s.storeDiscountPct}%</span>` : ''}
+                ${p.inStock === false ? `<span class="out-of-stock-badge">Agotado</span>` : ''}
+                ${cardDiscHtml}
               </div>
             </div>
             <h3 class="card-title">${escapeHtml(p.title)}</h3>
@@ -1043,6 +1364,18 @@ function renderCards(container, items, isLiveSearch = false) {
 function renderGroupsPanel() {
   const grid = document.getElementById('groups-grid');
   if (!grid) return;
+
+  if (state.mode !== 'server' && !state.groupsLoaded) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <p><span class="spinner" aria-hidden="true"></span> Cargando comparativas multi-tienda...</p>
+      </div>
+    `;
+    ensureGroupsLoaded().then(() => {
+      if (state.activeTab === 'groups') renderGroupsPanel();
+    });
+    return;
+  }
 
   const q = state.groupsQuery.trim().toLowerCase();
   const terms = q.split(/\s+/).filter(Boolean);
@@ -1133,18 +1466,42 @@ function renderWatchlist() {
   const queriesEl = document.getElementById('custom-queries-list');
   const queries = state.watchlist.customQueries || [];
   if (!queries.length) {
-    queriesEl.innerHTML = '<span class="muted small">Aún no agregas búsquedas automáticas personalizadas. Agrega un término arriba para que se rastree cada día en todas las tiendas.</span>';
+    queriesEl.innerHTML =
+      state.mode === 'server'
+        ? '<span class="muted small">Aún no agregas búsquedas automáticas personalizadas. Agrega un término arriba para que se rastree cada día en todas las tiendas.</span>'
+        : '<span class="muted small">Guarda términos que te interesan (ej. "RTX 4060", "OLED 55") para filtrar el catálogo en 1 clic y ver cuántas ofertas coinciden hoy.</span>';
   } else {
     queriesEl.innerHTML = queries
-      .map(
-        (q) => `
+      .map((q) => {
+        const terms = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+        const matchesCount = terms.length
+          ? state.catalog.filter((p) => {
+              const hay = `${p.title} ${p.brand} ${p.brandLabel || ''} ${p.storeName}`.toLowerCase();
+              return terms.every((t) => hay.includes(t));
+            }).length
+          : 0;
+        return `
         <span class="query-tag">
-          <span>${escapeHtml(q)}</span>
+          <button type="button" class="query-tag-btn" data-apply-query="${escapeHtml(q)}" title="Filtrar catálogo por «${escapeHtml(q)}»">
+            <span>${escapeHtml(q)}</span>
+            <span class="query-tag-count mono">${matchesCount}</span>
+          </button>
           <button type="button" data-remove-query="${escapeHtml(q)}" title="Quitar búsqueda">×</button>
         </span>
-      `
-      )
+      `;
+      })
       .join('');
+    queriesEl.querySelectorAll('[data-apply-query]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const q = btn.dataset.applyQuery;
+        state.filters.search = q;
+        const input = document.getElementById('global-search-input');
+        if (input) input.value = q;
+        const clearBtn = document.getElementById('global-search-clear-btn');
+        if (clearBtn) clearBtn.hidden = false;
+        switchTab('deals');
+      });
+    });
     queriesEl.querySelectorAll('[data-remove-query]').forEach((btn) => {
       btn.addEventListener('click', () => removeCustomQuery(btn.dataset.removeQuery));
     });
@@ -1238,8 +1595,12 @@ function renderStoresPanel() {
       storeStats[p.storeId] = { count: 0, discountSum: 0, deals: 0 };
     }
     storeStats[p.storeId].count += 1;
-    storeStats[p.storeId].discountSum += p.stats.storeDiscountPct || 0;
-    if (['all_time_low', 'great_deal'].includes(p.stats.verdict)) {
+    const disc = p.stats.storeDiscountPct || 0;
+    storeStats[p.storeId].discountSum += disc;
+    const isRealDeal =
+      ['all_time_low', 'great_deal'].includes(p.stats.verdict) ||
+      (!p.stats.listPriceInflated && !p.stats.isFakeDiscount && disc >= 15);
+    if (isRealDeal) {
       storeStats[p.storeId].deals += 1;
     }
   }
@@ -1292,16 +1653,6 @@ function renderStoresPanel() {
       const avgDisc = st.count ? Math.round(st.discountSum / st.count) : 0;
       const pillStyle = getStorePillStyle(store.id);
       const isActive = st.count > 0;
-      const engineLabel =
-        store.engine === 'vtex'
-          ? 'API VTEX'
-          : store.engine === 'falabella'
-            ? 'SSR Falabella'
-            : store.engine === 'mi_official'
-              ? 'Tienda Oficial'
-              : store.engine === 'prestashop'
-                ? 'API PrestaShop'
-                : 'Catálogo Web';
       const displayHost = store.baseUrl
         ? store.baseUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')
         : store.domain || '';
@@ -1329,16 +1680,16 @@ function renderStoresPanel() {
           <div style="display:flex;justify-content:space-between;align-items:baseline;">
             <div>
               <div class="mono" style="font-size:1.3rem;font-weight:800;">${st.count}</div>
-              <div class="small muted">productos hoy</div>
+              <div class="small muted">${st.count === 1 ? 'producto hoy' : 'productos hoy'}</div>
             </div>
             <div style="text-align:right;">
-              <div class="mono positive" style="font-weight:700;">${st.deals} ofertas</div>
+              <div class="mono positive" style="font-weight:700;">${st.deals} ${st.deals === 1 ? 'oferta' : 'ofertas'}</div>
               <div class="small muted">prom. -${avgDisc}%</div>
             </div>
           </div>
-          <div class="small muted mono" style="border-top:1px solid var(--border-hairline);padding-top:8px;display:flex;justify-content:space-between;">
-            <span>${engineLabel}</span>
-            <span>${store.currency === 'USD' ? 'USD → S/' : 'PEN (S/)'}</span>
+          <div class="small muted" style="border-top:1px solid var(--border-hairline);padding-top:8px;display:flex;justify-content:space-between;align-items:center;">
+            <span>${store.currency === 'USD' ? 'Precios USD → S/' : 'Precios en soles (S/)'}</span>
+            <span style="color:var(--accent);font-weight:600;">Ver ofertas →</span>
           </div>
         </div>
       `;
@@ -1385,7 +1736,7 @@ function renderStoresPanel() {
         <span class="brand-card-name">${escapeHtml(b.label)}</span>
         <div class="brand-card-meta mono">
           <span>${b.count} prod.</span>
-          <span class="${b.deals > 0 ? 'positive' : ''}">${b.deals} ofertas</span>
+          <span class="${b.deals > 0 ? 'positive' : ''}">${b.deals} ${b.deals === 1 ? 'oferta' : 'ofertas'}</span>
         </div>
       </div>
     `
@@ -1483,6 +1834,14 @@ async function openProductDrawer(productId) {
       // use local fallback
     }
   } else {
+    const loaders = [];
+    if (!state.historyLoaded) loaders.push(ensureHistoryLoaded());
+    if (product.groupId && !state.groupsLoaded) loaders.push(ensureGroupsLoaded());
+    if (loaders.length) {
+      await Promise.all(loaders);
+    }
+    history = state.historyCache[productId] || [];
+    group = product.groupId ? state.groupMap[product.groupId] || null : null;
     related = findRelatedClient(product, state.catalog);
   }
 
@@ -1526,8 +1885,18 @@ function renderDrawer(p, history, related, group = state.selectedGroup) {
   setText('drawer-price-now', formatPen(uPrice.price));
 
   const img = document.getElementById('drawer-img');
-  img.src = p.image || '';
-  img.alt = p.title;
+  if (p.image) {
+    img.hidden = false;
+    img.onerror = () => {
+      img.hidden = true;
+    };
+    img.src = p.image;
+    img.alt = p.title;
+  } else {
+    img.hidden = true;
+    img.removeAttribute('src');
+    img.alt = '';
+  }
 
   const listEl = document.getElementById('drawer-price-list');
   const discEl = document.getElementById('drawer-discount-tag');
@@ -1721,14 +2090,37 @@ function renderDrawer(p, history, related, group = state.selectedGroup) {
   }
 }
 
+const CLIENT_TOKEN_STOPWORDS = new Set([
+  'de', 'la', 'el', 'los', 'las', 'en', 'con', 'para', 'por', 'sin', 'del', 'al', 'y', 'o',
+  'un', 'una', 'negro', 'blanco', 'gris', 'azul', 'rojo', 'plata', 'silver', 'black', 'white',
+  'peru', 'nuevo', 'nueva', 'original', 'oferta', 'promocion', 'combo', 'garantia', 'color'
+]);
+
+function getClientMatchTokens(item) {
+  if (!item) return [];
+  if (Array.isArray(item.matchTokens) && item.matchTokens.length) return item.matchTokens;
+  if (!item._matchTokens) {
+    const text = `${item.brand || ''} ${item.title || ''}`
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, ' ');
+    item._matchTokens = [
+      ...new Set(text.split(/\s+/).filter((t) => t.length >= 2 && !CLIENT_TOKEN_STOPWORDS.has(t)))
+    ].slice(0, 14);
+  }
+  return item._matchTokens;
+}
+
 function findRelatedClient(target, catalog) {
-  if (!target?.matchTokens?.length) return [];
-  const targetSet = new Set(target.matchTokens);
+  const targetTokens = getClientMatchTokens(target);
+  if (!targetTokens.length) return [];
+  const targetSet = new Set(targetTokens);
   const scored = [];
   for (const item of catalog) {
     if (item.id === target.id || item.storeId === target.storeId) continue;
     let overlap = 0;
-    for (const t of item.matchTokens || []) {
+    for (const t of getClientMatchTokens(item)) {
       if (targetSet.has(t)) overlap += 1;
     }
     if (overlap >= 3) scored.push({ item, overlap });
@@ -2276,11 +2668,21 @@ async function saveTargetPrice() {
   }
 
   renderAll();
-  renderDrawer(state.selectedProduct, state.selectedHistory, []);
-  showToast(val ? `Alerta guardada: te avisaremos cuando baje de ${formatPen(val)}.` : 'Alerta eliminada.');
+  const related = findRelatedClient(state.selectedProduct, state.catalog);
+  renderDrawer(state.selectedProduct, state.selectedHistory, related, state.selectedGroup);
+  if (val) {
+    showToast(
+      state.mode === 'server'
+        ? `Alerta guardada: te avisaremos cuando baje de ${formatPen(val)}.`
+        : `Meta guardada (${formatPen(val)}): lo resaltaremos en Mi Lista cuando baje. Para alertas automáticas únete a @chapaaltoque_pe.`
+    );
+  } else {
+    showToast('Meta de precio eliminada.');
+  }
 }
 
-async function addCustomQuery(q) {  const clean = q.trim();
+async function addCustomQuery(q) {
+  const clean = q.trim();
   if (!clean) return;
   if (state.mode === 'server') {
     const res = await fetch('/api/watchlist', {
@@ -2297,7 +2699,11 @@ async function addCustomQuery(q) {  const clean = q.trim();
       saveLocalWatchlist();
     }
   }
-  showToast(`"${clean}" se buscará automáticamente en cada actualización diaria.`);
+  showToast(
+    state.mode === 'server'
+      ? `"${clean}" se buscará automáticamente en cada actualización diaria.`
+      : `Filtro rápido "${clean}" guardado. Haz clic en él para filtrar el catálogo en 1 toque.`
+  );
   if (state.activeTab === 'watchlist') renderWatchlist();
 }
 
@@ -2346,7 +2752,36 @@ async function refreshSingleProduct() {
 // ============================================================================
 // Event Bindings & Helpers
 // ============================================================================
+function resetCatalogFilters() {
+  state.filters = {
+    search: '',
+    category: 'all',
+    store: 'all',
+    brand: 'all',
+    verdict: 'all',
+    cyber: 'all',
+    sort: 'featured',
+    minPrice: '',
+    maxPrice: '',
+    inStockOnly: true
+  };
+  populateFilterOptions();
+  syncFilterInputsFromState();
+  renderCatalog();
+}
+
+function setMobileFiltersOpen(open) {
+  const panel = document.getElementById('filters-panel');
+  const toggle = document.getElementById('filters-mobile-toggle');
+  if (!panel || !toggle) return;
+  panel.classList.toggle('mobile-filters-open', open);
+  toggle.setAttribute('aria-expanded', String(open));
+}
+
 function switchTab(tab) {
+  if (tab === 'live-search' && state.mode !== 'server') {
+    tab = 'deals';
+  }
   state.activeTab = tab;
   state.pageSize = 60;
   if (tab === 'bugazos' || tab === 'anticyber') {
@@ -2380,6 +2815,48 @@ function bindEvents() {
     applyTheme(current === 'dark' ? 'light' : 'dark');
   });
 
+  // Brand logo resets to default deals view
+  document.getElementById('brand-logo')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    resetCatalogFilters();
+    switchTab('deals');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Interactive KPI strip shortcuts
+  document.getElementById('kpi-strip')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-kpi-action]');
+    if (!btn) return;
+    const action = btn.dataset.kpiAction;
+    if (action === 'stores') {
+      state.storesCampaignFilter = 'all';
+      switchTab('stores');
+      return;
+    }
+    if (action === 'inflated') {
+      state.filters.cyber = 'cyber_trap';
+      syncFilterInputsFromState();
+      switchTab('anticyber');
+      return;
+    }
+    if (action === 'deals') {
+      state.filters.verdict = 'buy';
+      state.filters.sort = 'featured';
+      syncFilterInputsFromState();
+      switchTab('deals');
+      return;
+    }
+    if (action === 'drops') {
+      state.filters.verdict = 'all';
+      state.filters.sort = 'drop_today';
+      syncFilterInputsFromState();
+      switchTab('deals');
+      return;
+    }
+    resetCatalogFilters();
+    switchTab('deals');
+  });
+
   // Tabs
   document.querySelectorAll('.tab-btn').forEach((btn) => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
@@ -2389,27 +2866,57 @@ function bindEvents() {
   document.querySelectorAll('#catalog-view-controls .seg-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       state.viewMode = btn.dataset.view;
-      document.querySelectorAll('#catalog-view-controls .seg-btn').forEach((b) =>
-        b.classList.toggle('active', b === btn)
-      );
+      syncViewModeButtons();
       renderCatalog();
     });
   });
 
-  // Global search (typing filters catalog; submit launches live multi-store search)
+  // Mobile collapsible filters toggle
+  document.getElementById('filters-mobile-toggle')?.addEventListener('click', () => {
+    const panel = document.getElementById('filters-panel');
+    if (!panel) return;
+    setMobileFiltersOpen(!panel.classList.contains('mobile-filters-open'));
+  });
+
+  // Global search (typing filters catalog; clear button resets; submit runs live search only in server mode)
   const searchInput = document.getElementById('global-search-input');
+  const clearSearchBtn = document.getElementById('global-search-clear-btn');
   searchInput.addEventListener('input', () => {
     state.filters.search = searchInput.value;
     state.pageSize = 60;
+    if (clearSearchBtn) clearSearchBtn.hidden = !searchInput.value;
     if (['deals', 'bugazos', 'anticyber'].includes(state.activeTab)) {
       renderCatalog();
     }
   });
 
+  clearSearchBtn?.addEventListener('click', () => {
+    searchInput.value = '';
+    state.filters.search = '';
+    clearSearchBtn.hidden = true;
+    state.pageSize = 60;
+    if (['deals', 'bugazos', 'anticyber'].includes(state.activeTab)) {
+      renderCatalog();
+    }
+    searchInput.focus();
+  });
+
   document.getElementById('global-search-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const q = searchInput.value.trim();
-    if (q) runLiveSearch(q);
+    if (!q) return;
+    if (state.mode === 'server') {
+      runLiveSearch(q);
+    } else {
+      state.filters.search = q;
+      if (clearSearchBtn) clearSearchBtn.hidden = false;
+      if (!['deals', 'bugazos', 'anticyber'].includes(state.activeTab)) {
+        switchTab('deals');
+      } else {
+        renderCatalog();
+      }
+      document.getElementById('panel-catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   });
 
   // Wallet cards toggle ("¿Qué tarjetas tienes?")
@@ -2470,7 +2977,7 @@ function bindEvents() {
     renderCatalog();
   });
 
-  // Filter dropdowns & price
+  // Filter dropdowns, price range & stock toggle
   document.getElementById('filter-store').addEventListener('change', (e) => {
     state.filters.store = e.target.value;
     state.pageSize = 60;
@@ -2491,32 +2998,51 @@ function bindEvents() {
     state.filters.sort = e.target.value;
     renderCatalog();
   });
+  document.getElementById('filter-min-price')?.addEventListener('input', (e) => {
+    state.filters.minPrice = e.target.value;
+    state.pageSize = 60;
+    renderCatalog();
+  });
   document.getElementById('filter-max-price').addEventListener('input', (e) => {
     state.filters.maxPrice = e.target.value;
     state.pageSize = 60;
     renderCatalog();
   });
-
-  document.getElementById('clear-filters-btn').addEventListener('click', () => {
-    state.filters = { search: '', category: 'all', store: 'all', brand: 'all', verdict: 'all', cyber: 'all', sort: 'score', maxPrice: '' };
-    searchInput.value = '';
-    document.getElementById('filter-store').value = 'all';
-    document.getElementById('filter-brand').value = 'all';
-    document.getElementById('filter-verdict').value = 'all';
-    document.getElementById('filter-sort').value = 'score';
-    document.getElementById('filter-max-price').value = '';
-    populateFilterOptions();
+  document.getElementById('filter-in-stock')?.addEventListener('change', (e) => {
+    state.filters.inStockOnly = e.target.checked;
+    state.pageSize = 60;
     renderCatalog();
   });
 
+  document.getElementById('clear-filters-btn').addEventListener('click', resetCatalogFilters);
+
   document.getElementById('empty-live-search-btn').addEventListener('click', () => {
-    runLiveSearch(state.filters.search || 'laptop');
+    if (state.mode === 'server') {
+      runLiveSearch(state.filters.search || 'laptop');
+    } else {
+      resetCatalogFilters();
+    }
   });
 
   document.getElementById('load-more-btn').addEventListener('click', () => {
     state.pageSize += 60;
     renderCatalog();
   });
+
+  // Floating Back-to-Top button
+  const backToTopBtn = document.getElementById('back-to-top-btn');
+  if (backToTopBtn) {
+    window.addEventListener(
+      'scroll',
+      () => {
+        backToTopBtn.hidden = window.scrollY < 520;
+      },
+      { passive: true }
+    );
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 
   // Click delegation on catalog table, cards & watchlist
   document.addEventListener('click', (e) => {
@@ -2682,6 +3208,7 @@ function bindEvents() {
 const TOUR_DONE_KEY = 'chapaaltoque_pe_tour_done_v1';
 let tourActive = false;
 let tourIndex = 0;
+let tourExpandedMobileFilters = false;
 
 const TOUR_STEPS = [
   {
@@ -2700,7 +3227,7 @@ const TOUR_STEPS = [
     title: 'Secciones principales',
     body: `
       <ul>
-        <li><strong>Mejores Ofertas:</strong> ranking general según <em>Deal Score</em> real.</li>
+        <li><strong>Mejores Ofertas:</strong> selección variada y ranking según <em>Deal Score</em> real.</li>
         <li><strong>⚡ Bugazos:</strong> liquidaciones extremas o posibles errores de precio.</li>
         <li><strong>Anti-Cyber:</strong> separa rebajas reales de precios inflados antes de oferta.</li>
         <li><strong>Multi-Tienda:</strong> compara el mismo modelo entre distintas tiendas peruanas.</li>
@@ -2710,6 +3237,7 @@ const TOUR_STEPS = [
   {
     selector: '.cards-wallet-row',
     tab: 'deals',
+    requiresFiltersOpen: true,
     title: '¿Qué tarjetas bancarias tienes?',
     body: `
       <p>Marca si tienes <strong>BCP</strong>, <strong>CMR</strong>, <strong>Tarjeta Oh!</strong>, <strong>Interbank</strong>, <strong>BBVA</strong> o <strong>Cencosud</strong>.</p>
@@ -2719,9 +3247,10 @@ const TOUR_STEPS = [
   {
     selector: '.filter-row-controls',
     tab: 'deals',
-    title: 'Filtra por Tienda, Marca y Veredicto',
+    requiresFiltersOpen: true,
+    title: 'Filtra por Tienda, Marca y Presupuesto',
     body: `
-      <p>Filtra por tienda peruana, elige entre <strong>Marcas reconocidas</strong> o <strong>Marcas genéricas</strong>, fija tu presupuesto máximo en soles (S/) y ordena por mejor compra o menor precio.</p>
+      <p>Filtra por tienda peruana, elige entre <strong>Marcas reconocidas</strong> o <strong>Marcas genéricas</strong>, fija tu rango de precio en soles (S/) y ordena por destacados variados, mejor score o menor precio.</p>
     `
   },
   {
@@ -2738,19 +3267,19 @@ const TOUR_STEPS = [
   {
     selector: '#tab-watchlist',
     tab: 'deals',
-    title: 'Mi Lista privada y alertas de precio',
+    title: 'Mi Lista privada y búsquedas rápidas',
     body: `
-      <p>Usa la estrella (<strong>☆</strong>) o el buscador dentro de <strong>Mi Lista</strong> para guardar tus productos favoritos y ponerles un <strong>precio objetivo</strong>.</p>
+      <p>Usa la estrella (<strong>☆</strong>) o el buscador dentro de <strong>Mi Lista</strong> para guardar tus productos favoritos, fijar un <strong>precio objetivo</strong> y crear filtros rápidos.</p>
       <p>Tu lista es <strong>100% privada en tu navegador</strong> (nadie más la ve al compartir el link).</p>
     `
   },
   {
-    selector: '#refresh-daily-btn',
+    selector: '#topbar-telegram-btn',
     tab: 'deals',
-    title: 'Actualización automática y botón «Actualizar hoy»',
+    title: 'Alertas gratis en Telegram y actualización automática',
     body: `
       <p>Los precios se actualizan solos <strong>3 veces al día</strong> (7:00 AM, 1:00 PM y 8:00 PM hora Lima).</p>
-       <p>En <strong>Actualizar hoy</strong> puedes recargar los precios más recientes sin caché y unirte gratis al canal de alertas en <strong>Telegram (@chapaaltoque_pe)</strong>. Siempre puedes repetir esta guía desde el ícono <strong>?</strong>.</p>
+      <p>Únete gratis al canal <strong>Telegram (@chapaaltoque_pe)</strong> desde este botón para recibir bugazos y mínimos históricos al instante. Siempre puedes repetir esta guía desde el ícono <strong>?</strong>.</p>
     `,
     nextLabel: '¡Listo, empezar!'
   }
@@ -2780,6 +3309,10 @@ function startTour(stepIdx = 0) {
 
 function closeTour(markDone = true) {
   tourActive = false;
+  if (tourExpandedMobileFilters) {
+    setMobileFiltersOpen(false);
+    tourExpandedMobileFilters = false;
+  }
   const overlay = document.getElementById('tour-overlay');
   const spotlight = document.getElementById('tour-spotlight');
   if (overlay) {
@@ -2802,6 +3335,16 @@ function renderTourStep() {
 
   if (step.tab && state.activeTab !== step.tab) {
     switchTab(step.tab);
+  }
+
+  // On mobile, temporarily expand the collapsible filters when spotlighting wallet/filter controls
+  const filtersPanel = document.getElementById('filters-panel');
+  if (step.requiresFiltersOpen && filtersPanel && !filtersPanel.classList.contains('mobile-filters-open')) {
+    setMobileFiltersOpen(true);
+    tourExpandedMobileFilters = true;
+  } else if (!step.requiresFiltersOpen && tourExpandedMobileFilters) {
+    setMobileFiltersOpen(false);
+    tourExpandedMobileFilters = false;
   }
 
   setText('tour-step-counter', `Paso ${tourIndex + 1} de ${TOUR_STEPS.length}`);

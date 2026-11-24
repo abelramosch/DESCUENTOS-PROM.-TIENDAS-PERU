@@ -3,14 +3,14 @@
   "lastUpdatedDate": "2026-11-24",
   "elapsedMs": 83087,
   "usdToPen": 3.456,
-  "totalProducts": 5098,
+  "totalProducts": 4968,
   "activeStores": 30,
   "totalConfiguredStores": 31,
-  "allTimeLows": 71,
-  "droppedToday": 71,
-  "fakeDiscounts": 675,
-  "bugazosCount": 52,
-  "groupsCount": 687,
+  "allTimeLows": 70,
+  "droppedToday": 70,
+  "fakeDiscounts": 651,
+  "bugazosCount": 48,
+  "groupsCount": 677,
   "activeCampaignsCount": 19,
   "campaigns": [
     {
@@ -417,7 +417,7 @@
       "failedJobs": 0,
       "productsFetched": 439,
       "lastError": null,
-      "catalogCount": 761,
+      "catalogCount": 700,
       "campaign": {
         "storeId": "falabella",
         "storeName": "Falabella",
@@ -454,7 +454,7 @@
       "failedJobs": 0,
       "productsFetched": 225,
       "lastError": null,
-      "catalogCount": 282,
+      "catalogCount": 275,
       "campaign": {
         "storeId": "tottus",
         "storeName": "Tottus",
@@ -490,7 +490,7 @@
       "failedJobs": 0,
       "productsFetched": 433,
       "lastError": null,
-      "catalogCount": 446,
+      "catalogCount": 434,
       "campaign": null
     },
     "oechsle": {
@@ -507,7 +507,7 @@
       "failedJobs": 0,
       "productsFetched": 357,
       "lastError": null,
-      "catalogCount": 380,
+      "catalogCount": 375,
       "campaign": {
         "storeId": "oechsle",
         "storeName": "Oechsle",
@@ -544,7 +544,7 @@
       "failedJobs": 0,
       "productsFetched": 264,
       "lastError": null,
-      "catalogCount": 275,
+      "catalogCount": 266,
       "campaign": null
     },
     "wong": {
@@ -635,7 +635,7 @@
       "failedJobs": 0,
       "productsFetched": 307,
       "lastError": null,
-      "catalogCount": 298,
+      "catalogCount": 297,
       "campaign": {
         "storeId": "coolbox",
         "storeName": "Coolbox",
@@ -672,7 +672,7 @@
       "failedJobs": 0,
       "productsFetched": 304,
       "lastError": null,
-      "catalogCount": 290,
+      "catalogCount": 289,
       "campaign": {
         "storeId": "carsa",
         "storeName": "Carsa",
@@ -708,7 +708,7 @@
       "failedJobs": 0,
       "productsFetched": 389,
       "lastError": null,
-      "catalogCount": 423,
+      "catalogCount": 400,
       "campaign": null
     },
     "estilos": {
@@ -725,7 +725,7 @@
       "failedJobs": 0,
       "productsFetched": 227,
       "lastError": null,
-      "catalogCount": 245,
+      "catalogCount": 241,
       "campaign": {
         "storeId": "estilos",
         "storeName": "Estilos",
@@ -850,7 +850,7 @@
       "failedJobs": 0,
       "productsFetched": 16,
       "lastError": null,
-      "catalogCount": 30,
+      "catalogCount": 29,
       "campaign": {
         "storeId": "triathlon",
         "storeName": "Triathlon Sport",
@@ -887,7 +887,7 @@
       "failedJobs": 0,
       "productsFetched": 14,
       "lastError": null,
-      "catalogCount": 24,
+      "catalogCount": 23,
       "campaign": {
         "storeId": "footloose",
         "storeName": "Footloose",
@@ -923,7 +923,7 @@
       "failedJobs": 0,
       "productsFetched": 29,
       "lastError": null,
-      "catalogCount": 32,
+      "catalogCount": 30,
       "campaign": {
         "storeId": "casaideas",
         "storeName": "Casaideas",
@@ -1137,7 +1137,7 @@
       "failedJobs": 0,
       "productsFetched": 18,
       "lastError": null,
-      "catalogCount": 25,
+      "catalogCount": 23,
       "campaign": {
         "storeId": "renzocosta",
         "storeName": "Renzo Costa",
@@ -1173,7 +1173,7 @@
       "failedJobs": 0,
       "productsFetched": 73,
       "lastError": null,
-      "catalogCount": 79,
+      "catalogCount": 78,
       "campaign": null
     },
     "hiraoka": {

@@ -72,6 +72,41 @@ export function saveWatchlist(watchlist) {
   writeJsonAtomic(path.join(PUBLIC_DATA_DIR, 'watchlist.json'), watchlist, true);
 }
 
+export function compactCatalogForPublic(catalog) {
+  return (catalog || []).map((p) => {
+    const out = {};
+    for (const [k, v] of Object.entries(p)) {
+      if (k === 'matchTokens') continue;
+      if (v === null || v === undefined) continue;
+      if (k === 'isCustomWatch' && v === false) continue;
+      if (k === 'inStock' && v === true) continue;
+      if (k === 'originalCurrency' && v === 'PEN') continue;
+      if (k === 'peerCount' && v <= 1) continue;
+      if (k === 'stats' && v && typeof v === 'object') {
+        const sOut = {};
+        for (const [sk, sv] of Object.entries(v)) {
+          if (sv === null || sv === undefined) continue;
+          if (
+            (sk === 'preSaleHikeDetected' ||
+              sk === 'isBugazo' ||
+              sk === 'isAllTimeLow' ||
+              sk === 'isFakeDiscount' ||
+              sk === 'listPriceInflated') &&
+            sv === false
+          ) {
+            continue;
+          }
+          sOut[sk] = sv;
+        }
+        out.stats = sOut;
+      } else {
+        out[k] = v;
+      }
+    }
+    return out;
+  });
+}
+
 export function saveAllData({ catalog, history, meta, groups = null }) {
   writeJsonAtomic(FILES.history, history);
   writeJsonAtomic(FILES.catalog, catalog);
@@ -82,7 +117,7 @@ export function saveAllData({ catalog, history, meta, groups = null }) {
   }
 
   // Sync compact copies into public/data for fast GitHub Pages static loading
-  writeJsonAtomic(path.join(PUBLIC_DATA_DIR, 'catalog.json'), catalog, true);
+  writeJsonAtomic(path.join(PUBLIC_DATA_DIR, 'catalog.json'), compactCatalogForPublic(catalog), true);
   writeJsonAtomic(path.join(PUBLIC_DATA_DIR, 'history.json'), history, true);
   writeJsonAtomic(path.join(PUBLIC_DATA_DIR, 'meta.json'), meta, true);
 }

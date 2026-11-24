@@ -412,6 +412,63 @@ export function extractMatchTokens(title = '', brand = '') {
   return [...new Set(tokens)].slice(0, 14);
 }
 
+const TOY_MISCLASS_RE =
+  /\bfisher[\s-]?price\b|\bvtech\b|\bde juguete\b|\bjuguetes?\b|\bpeluche interactivo\b|\bmuñec[ao]s?\b|\bbarbie\b|\baprendizaje para niñ|\bprimer laptop\b|\bcrece conmigo\b|\bcookeez makery\b/i;
+
+const TECH_SENSITIVE_CATEGORIES = new Set(['tecnologia', 'electro', 'gaming', 'celulares', 'televisores', 'audio']);
+
+export function normalizeProductCategory(product) {
+  if (!product || product.isCustomWatch) return product?.category || 'hogar';
+  const cat = product.category || 'hogar';
+  if (TECH_SENSITIVE_CATEGORIES.has(cat)) {
+    const text = `${product.title || ''} ${product.brand || ''}`;
+    if (TOY_MISCLASS_RE.test(text)) {
+      return 'hogar';
+    }
+  }
+  return cat;
+}
+
+export function deduplicateStoreListings(products, historyMap = {}) {
+  const bestByKey = new Map();
+  for (const p of products) {
+    const normTitle = String(p.title || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!normTitle || p.isCustomWatch) {
+      bestByKey.set(`unique::${p.id}`, p);
+      continue;
+    }
+    const key = `${p.storeId}::${normTitle}`;
+    const prev = bestByKey.get(key);
+    if (!prev) {
+      bestByKey.set(key, p);
+      continue;
+    }
+    const scoreItem = (item) => {
+      const inStock = item.inStock !== false ? 1 : 0;
+      const eff = Math.min(Number(item.price) || Infinity, Number(item.cardPrice) || Infinity);
+      const histLen = (historyMap[item.id] || []).length;
+      return { inStock, eff, histLen };
+    };
+    const a = scoreItem(p);
+    const b = scoreItem(prev);
+    const pBetter =
+      a.inStock !== b.inStock
+        ? a.inStock > b.inStock
+        : a.eff !== b.eff
+          ? a.eff < b.eff
+          : a.histLen > b.histLen;
+    if (pBetter) {
+      bestByKey.set(key, p);
+    }
+  }
+  return [...bestByKey.values()];
+}
+
 function mean(arr) {
   return arr.reduce((sum, v) => sum + v, 0) / arr.length;
 }

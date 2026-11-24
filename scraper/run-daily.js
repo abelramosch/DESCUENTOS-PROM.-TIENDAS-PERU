@@ -7,7 +7,7 @@ import { searchSingleStore } from './live-search.js';
 import { fetchMiOfficialCatalog } from './adapters/mi-official.js';
 import { discoverMagentoSeasonalPaths, fetchMagentoCategoryPage } from './adapters/magento.js';
 import { scrapeProductUrl } from './adapters/url-scraper.js';
-import { analyzeProduct } from './analyzer.js';
+import { analyzeProduct, deduplicateStoreListings, normalizeProductCategory } from './analyzer.js';
 import { buildMultiStoreGroups } from './grouper.js';
 import { detectActiveCampaigns } from './campaigns.js';
 import {
@@ -292,8 +292,14 @@ export async function runDailyScrape(options = {}) {
     }
   });
 
+  // Clean misclassified toy items and deduplicate identical same-store listings
+  const normalizedProducts = [...productMap.values()].map((p) => ({
+    ...p,
+    category: normalizeProductCategory(p)
+  }));
+  const rawProducts = deduplicateStoreListings(normalizedProducts, history);
+
   // Build cross-store unified product groups (SoloTodo / Compy style)
-  const rawProducts = [...productMap.values()];
   const { groups, productGroupMeta } = buildMultiStoreGroups(rawProducts);
 
   // Analyze every product with full historical + cross-store analytics
@@ -304,6 +310,7 @@ export async function runDailyScrape(options = {}) {
     const analyzed = analyzeProduct(prod, prodHistory, groupMeta);
     analyzedCatalog.push(analyzed);
   }
+
 
   // Sort default catalog by Deal Score descending, then realDiscountPct descending
   analyzedCatalog.sort((a, b) => {
