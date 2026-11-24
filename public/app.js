@@ -2258,29 +2258,29 @@ async function saveTargetPrice() {
   const id = state.selectedProduct.id;
   const raw = document.getElementById('drawer-target-input').value;
   const val = Number(raw) > 0 ? Number(raw) : null;
-
-  if (state.mode === 'server') {
-    const res = await fetch('/api/watchlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'setTargetPrice', id, targetPrice: val })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      state.watchlist = data.watchlist;
+    showToast('Token guardado solo en tu navegador. ¡Botón en 1 clic activado!');
+  });
+  document.getElementById('clear-gh-token-btn').addEventListener('click', () => {
+    localStorage.removeItem(GH_TOKEN_KEY);
+    localStorage.removeItem(LEGACY_GH_TOKEN_KEY);
+    refreshGhTokenUi();
+    showToast('Token eliminado de este navegador.');
+  });
+  document.getElementById('exit-admin-mode-btn')?.addEventListener('click', () => {
+    try {
+      localStorage.setItem(ADMIN_MODE_KEY, 'hidden');
+      const url = new URL(window.location.href);
+      url.searchParams.delete('admin');
+      window.history.replaceState({}, '', url.toString());
+    } catch {
+      // ignore
     }
-  } else {
-    if (val) state.watchlist.targetPrices[id] = val;
-    else delete state.watchlist.targetPrices[id];
-    saveLocalWatchlist();
-  }
-
-  renderAll();
-  renderDrawer(state.selectedProduct, state.selectedHistory, []);
-  showToast(val ? `Alerta guardada: te avisaremos cuando baje de ${formatPen(val)}.` : 'Alerta eliminada.');
-}
-
-async function addCustomQuery(q) {
+    const adminBox = document.getElementById('gh-admin-controls');
+    if (adminBox) adminBox.hidden = true;
+    showToast('Controles de administrador ocultos. Entra con ?admin=1 para volver a verlos.');
+  });
+  // Persist ?admin=1 / ?admin=0 if present in URL on initial load
+  isAdminMode();
   const clean = q.trim();
   if (!clean) return;
   if (state.mode === 'server') {
