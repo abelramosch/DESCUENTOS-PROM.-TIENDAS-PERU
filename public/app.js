@@ -1787,20 +1787,6 @@ function setProgressBar(visible, pct = 0, text = '') {
     textEl.textContent = text;
   }
 }
-  const admin = isAdminMode();
-  const adminBox = document.getElementById('gh-admin-controls');
-  if (adminBox) adminBox.hidden = !admin;
-
-  if (!admin) {
-    const rel = state.meta?.lastUpdatedAt ? formatRelativeTime(state.meta.lastUpdatedAt) : 'reciente';
-    const storesCount = state.meta?.activeStores || 30;
-    setSyncStatus(
-      'ok',
-      `Catálogo actualizado (${rel})`,
-      `${state.catalog.length.toLocaleString('es-PE')} productos en ${storesCount} tiendas del Perú`
-    );
-    return;
-  }
 async function openUpdateModal() {
   const backdrop = document.getElementById('update-modal-backdrop');
   const feedback = document.getElementById('update-modal-feedback');
@@ -1818,6 +1804,21 @@ async function openUpdateModal() {
   if (isServer) {
     const dt = state.meta?.lastUpdatedAt ? formatRelativeTime(state.meta.lastUpdatedAt) : 'sin datos aún';
     setSyncStatus('ok', `Servidor local activo · ${state.catalog.length} productos`, `Última actualización: ${dt}`);
+    return;
+  }
+
+  const admin = isAdminMode();
+  const adminBox = document.getElementById('gh-admin-controls');
+  if (adminBox) adminBox.hidden = !admin;
+
+  if (!admin) {
+    const rel = state.meta?.lastUpdatedAt ? formatRelativeTime(state.meta.lastUpdatedAt) : 'reciente';
+    const storesCount = state.meta?.activeStores || 30;
+    setSyncStatus(
+      'ok',
+      `Catálogo actualizado (${rel})`,
+      `${state.catalog.length.toLocaleString('es-PE')} productos en ${storesCount} tiendas del Perú`
+    );
     return;
   }
 
