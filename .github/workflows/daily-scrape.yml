@@ -6,9 +6,11 @@ on:
     paths:
       - 'public/**'
   schedule:
-    # Corre 3 veces al día hora de Lima, Perú (UTC-5):
-    # 07:00 AM PET (12:00 UTC), 01:00 PM PET (18:00 UTC) y 08:00 PM PET (01:00 UTC)
-    - cron: '0 12,18,1 * * *'
+    # Corre 3 veces al día hora de Lima, Perú (UTC-5): ~7:00 AM, ~1:00 PM y ~8:00 PM PET.
+    # Se programa en el minuto :53 de la hora previa (11:53, 17:53 y 00:53 UTC) para evitar
+    # la congestión masiva de GitHub Actions en el minuto :00 (que causaba retrasos de 45-70 min)
+    # y compensar los ~2 min de escaneo antes de enviar el mensaje a Telegram.
+    - cron: '53 11,17,0 * * *'
   workflow_dispatch:
     inputs:
       quick:
