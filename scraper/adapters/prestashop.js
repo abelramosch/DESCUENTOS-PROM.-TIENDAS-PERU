@@ -6,7 +6,8 @@ import { fetchWithTimeout, getUsdToPenRate, makeProductId } from '../http.js';
  * Convierte automáticamente precios en USD a PEN usando tipo de cambio real,
  * preservando el precio original en dólares para transparencia.
  */
-export async function searchPrestashopStore(store, query, limit = 10, category = 'tecnologia') {
+export async function searchPrestashopStore(store, query, limit = 10, category = 'tecnologia', options = {}) {
+  const { minPrice = null, maxPrice = null } = options || {};
   const url = `${store.baseUrl}/busqueda?controller=search&s=${encodeURIComponent(query)}`;
   const res = await fetchWithTimeout(url, {
     timeoutMs: 10000,
@@ -35,6 +36,8 @@ export async function searchPrestashopStore(store, query, limit = 10, category =
     const effectiveRate = isUsd ? (rate > 1 ? rate : await getUsdToPenRate()) : 1;
 
     const pricePen = round2(rawAmount * effectiveRate);
+    if (minPrice && pricePen < Number(minPrice)) continue;
+    if (maxPrice && pricePen > Number(maxPrice)) continue;
     const listPen = round2(Math.max(rawAmount, rawRegular) * effectiveRate);
     const sku = String(item.id_product || item.reference || item.id || '');
     const image =

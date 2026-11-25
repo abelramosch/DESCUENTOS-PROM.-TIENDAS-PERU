@@ -9,14 +9,14 @@ const SECONDARY_SEASONAL_REGEX = /combo/i;
  * Soporta búsqueda directa (/catalogsearch/result/) y escaneo de páginas
  * oficiales de categorías / campañas de temporada (ej. Hiraoka /black-friday).
  */
-export async function searchMagentoStore(store, query, limit = 10, category = 'tecnologia') {
+export async function searchMagentoStore(store, query, limit = 10, category = 'tecnologia', options = {}) {
   if (store.useCategoryPages && Array.isArray(store.categoryPages)) {
-    const matched = await searchMagentoViaCategories(store, query, limit, category);
+    const matched = await searchMagentoViaCategories(store, query, limit, category, options);
     return matched;
   }
 
   const url = `${store.baseUrl}/catalogsearch/result/?q=${encodeURIComponent(query)}`;
-  return fetchMagentoProductList(store, url, category, limit);
+  return fetchMagentoProductList(store, url, category, limit, options);
 }
 
 export async function fetchMagentoCategoryPage(store, pagePath, category = 'tecnologia', limit = 16) {
@@ -66,7 +66,8 @@ export async function discoverMagentoSeasonalPaths(store) {
   }
 }
 
-async function searchMagentoViaCategories(store, query, limit, fallbackCategory) {
+async function searchMagentoViaCategories(store, query, limit, fallbackCategory, options = {}) {
+  const { minPrice = null, maxPrice = null } = options || {};
   const tokens = String(query || '')
     .toLowerCase()
     .normalize('NFD')
@@ -84,8 +85,13 @@ async function searchMagentoViaCategories(store, query, limit, fallbackCategory)
       // ignore unreachable page
     }
   }
-  if (!tokens.length) return all.slice(0, limit);
-  return all
+  const filtered = all.filter((item) => {
+    if (minPrice && item.price < Number(minPrice)) return false;
+    if (maxPrice && item.price > Number(maxPrice)) return false;
+    return true;
+  });
+  if (!tokens.length) return filtered.slice(0, limit);
+  return filtered
     .filter((item) => {
       const hay = `${item.title} ${item.brand}`
         .toLowerCase()
@@ -96,7 +102,8 @@ async function searchMagentoViaCategories(store, query, limit, fallbackCategory)
     .slice(0, limit);
 }
 
-async function fetchMagentoProductList(store, url, category, limit) {
+async function fetchMagentoProductList(store, url, category, limit, options = {}) {
+  const { minPrice = null, maxPrice = null } = options || {};
   const res = await fetchWithTimeout(url, {
     timeoutMs: 12000,
     headers: { Accept: 'text/html,application/xhtml+xml' }
@@ -148,6 +155,8 @@ async function fetchMagentoProductList(store, url, category, limit) {
 
     const price = parsePriceNumber(specialRaw);
     if (!price) return;
+    if (minPrice && price < Number(minPrice)) return;
+    if (maxPrice && price > Number(maxPrice)) return;
     const listPrice = Math.max(price, parsePriceNumber(oldRaw) || price);
 
     const sku =

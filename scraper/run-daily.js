@@ -81,19 +81,34 @@ export async function runDailyScrape(options = {}) {
   );
 
   for (const catCfg of watchConfig.categories) {
-    const queries = quick ? catCfg.queries.slice(0, 1) : catCfg.queries;
-    const limit = quick ? Math.min(6, catCfg.limitPerStore) : catCfg.limitPerStore;
-    const matchingStores = searchStores.filter((s) =>
+    const rawQueries = quick ? catCfg.queries.slice(0, 1) : catCfg.queries;
+    const defaultMatchingStores = searchStores.filter((s) =>
       s.specialties.includes(catCfg.category)
     );
-    for (const store of matchingStores) {
-      for (const query of queries) {
+    for (const rawQuery of rawQueries) {
+      const qCfg = typeof rawQuery === 'string' ? { query: rawQuery } : rawQuery;
+      if (!qCfg?.query) continue;
+      const baseLimit = Number(qCfg.limit) || catCfg.limitPerStore;
+      const limit = quick ? Math.min(6, baseLimit) : baseLimit;
+      const targetStores =
+        Array.isArray(qCfg.stores) && qCfg.stores.length
+          ? searchStores.filter((s) => qCfg.stores.includes(s.id))
+          : defaultMatchingStores;
+      const searchOptions = {};
+      if (qCfg.minPrice && Number(qCfg.minPrice) > 0) {
+        searchOptions.minPrice = Number(qCfg.minPrice);
+      }
+      if (qCfg.maxPrice && Number(qCfg.maxPrice) > 0) {
+        searchOptions.maxPrice = Number(qCfg.maxPrice);
+      }
+      for (const store of targetStores) {
         jobs.push({
           type: 'search',
           store,
-          query,
+          query: qCfg.query,
           category: catCfg.category,
-          limit
+          limit,
+          ...(Object.keys(searchOptions).length ? { searchOptions } : {})
         });
       }
     }

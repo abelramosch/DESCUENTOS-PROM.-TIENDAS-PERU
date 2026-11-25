@@ -11,11 +11,11 @@ export async function searchSingleStore(store, query, limit = 8, category = 'tec
     case 'vtex':
       return searchVtexStore(store, query, limit, category, options);
     case 'falabella':
-      return searchFalabellaStore(store, query, limit, category);
+      return searchFalabellaStore(store, query, limit, category, options);
     case 'prestashop':
-      return searchPrestashopStore(store, query, limit, category);
+      return searchPrestashopStore(store, query, limit, category, options);
     case 'magento':
-      return searchMagentoStore(store, query, limit, category);
+      return searchMagentoStore(store, query, limit, category, options);
     case 'mi_official':
       return searchMiOfficialStore(store, query, limit, category);
     default:

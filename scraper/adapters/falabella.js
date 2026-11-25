@@ -4,7 +4,8 @@ import { fetchWithTimeout, makeProductId, parsePriceNumber } from '../http.js';
  * Adapter para Grupo Falabella Perú (Falabella.com.pe y Tottus.falabella.com.pe)
  * usando los datos estructurados embebidos en __NEXT_DATA__.
  */
-export async function searchFalabellaStore(store, query, limit = 10, category = 'tecnologia') {
+export async function searchFalabellaStore(store, query, limit = 10, category = 'tecnologia', options = {}) {
+  const { minPrice = null, maxPrice = null } = options || {};
   const url = `${store.baseUrl}${store.searchPath}${encodeURIComponent(query)}`;
   const res = await fetchWithTimeout(url, {
     timeoutMs: 12000,
@@ -23,7 +24,10 @@ export async function searchFalabellaStore(store, query, limit = 10, category = 
   for (const item of results) {
     if (products.length >= limit) break;
     const normalized = normalizeFalabellaResult(store, item, category);
-    if (normalized) products.push(normalized);
+    if (!normalized) continue;
+    if (minPrice && normalized.price < Number(minPrice)) continue;
+    if (maxPrice && normalized.price > Number(maxPrice)) continue;
+    products.push(normalized);
   }
   return products;
 }

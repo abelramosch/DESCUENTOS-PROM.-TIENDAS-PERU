@@ -6,12 +6,20 @@ import { fetchWithTimeout, makeProductId } from '../http.js';
  * Estilos, Triathlon, Footloose, Sony, Xiaomi, Casaideas, Aruma).
  */
 export async function searchVtexStore(store, query, limit = 10, category = 'tecnologia', options = {}) {
-  const { orderBy = null, minPrice = null, inStockOnly = false, includeOutOfStockMarkers = false } = options;
+  const {
+    orderBy = null,
+    minPrice = null,
+    maxPrice = null,
+    inStockOnly = false,
+    includeOutOfStockMarkers = false
+  } = options;
   const encoded = encodeURIComponent(query);
   const to = Math.max(0, limit - 1);
   let url = `${store.baseUrl}/api/catalog_system/pub/products/search?ft=${encoded}&_from=0&_to=${to}`;
-  if (minPrice && Number(minPrice) > 0) {
-    url += `&fq=${encodeURIComponent(`P:[${Number(minPrice)} TO 99999]`)}`;
+  if ((minPrice && Number(minPrice) > 0) || (maxPrice && Number(maxPrice) > 0)) {
+    const lo = minPrice && Number(minPrice) > 0 ? Number(minPrice) : 0;
+    const hi = maxPrice && Number(maxPrice) > 0 ? Number(maxPrice) : 99999;
+    url += `&fq=${encodeURIComponent(`P:[${lo} TO ${hi}]`)}`;
   }
   if (orderBy) {
     url += `&O=${encodeURIComponent(orderBy)}`;
@@ -37,6 +45,7 @@ export async function searchVtexStore(store, query, limit = 10, category = 'tecn
     if (!normalized) continue;
     if (inStockOnly && !normalized.inStock) continue;
     if (!normalized._outOfStockMarker && minPrice && normalized.price < Number(minPrice)) continue;
+    if (!normalized._outOfStockMarker && maxPrice && normalized.price > Number(maxPrice)) continue;
     products.push(normalized);
   }
   return products;

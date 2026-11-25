@@ -1,5 +1,7 @@
+import fs from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { CATEGORIES, STORES } from '../config/stores.js';
 import {
   analyzeProduct,
   deduplicateStoreListings,
@@ -334,4 +336,33 @@ test('buildMultiStoreGroups excludes out-of-stock offers from unified store comp
   assert.equal(productGroupMeta.has('plazavea:1'), false);
 });
 
+test('watch-queries.json references valid categories, enabled search stores, and valid price bounds', () => {
+  const cfg = JSON.parse(fs.readFileSync(new URL('../config/watch-queries.json', import.meta.url), 'utf8'));
+  const validCategories = new Set(CATEGORIES.map((c) => c.id));
+  const validSearchStores = new Set(
+    STORES.filter((s) => s.enabled && s.engine !== 'mi_official' && !s.useCategoryPages).map((s) => s.id)
+  );
+  const allQueries = [];
 
+  for (const catCfg of cfg.categories) {
+    assert.ok(validCategories.has(catCfg.category), `Unknown category: ${catCfg.category}`);
+    assert.ok(Array.isArray(catCfg.queries) && catCfg.queries.length > 0);
+    for (const entry of catCfg.queries) {
+      const q = typeof entry === 'string' ? { query: entry } : entry;
+      assert.ok(typeof q.query === 'string' && q.query.trim().length > 0);
+      allQueries.push(q.query);
+      if (q.minPrice !== undefined) assert.ok(Number(q.minPrice) > 0);
+      if (q.maxPrice !== undefined) assert.ok(Number(q.maxPrice) > Number(q.minPrice || 0));
+      if (q.stores !== undefined) {
+        assert.ok(Array.isArray(q.stores) && q.stores.length > 0);
+        for (const sid of q.stores) {
+          assert.ok(validSearchStores.has(sid), `Invalid or non-search store "${sid}" in query "${q.query}"`);
+        }
+      }
+    }
+  }
+
+  for (const expected of ['iphone', 'samsung galaxy', 'ipad', 'deshumedecedor', 'pañales', 'proteina whey', 'protector solar']) {
+    assert.ok(allQueries.includes(expected), `Expected high-demand query "${expected}" in watch-queries.json`);
+  }
+});

@@ -5,19 +5,30 @@
       "queries": [
         "laptop",
         "macbook",
+        { "query": "ipad", "minPrice": 900, "limit": 6, "stores": ["falabella", "plazavea", "oechsle", "coolbox", "shopstar", "carsa", "infotec"] },
         "monitor gamer",
         "ssd nvme",
         "tablet",
-        "tarjeta de video rtx",
+        { "query": "tarjeta de video rtx", "minPrice": 600, "limit": 6, "stores": ["infotec", "cyccomputer", "falabella", "plazavea", "coolbox", "shopstar"] },
+        { "query": "procesador ryzen", "minPrice": 250, "limit": 6, "stores": ["infotec", "cyccomputer", "falabella", "plazavea", "coolbox", "shopstar"] },
+        { "query": "memoria ram ddr5", "minPrice": 90, "limit": 6, "stores": ["infotec", "cyccomputer", "falabella", "plazavea", "coolbox", "shopstar"] },
+        { "query": "placa madre", "minPrice": 180, "limit": 6, "stores": ["infotec", "cyccomputer", "falabella", "plazavea", "shopstar"] },
+        { "query": "fuente de poder", "minPrice": 120, "limit": 6, "stores": ["infotec", "cyccomputer", "falabella", "plazavea", "coolbox", "shopstar"] },
+        { "query": "case gamer", "minPrice": 120, "limit": 6, "stores": ["infotec", "cyccomputer", "falabella", "plazavea", "coolbox", "shopstar"] },
         "impresora multifuncional",
         "teclado mecanico",
         "mouse gamer",
         "router wifi",
         "proyector",
-        "powerbank cargador",
-        "camara gopro"
+        { "query": "powerbank", "minPrice": 35, "limit": 6 },
+        { "query": "cargador usb c", "minPrice": 30, "limit": 6, "stores": ["falabella", "plazavea", "coolbox", "shopstar", "xiaomi", "infotec", "oechsle"] },
+        { "query": "camara gopro", "minPrice": 400, "limit": 6, "stores": ["falabella", "plazavea", "coolbox", "shopstar", "oechsle", "infotec"] },
+        { "query": "dron dji", "minPrice": 450, "limit": 5, "stores": ["falabella", "plazavea", "coolbox", "shopstar", "infotec"] },
+        { "query": "starlink", "minPrice": 400, "limit": 5, "stores": ["falabella", "plazavea", "promart", "coolbox", "shopstar", "oechsle", "infotec"] },
+        { "query": "kindle", "minPrice": 300, "limit": 5, "stores": ["falabella", "plazavea", "coolbox", "shopstar"] },
+        { "query": "camara de seguridad", "minPrice": 60, "maxPrice": 1200, "limit": 5, "stores": ["falabella", "plazavea", "promart", "coolbox", "shopstar", "infotec", "oechsle"] }
       ],
-      "limitPerStore": 8
+      "limitPerStore": 7
     },
     {
       "category": "televisores",
@@ -31,20 +42,22 @@
       "category": "celulares",
       "queries": [
         "celular smartphone",
-        "iphone samsung galaxy",
+        { "query": "iphone", "minPrice": 1200, "limit": 7 },
+        { "query": "samsung galaxy", "minPrice": 350, "limit": 7 },
         "poco xiaomi",
         "redmi",
         "motorola",
         "honor",
+        { "query": "apple watch", "minPrice": 650, "limit": 6, "stores": ["falabella", "plazavea", "oechsle", "coolbox", "shopstar", "carsa"] },
         "smartwatch reloj inteligente"
       ],
-      "limitPerStore": 9
+      "limitPerStore": 8
     },
     {
       "category": "audio",
       "queries": [
         "audifonos bluetooth",
-        "airpods",
+        { "query": "airpods", "minPrice": 280, "limit": 6 },
         "parlante bluetooth",
         "barra de sonido soundbar",
         "microfono"
@@ -69,22 +82,37 @@
         "freidora de aire",
         "refrigeradora",
         "lavadora",
+        { "query": "lavaseca", "minPrice": 900, "limit": 6, "stores": ["falabella", "plazavea", "oechsle", "tottus", "wong", "metro", "carsa", "electrolux", "estilos", "shopstar"] },
+        { "query": "secadora de ropa", "minPrice": 650, "limit": 6, "stores": ["falabella", "plazavea", "oechsle", "tottus", "wong", "metro", "carsa", "electrolux", "estilos"] },
+        { "query": "deshumedecedor", "minPrice": 200, "limit": 6, "stores": ["falabella", "plazavea", "oechsle", "promart", "tottus", "wong", "metro", "carsa", "electrolux", "estilos", "shopstar"] },
         "microondas",
         "cafetera",
         "cocina",
         "licuadora",
+        { "query": "olla arrocera", "minPrice": 50, "limit": 6, "stores": ["falabella", "plazavea", "oechsle", "tottus", "wong", "metro", "carsa", "oster", "electrolux", "makro", "estilos"] },
+        { "query": "batidora", "minPrice": 50, "limit": 6, "stores": ["falabella", "plazavea", "oechsle", "tottus", "wong", "metro", "carsa", "oster", "electrolux", "makro", "estilos"] },
         "horno electrico",
         "terma",
-        "ventilador aire acondicionado"
+        { "query": "ventilador", "minPrice": 50, "limit": 6 },
+        { "query": "aire acondicionado", "minPrice": 500, "limit": 6, "stores": ["falabella", "plazavea", "oechsle", "promart", "tottus", "wong", "metro", "carsa", "electrolux", "estilos", "shopstar"] }
       ],
-      "limitPerStore": 7
+      "limitPerStore": 6
     },
     {
       "category": "hogar",
       "queries": [
         "almohada",
         "colchon",
-        "silla ergonomica escritorio",
+        { "query": "box tarima", "minPrice": 350, "limit": 6, "stores": ["paraiso", "falabella", "plazavea", "oechsle", "promart", "tottus", "estilos"] },
+        { "query": "juego de sabanas", "minPrice": 40, "limit": 6, "stores": ["paraiso", "casaideas", "falabella", "plazavea", "oechsle", "tottus", "estilos"] },
+        { "query": "edredon", "minPrice": 60, "limit": 6, "stores": ["paraiso", "casaideas", "falabella", "plazavea", "oechsle", "tottus", "estilos"] },
+        { "query": "silla ergonomica", "minPrice": 150, "limit": 6, "stores": ["falabella", "plazavea", "promart", "oechsle", "tottus", "wong", "metro", "estilos", "tailoy"] },
+        { "query": "escritorio", "minPrice": 120, "limit": 6, "stores": ["falabella", "plazavea", "promart", "oechsle", "tottus", "estilos", "casaideas", "tailoy"] },
+        { "query": "cerradura inteligente", "minPrice": 150, "limit": 5, "stores": ["falabella", "plazavea", "promart", "coolbox", "shopstar", "xiaomi", "cassinelli"] },
+        { "query": "coche bebe", "minPrice": 180, "limit": 6, "stores": ["falabella", "plazavea", "tottus", "oechsle", "promart", "estilos", "tailoy"] },
+        { "query": "silla auto bebe", "minPrice": 180, "limit": 5, "stores": ["falabella", "plazavea", "tottus", "oechsle", "promart", "estilos", "tailoy"] },
+        { "query": "termo stanley", "minPrice": 60, "limit": 5, "stores": ["falabella", "plazavea", "promart", "wong", "metro", "shopstar", "oechsle", "tailoy"] },
+        { "query": "botella termica", "minPrice": 35, "limit": 5, "stores": ["falabella", "plazavea", "promart", "casaideas", "miniso", "wong", "metro", "shopstar", "tailoy"] },
         "taladro inalambrico",
         "hidrolavadora",
         "aspiradora robot",
@@ -92,17 +120,24 @@
         "parrilla",
         "lego juguetes"
       ],
-      "limitPerStore": 7
+      "limitPerStore": 6
     },
     {
       "category": "deporte",
       "queries": [
         "zapatillas running",
         "zapatillas urbanas",
+        { "query": "chimpunes futbol", "minPrice": 70, "limit": 6, "stores": ["triathlon", "footloose", "falabella", "oechsle", "shopstar"] },
+        { "query": "ropa deportiva", "minPrice": 40, "limit": 6, "stores": ["triathlon", "footloose", "falabella", "oechsle", "shopstar"] },
+        { "query": "botines", "minPrice": 70, "limit": 6, "stores": ["footloose", "falabella", "oechsle", "estilos", "shopstar"] },
         "bicicleta",
-        "scooter electrico"
+        "scooter electrico",
+        { "query": "proteina whey", "minPrice": 60, "limit": 6, "stores": ["falabella", "plazavea", "tottus", "wong", "metro", "shopstar", "oechsle"] },
+        { "query": "creatina", "minPrice": 40, "limit": 5, "stores": ["falabella", "plazavea", "tottus", "wong", "metro", "shopstar", "oechsle"] },
+        { "query": "mancuernas", "minPrice": 40, "limit": 5, "stores": ["falabella", "plazavea", "promart", "oechsle", "shopstar", "triathlon"] },
+        { "query": "trotadora", "minPrice": 450, "limit": 5, "stores": ["falabella", "plazavea", "promart", "oechsle", "shopstar", "triathlon", "tottus"] }
       ],
-      "limitPerStore": 7
+      "limitPerStore": 6
     },
     {
       "category": "moda",
@@ -110,37 +145,57 @@
         "maleta de viaje",
         "mochila porta laptop",
         "casaca",
-        "billetera cartera"
+        "billetera cartera",
+        { "query": "polo", "minPrice": 25, "limit": 6, "stores": ["topitop", "falabella", "oechsle", "estilos", "shopstar"] },
+        { "query": "jean", "minPrice": 45, "limit": 6, "stores": ["topitop", "falabella", "oechsle", "estilos", "shopstar"] },
+        { "query": "polera", "minPrice": 45, "limit": 6, "stores": ["topitop", "falabella", "oechsle", "estilos", "shopstar"] },
+        { "query": "correa cuero", "minPrice": 45, "limit": 6, "stores": ["renzocosta", "falabella", "oechsle", "estilos", "shopstar"] },
+        { "query": "morral", "minPrice": 50, "limit": 6, "stores": ["renzocosta", "falabella", "oechsle", "estilos", "shopstar", "topitop"] }
       ],
-      "limitPerStore": 7
+      "limitPerStore": 6
     },
     {
       "category": "belleza",
       "queries": [
         "perfume eau de parfum",
-        "secadora plancha cabello",
-        "afeitadora electrica"
+        { "query": "secadora cabello", "minPrice": 45, "limit": 6 },
+        { "query": "plancha cabello", "minPrice": 45, "limit": 6 },
+        "afeitadora electrica",
+        { "query": "protector solar", "minPrice": 25, "limit": 6, "stores": ["aruma", "falabella", "oechsle", "plazavea", "wong", "metro", "tottus"] },
+        { "query": "serum facial", "minPrice": 25, "limit": 6, "stores": ["aruma", "falabella", "oechsle", "miniso"] },
+        { "query": "crema hidratante", "minPrice": 20, "limit": 6, "stores": ["aruma", "falabella", "oechsle", "miniso"] },
+        { "query": "maquillaje", "minPrice": 20, "limit": 6, "stores": ["aruma", "falabella", "oechsle", "miniso"] }
       ],
-      "limitPerStore": 7
+      "limitPerStore": 6
     },
     {
       "category": "supermercado",
       "queries": [
-        "whisky vino",
-        "cafe",
-        "comida perro gato"
+        { "query": "pañales", "minPrice": 25, "limit": 7, "stores": ["plazavea", "tottus", "wong", "metro", "makro", "falabella"] },
+        { "query": "whisky", "minPrice": 40, "limit": 6 },
+        { "query": "vino", "minPrice": 25, "limit": 6 },
+        { "query": "pisco", "minPrice": 30, "limit": 6 },
+        { "query": "cerveza pack", "minPrice": 20, "limit": 6 },
+        { "query": "cafe", "minPrice": 15, "limit": 6 },
+        { "query": "comida perro", "minPrice": 25, "limit": 6 },
+        { "query": "comida gato", "minPrice": 20, "limit": 6 },
+        { "query": "detergente", "minPrice": 20, "limit": 6 },
+        { "query": "papel higienico", "minPrice": 18, "limit": 6 },
+        { "query": "aceite oliva", "minPrice": 25, "limit": 6 }
       ],
-      "limitPerStore": 8
+      "limitPerStore": 7
     }
   ],
   "seasonalDiscountRadar": [
-    { "category": "celulares", "query": "celular smartphone", "minPrice": 280, "limitPerStore": 6 },
-    { "category": "televisores", "query": "smart tv 4k", "minPrice": 550, "limitPerStore": 6 },
+    { "category": "celulares", "query": "celular", "minPrice": 280, "limitPerStore": 6 },
+    { "category": "televisores", "query": "smart tv", "minPrice": 550, "limitPerStore": 6 },
     { "category": "tecnologia", "query": "laptop", "minPrice": 850, "limitPerStore": 6 },
-    { "category": "gaming", "query": "consola playstation nintendo", "minPrice": 350, "limitPerStore": 5 },
-    { "category": "electro", "query": "freidora lavadora refrigeradora", "minPrice": 180, "limitPerStore": 6 },
-    { "category": "audio", "query": "audifonos parlante bluetooth", "minPrice": 90, "limitPerStore": 5 },
-    { "category": "hogar", "query": "colchon aspiradora taladro", "minPrice": 140, "limitPerStore": 5 },
-    { "category": "deporte", "query": "zapatillas bicicleta scooter", "minPrice": 120, "limitPerStore": 5 }
+    { "category": "gaming", "query": "playstation", "minPrice": 350, "limitPerStore": 5 },
+    { "category": "electro", "query": "freidora", "minPrice": 150, "limitPerStore": 6 },
+    { "category": "audio", "query": "audifonos", "minPrice": 90, "limitPerStore": 5 },
+    { "category": "hogar", "query": "colchon", "minPrice": 180, "limitPerStore": 5 },
+    { "category": "deporte", "query": "zapatillas", "minPrice": 120, "limitPerStore": 5 },
+    { "category": "belleza", "query": "perfume", "minPrice": 60, "limitPerStore": 5 },
+    { "category": "supermercado", "query": "whisky", "minPrice": 50, "limitPerStore": 5 }
   ]
 }
