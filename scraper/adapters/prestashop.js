@@ -10,7 +10,7 @@ export async function searchPrestashopStore(store, query, limit = 10, category =
   const { minPrice = null, maxPrice = null } = options || {};
   const url = `${store.baseUrl}/busqueda?controller=search&s=${encodeURIComponent(query)}`;
   const res = await fetchWithTimeout(url, {
-    timeoutMs: 10000,
+    timeoutMs: 8000,
     headers: {
       Accept: 'application/json, text/javascript, */*; q=0.01',
       'X-Requested-With': 'XMLHttpRequest'

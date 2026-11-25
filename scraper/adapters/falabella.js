@@ -8,7 +8,7 @@ export async function searchFalabellaStore(store, query, limit = 10, category = 
   const { minPrice = null, maxPrice = null } = options || {};
   const url = `${store.baseUrl}${store.searchPath}${encodeURIComponent(query)}`;
   const res = await fetchWithTimeout(url, {
-    timeoutMs: 12000,
+    timeoutMs: 9000,
     headers: { Accept: 'text/html,application/xhtml+xml' }
   });
   if (!res.ok) {

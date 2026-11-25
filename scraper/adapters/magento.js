@@ -105,7 +105,7 @@ async function searchMagentoViaCategories(store, query, limit, fallbackCategory,
 async function fetchMagentoProductList(store, url, category, limit, options = {}) {
   const { minPrice = null, maxPrice = null } = options || {};
   const res = await fetchWithTimeout(url, {
-    timeoutMs: 12000,
+    timeoutMs: 9000,
     headers: { Accept: 'text/html,application/xhtml+xml' }
   });
   if (!res.ok) {

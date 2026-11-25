@@ -2,7 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { STORES, STORE_MAP } from '../config/stores.js';
-import { getLimaDateString, getUsdToPenRate, runWithConcurrency } from './http.js';
+import {
+  getLimaDateString,
+  getUsdToPenRate,
+  interleaveJobsByStore,
+  runJobsWithStoreLimit,
+  runWithConcurrency
+} from './http.js';
 import { searchSingleStore } from './live-search.js';
 import { verifyVtexStockBatch } from './adapters/vtex.js';
 import { fetchMiOfficialCatalog } from './adapters/mi-official.js';
@@ -250,89 +256,112 @@ export async function runDailyScrape(options = {}) {
     }
   };
 
+  const orderedJobs = interleaveJobsByStore(jobs);
+
   onProgress({
     phase: 'starting',
     completed: 0,
-    total: jobs.length,
+    total: orderedJobs.length,
     fetchedCount: 0,
-    message: `Iniciando actualización de ${enabledStores.length} tiendas en Perú (${jobs.length} consultas)...`
+    message: `Iniciando actualización de ${enabledStores.length} tiendas en Perú (${orderedJobs.length} consultas)...`
   });
 
-  await runWithConcurrency(jobs, 12, async (job) => {
-    try {
-      if (job.type === 'search') {
-        const items = await searchSingleStore(
-          job.store,
-          job.query,
-          job.limit,
-          job.category,
-          { includeOutOfStockMarkers: true, ...(job.searchOptions || {}) }
-        );
-        mergeFetchedItems(job.store.id, items, Boolean(job.isCustomWatch));
-      } else if (job.type === 'mi_official') {
-        const items = await fetchMiOfficialCatalog(job.store);
-        mergeFetchedItems(job.store.id, items, false);
-      } else if (job.type === 'magento_categories') {
-        const seasonalPaths = await discoverMagentoSeasonalPaths(job.store);
-        if (seasonalPaths.length) {
-          preDiscoveredCampaignPaths[job.store.id] = seasonalPaths;
+  const { trippedStores } = await runJobsWithStoreLimit(
+    orderedJobs,
+    {
+      concurrency: 20,
+      maxPerStore: 3,
+      circuitBreakerThreshold: 4,
+      onSkip: (job) => {
+        completed += 1;
+        if (job.store && storesStatus[job.store.id]) {
+          storesStatus[job.store.id].skippedByCircuitBreaker =
+            (storesStatus[job.store.id].skippedByCircuitBreaker || 0) + 1;
         }
-        const allPages = [
-          ...seasonalPaths.map((sPath) => ({ path: sPath, category: 'seasonal', limit: 20 })),
-          ...job.pages
-        ];
-        for (const pg of allPages) {
-          try {
-            const items = await fetchMagentoCategoryPage(job.store, pg.path, pg.category, pg.limit);
-            mergeFetchedItems(job.store.id, items, false);
-          } catch (pgErr) {
-            if (storesStatus[job.store.id]) {
-              storesStatus[job.store.id].failedJobs += 1;
-              storesStatus[job.store.id].lastError = pgErr?.message || 'Error';
+      }
+    },
+    async (job) => {
+      try {
+        if (job.type === 'search') {
+          const items = await searchSingleStore(
+            job.store,
+            job.query,
+            job.limit,
+            job.category,
+            { includeOutOfStockMarkers: true, ...(job.searchOptions || {}) }
+          );
+          mergeFetchedItems(job.store.id, items, Boolean(job.isCustomWatch));
+        } else if (job.type === 'mi_official') {
+          const items = await fetchMiOfficialCatalog(job.store);
+          mergeFetchedItems(job.store.id, items, false);
+        } else if (job.type === 'magento_categories') {
+          const seasonalPaths = await discoverMagentoSeasonalPaths(job.store);
+          if (seasonalPaths.length) {
+            preDiscoveredCampaignPaths[job.store.id] = seasonalPaths;
+          }
+          const allPages = [
+            ...seasonalPaths.map((sPath) => ({ path: sPath, category: 'seasonal', limit: 20 })),
+            ...job.pages
+          ];
+          for (const pg of allPages) {
+            try {
+              const items = await fetchMagentoCategoryPage(job.store, pg.path, pg.category, pg.limit);
+              mergeFetchedItems(job.store.id, items, false);
+            } catch (pgErr) {
+              if (storesStatus[job.store.id]) {
+                storesStatus[job.store.id].failedJobs += 1;
+                storesStatus[job.store.id].lastError = pgErr?.message || 'Error';
+              }
+            }
+            await new Promise((r) => setTimeout(r, 200));
+          }
+        } else if (job.type === 'url') {
+          const item = await scrapeProductUrl(job.url, job.category);
+          if (item) {
+            if (!item._outOfStockMarker) fetchedCount += 1;
+            applyStockUpdate(item, true);
+            if (storesStatus[item.storeId]) {
+              storesStatus[item.storeId].okJobs += 1;
+              if (!item._outOfStockMarker) storesStatus[item.storeId].productsFetched += 1;
             }
           }
-          await new Promise((r) => setTimeout(r, 450));
         }
-      } else if (job.type === 'url') {
-        const item = await scrapeProductUrl(job.url, job.category);
-        if (item) {
-          if (!item._outOfStockMarker) fetchedCount += 1;
-          applyStockUpdate(item, true);
-          if (storesStatus[item.storeId]) {
-            storesStatus[item.storeId].okJobs += 1;
-            if (!item._outOfStockMarker) storesStatus[item.storeId].productsFetched += 1;
-          }
+      } catch (err) {
+        if (job.store && storesStatus[job.store.id]) {
+          storesStatus[job.store.id].failedJobs += 1;
+          storesStatus[job.store.id].lastError = err?.message || 'Error';
         }
+        throw err;
+      } finally {
+        completed += 1;
+        onProgress({
+          phase: 'scraping',
+          completed,
+          total: orderedJobs.length,
+          fetchedCount,
+          storeName: job.store?.name || 'URL personalizada',
+          query: job.query || job.url,
+          message: `Actualizando ${job.store?.name || 'URL'} (${completed}/${orderedJobs.length}) · ${productMap.size} productos`
+        });
       }
-    } catch (err) {
-      if (job.store && storesStatus[job.store.id]) {
-        storesStatus[job.store.id].failedJobs += 1;
-        storesStatus[job.store.id].lastError = err?.message || 'Error';
-      }
-    } finally {
-      completed += 1;
-      onProgress({
-        phase: 'scraping',
-        completed,
-        total: jobs.length,
-        fetchedCount,
-        storeName: job.store?.name || 'URL personalizada',
-        query: job.query || job.url,
-        message: `Actualizando ${job.store?.name || 'URL'} (${completed}/${jobs.length}) · ${productMap.size} productos`
-      });
     }
-  });
+  );
 
   // Verify live stock for previously-cached VTEX products not seen in today's search queries
   // (catches products that sold out and dropped out of search results, e.g. PlazaVea/Oechsle/etc.)
+  const trippedSet = new Set(trippedStores);
+  const shouldRecheckOutOfStock = Boolean(
+    options.recheckOutOfStock || (!quick && prevMeta?.lastUpdatedDate !== today)
+  );
   const vtexUnseenByStore = new Map();
   for (const prod of productMap.values()) {
     if (seenTodayIds.has(prod.id)) continue;
     const store = STORE_MAP[prod.storeId];
     if (!store || !store.enabled || store.engine !== 'vtex') continue;
+    if (trippedSet.has(store.id)) continue;
     if (storeIds && !storeIds.includes(store.id)) continue;
-    // Check currently in-stock items (and also re-check recently out-of-stock items in full mode)
-    if (quick && prod.inStock === false) continue;
+    // Always verify in-stock unseen items; only re-verify already out-of-stock items once per day
+    if (!shouldRecheckOutOfStock && prod.inStock === false) continue;
     if (!vtexUnseenByStore.has(store.id)) vtexUnseenByStore.set(store.id, []);
     vtexUnseenByStore.get(store.id).push(prod);
   }
@@ -340,8 +369,8 @@ export async function runDailyScrape(options = {}) {
   if (vtexUnseenByStore.size > 0) {
     onProgress({
       phase: 'scraping',
-      completed: jobs.length,
-      total: jobs.length,
+      completed: orderedJobs.length,
+      total: orderedJobs.length,
       fetchedCount,
       message: `Verificando stock en vivo en ${vtexUnseenByStore.size} tiendas VTEX...`
     });
@@ -349,8 +378,8 @@ export async function runDailyScrape(options = {}) {
       store: STORE_MAP[storeId],
       list
     }));
-    await runWithConcurrency(stockTasks, 6, async ({ store, list }) => {
-      const updates = await verifyVtexStockBatch(store, list, 25);
+    await runWithConcurrency(stockTasks, 12, async ({ store, list }) => {
+      const updates = await verifyVtexStockBatch(store, list, 40);
       for (const upd of updates) {
         applyStockUpdate(upd, false);
       }
@@ -421,7 +450,8 @@ export async function runDailyScrape(options = {}) {
     enabledStores,
     analyzedCatalog,
     prevMeta,
-    preDiscoveredCampaignPaths
+    preDiscoveredCampaignPaths,
+    { forceRefresh: Boolean(options.forceCampaigns) }
   );
   for (const id of Object.keys(storesStatus)) {
     storesStatus[id].campaign = campaignData.byStore[id] || null;
@@ -447,6 +477,7 @@ export async function runDailyScrape(options = {}) {
     bugazosCount,
     groupsCount: groups.length,
     activeCampaignsCount: campaignData.campaigns.length,
+    campaignsScannedAt: campaignData.campaignsScannedAt || new Date().toISOString(),
     campaigns: campaignData.campaigns,
     storesStatus
   };
@@ -455,11 +486,11 @@ export async function runDailyScrape(options = {}) {
 
   onProgress({
     phase: 'done',
-    completed: jobs.length,
-    total: jobs.length,
+    completed: orderedJobs.length,
+    total: orderedJobs.length,
     fetchedCount,
     meta,
-    message: `¡Listo! ${analyzedCatalog.length} productos actualizados (${groups.length} comparativas multi-tienda, ${campaignData.campaigns.length} tiendas en campaña, ${bugazosCount} posibles bugazos) en ${(meta.elapsedMs / 1000).toFixed(1)}s.`
+    message: `¡Listo! ${analyzedCatalog.length} productos actualizados (${groups.length} comparativas multi-tienda, ${campaignData.campaigns.length} tiendas en campaña${campaignData.fromCache ? ' [caché]' : ''}, ${bugazosCount} posibles bugazos) en ${(meta.elapsedMs / 1000).toFixed(1)}s.`
   });
 
   return { catalog: analyzedCatalog, groups, meta };

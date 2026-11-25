@@ -88,7 +88,7 @@ function httpsGetLargeHeaders(url, headers, timeoutMs) {
 }
 
 export async function fetchWithTimeout(url, options = {}) {
-  const { timeoutMs = 10000, headers = {}, retries = 1 } = options;
+  const { timeoutMs = 7500, headers = {}, retries = 1 } = options;
   let lastError;
   for (let attempt = 0; attempt <= retries; attempt++) {
     const controller = new AbortController();
@@ -111,7 +111,7 @@ export async function fetchWithTimeout(url, options = {}) {
       }
       lastError = err;
       if (attempt < retries) {
-        await new Promise((r) => setTimeout(r, 350 * (attempt + 1)));
+        await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
       }
     }
   }
@@ -201,3 +201,135 @@ export async function runWithConcurrency(items, concurrency, worker) {
   await Promise.all(workers);
   return results;
 }
+
+/**
+ * Ordena los trabajos poniendo primero los escaneos largos (tiendas por categorías/campañas)
+ * e intercalando round-robin por tienda el resto para maximizar paralelismo sin saturar un dominio.
+ */
+export function interleaveJobsByStore(jobs = []) {
+  const priorityLong = [];
+  const buckets = new Map();
+  const unkeyed = [];
+
+  for (const job of jobs) {
+    if (!job) continue;
+    if (job.type === 'magento_categories' || job.type === 'mi_official') {
+      priorityLong.push(job);
+      continue;
+    }
+    const key = job.store?.id || null;
+    if (!key) {
+      unkeyed.push(job);
+      continue;
+    }
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key).push(job);
+  }
+
+  // Round-robin starting with stores that have the most jobs so long tails finish early
+  const queues = [...buckets.values()].sort((a, b) => b.length - a.length);
+  const interleaved = [];
+  let remaining = true;
+  let round = 0;
+  while (remaining) {
+    remaining = false;
+    for (const q of queues) {
+      if (round < q.length) {
+        interleaved.push(q[round]);
+        remaining = true;
+      }
+    }
+    round += 1;
+  }
+
+  return [...priorityLong, ...interleaved, ...unkeyed];
+}
+
+/**
+ * Ejecuta trabajos en paralelo con límite global, límite por tienda (anti-bloqueo)
+ * y circuit breaker por tienda para omitir rápidamente dominios caídos.
+ */
+export async function runJobsWithStoreLimit(jobs, options = {}, worker) {
+  const {
+    concurrency = 20,
+    maxPerStore = 3,
+    circuitBreakerThreshold = 4,
+    onSkip = null
+  } = options;
+
+  const pending = jobs.map((job, index) => ({ job, index }));
+  const results = new Array(jobs.length);
+  const inFlightByStore = new Map();
+  const consecutiveFailures = new Map();
+  const trippedStores = new Set();
+  let totalInFlight = 0;
+  let waiters = [];
+
+  const notifyAll = () => {
+    const list = waiters;
+    waiters = [];
+    for (const resolve of list) resolve();
+  };
+
+  const waitForChange = () => new Promise((resolve) => waiters.push(resolve));
+
+  async function runner() {
+    while (true) {
+      if (pending.length === 0) return;
+
+      let pickIdx = -1;
+      for (let i = 0; i < pending.length; i++) {
+        const sid = pending[i].job?.store?.id || null;
+        if (!sid || trippedStores.has(sid) || (inFlightByStore.get(sid) || 0) < maxPerStore) {
+          pickIdx = i;
+          break;
+        }
+      }
+
+      if (pickIdx === -1) {
+        if (totalInFlight === 0) return;
+        await waitForChange();
+        continue;
+      }
+
+      const [{ job, index }] = pending.splice(pickIdx, 1);
+      const sid = job?.store?.id || null;
+
+      if (sid && trippedStores.has(sid)) {
+        results[index] = { skipped: true, reason: 'circuit_breaker' };
+        if (onSkip) onSkip(job, index);
+        continue;
+      }
+
+      totalInFlight += 1;
+      if (sid) inFlightByStore.set(sid, (inFlightByStore.get(sid) || 0) + 1);
+
+      try {
+        results[index] = await worker(job, index);
+        if (sid) consecutiveFailures.set(sid, 0);
+      } catch (err) {
+        results[index] = { error: err?.message || String(err) };
+        if (sid && circuitBreakerThreshold > 0) {
+          const fails = (consecutiveFailures.get(sid) || 0) + 1;
+          consecutiveFailures.set(sid, fails);
+          if (fails >= circuitBreakerThreshold) {
+            trippedStores.add(sid);
+          }
+        }
+      } finally {
+        totalInFlight -= 1;
+        if (sid) {
+          const next = Math.max(0, (inFlightByStore.get(sid) || 1) - 1);
+          if (next === 0) inFlightByStore.delete(sid);
+          else inFlightByStore.set(sid, next);
+        }
+        notifyAll();
+      }
+    }
+  }
+
+  const workerCount = Math.min(Math.max(1, concurrency), Math.max(1, jobs.length));
+  await Promise.all(Array.from({ length: workerCount }, () => runner()));
+  return { results, trippedStores: [...trippedStores] };
+}
+

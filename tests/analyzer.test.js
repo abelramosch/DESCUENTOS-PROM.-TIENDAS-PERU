@@ -9,7 +9,11 @@ import {
   normalizeProductCategory
 } from '../scraper/analyzer.js';
 import { buildMultiStoreGroups } from '../scraper/grouper.js';
-import { parsePriceNumber } from '../scraper/http.js';
+import {
+  interleaveJobsByStore,
+  parsePriceNumber,
+  runJobsWithStoreLimit
+} from '../scraper/http.js';
 import { compactCatalogForPublic, recordPricePoint } from '../scraper/storage.js';
 import { isVtexOfferInStock, normalizeVtexProduct } from '../scraper/adapters/vtex.js';
 
@@ -366,3 +370,70 @@ test('watch-queries.json references valid categories, enabled search stores, and
     assert.ok(allQueries.includes(expected), `Expected high-demand query "${expected}" in watch-queries.json`);
   }
 });
+
+test('interleaveJobsByStore prioritizes long jobs and round-robins search stores', () => {
+  const jobs = [
+    { type: 'search', store: { id: 'falabella' }, query: 'q1' },
+    { type: 'search', store: { id: 'falabella' }, query: 'q2' },
+    { type: 'search', store: { id: 'falabella' }, query: 'q3' },
+    { type: 'search', store: { id: 'plazavea' }, query: 'p1' },
+    { type: 'search', store: { id: 'plazavea' }, query: 'p2' },
+    { type: 'search', store: { id: 'coolbox' }, query: 'c1' },
+    { type: 'magento_categories', store: { id: 'hiraoka' } },
+    { type: 'mi_official', store: { id: 'mi_oficial' } }
+  ];
+  const ordered = interleaveJobsByStore(jobs);
+  assert.equal(ordered[0].type, 'magento_categories');
+  assert.equal(ordered[1].type, 'mi_official');
+  assert.deepEqual(
+    ordered.slice(2, 5).map((j) => j.store.id),
+    ['falabella', 'plazavea', 'coolbox']
+  );
+  assert.deepEqual(
+    ordered.slice(5).map((j) => j.store.id),
+    ['falabella', 'plazavea', 'falabella']
+  );
+});
+
+test('runJobsWithStoreLimit caps per-store concurrency and trips circuit breaker on failing store', async () => {
+  const jobs = [
+    ...Array.from({ length: 6 }, (_, i) => ({ type: 'search', store: { id: 'healthy' }, query: `h${i}` })),
+    ...Array.from({ length: 6 }, (_, i) => ({ type: 'search', store: { id: 'down' }, query: `d${i}` }))
+  ];
+  const inFlight = { healthy: 0, down: 0 };
+  const maxSeen = { healthy: 0, down: 0 };
+  let downAttempts = 0;
+  let skippedCount = 0;
+
+  const { results, trippedStores } = await runJobsWithStoreLimit(
+    interleaveJobsByStore(jobs),
+    {
+      concurrency: 10,
+      maxPerStore: 2,
+      circuitBreakerThreshold: 3,
+      onSkip: () => {
+        skippedCount += 1;
+      }
+    },
+    async (job) => {
+      const sid = job.store.id;
+      inFlight[sid] += 1;
+      maxSeen[sid] = Math.max(maxSeen[sid], inFlight[sid]);
+      await new Promise((r) => setTimeout(r, 10));
+      inFlight[sid] -= 1;
+      if (sid === 'down') {
+        downAttempts += 1;
+        throw new Error('HTTP 503');
+      }
+      return { ok: true, q: job.query };
+    }
+  );
+
+  assert.ok(maxSeen.healthy <= 2, `Expected healthy max concurrency <= 2, got ${maxSeen.healthy}`);
+  assert.ok(trippedStores.includes('down'), 'Expected down store to trip circuit breaker');
+  assert.ok(!trippedStores.includes('healthy'), 'Healthy store must not trip circuit breaker');
+  assert.ok(downAttempts < 6, `Expected circuit breaker to skip remaining down jobs, attempted ${downAttempts}/6`);
+  assert.ok(skippedCount >= 1, 'Expected onSkip to be called for skipped jobs');
+  assert.equal(results.filter((r) => r?.ok).length, 6);
+});
+

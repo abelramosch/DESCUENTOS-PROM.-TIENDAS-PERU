@@ -19,13 +19,49 @@ const CAMPAIGN_DEFS = [
 const BANNER_JSON_RE =
   /"(?:alt|title|description|headline|label|image|src|href|gotoUrl)"\s*:\s*"([^"]{4,150}(?:black[\s\-_]*(?:friday|week|days?|sale|nov|fest)|cyber[\s\-_]*(?:wow|days?|monday)|cierra[\s\-_]*puertas|navidad|d[ií]a\s+de\s+la\s+madre|d[ií]a\s+del\s+padre|fiestas?\s+patrias?|liquidaci[oó]n)[^"]{0,80})"/gi;
 
+function computeStoreAuthenticity(st) {
+  const avgDiscountPct = st.total ? Math.round(st.discSum / st.total) : 0;
+  const realDealsRatio = st.total ? st.realDeals / st.total : 0;
+  const inflatedRatio = st.total ? st.inflated / st.total : 0;
+
+  let authenticity = 'mixed';
+  let authenticityLabel = 'Ofertas selectivas';
+  if (inflatedRatio >= 0.32 || (st.total >= 10 && realDealsRatio < 0.14 && st.droppedToday < 3)) {
+    authenticity = 'hype';
+    authenticityLabel = 'Ojo: varias bases infladas';
+  } else if (realDealsRatio >= 0.42 || st.droppedToday >= 5) {
+    authenticity = 'real';
+    authenticityLabel = 'Rebajas reales';
+  }
+  return { avgDiscountPct, authenticity, authenticityLabel };
+}
+
+function sortCampaigns(list) {
+  return [...list].sort((a, b) => {
+    if (b.priority !== a.priority) return b.priority - a.priority;
+    const authRank = (v) => (v === 'real' ? 2 : v === 'mixed' ? 1 : 0);
+    if (authRank(b.authenticity) !== authRank(a.authenticity)) {
+      return authRank(b.authenticity) - authRank(a.authenticity);
+    }
+    return b.avgDiscountPct - a.avgDiscountPct;
+  });
+}
+
 /**
  * Escanea en paralelo las portadas y banners de las tiendas peruanas habilitadas
  * (ignorando el pie de página para evitar enlaces SEO permanentes) y cruza los resultados
  * con los datos reales de precios del catálogo para clasificar si la campaña tiene
  * rebajas reales o mucho descuento inflado.
+ * Reutiliza el escaneo HTML si tiene menos de 6 horas (actualizando las métricas reales del catálogo).
  */
-export async function detectActiveCampaigns(stores, analyzedCatalog, prevMeta = null, preDiscoveredPaths = {}) {
+export async function detectActiveCampaigns(
+  stores,
+  analyzedCatalog,
+  prevMeta = null,
+  preDiscoveredPaths = {},
+  options = {}
+) {
+  const { forceRefresh = false, maxCacheAgeMs = 6 * 3600 * 1000 } = options;
   const prevByStore = new Map();
   for (const c of prevMeta?.campaigns || []) {
     if (c?.storeId) prevByStore.set(c.storeId, c);
@@ -57,9 +93,55 @@ export async function detectActiveCampaigns(stores, analyzedCatalog, prevMeta = 
     }
   }
 
+  // Fast path: reuse recent campaign HTML scan (< 6h) while recomputing live price metrics from fresh catalog
+  const prevScannedMs = prevMeta?.campaignsScannedAt ? Date.parse(prevMeta.campaignsScannedAt) : NaN;
+  if (
+    !forceRefresh &&
+    Number.isFinite(prevScannedMs) &&
+    Date.now() - prevScannedMs < maxCacheAgeMs &&
+    Array.isArray(prevMeta?.campaigns)
+  ) {
+    const enabledIds = new Set(stores.filter((s) => s.enabled).map((s) => s.id));
+    const refreshed = prevMeta.campaigns
+      .filter((c) => c?.storeId && enabledIds.has(c.storeId))
+      .map((c) => {
+        const st = storeMetrics[c.storeId] || {
+          total: 0,
+          discSum: 0,
+          realDeals: 0,
+          inflated: 0,
+          droppedToday: 0
+        };
+        const { avgDiscountPct, authenticity, authenticityLabel } = computeStoreAuthenticity(st);
+        if (avgDiscountPct < 3 && st.realDeals === 0) return null;
+        return {
+          ...c,
+          avgDiscountPct,
+          realDealsCount: st.realDeals,
+          inflatedCount: st.inflated,
+          totalProducts: st.total,
+          droppedToday: st.droppedToday,
+          authenticity,
+          authenticityLabel,
+          isNewToday: false
+        };
+      })
+      .filter(Boolean);
+
+    const campaigns = sortCampaigns(refreshed);
+    const byStore = Object.fromEntries(campaigns.map((c) => [c.storeId, c]));
+    return {
+      campaigns,
+      byStore,
+      newCampaigns: [],
+      fromCache: true,
+      campaignsScannedAt: prevMeta.campaignsScannedAt
+    };
+  }
+
   const enabledStores = stores.filter((s) => s.enabled);
 
-  const scanned = await runWithConcurrency(enabledStores, 10, async (store) => {
+  const scanned = await runWithConcurrency(enabledStores, 16, async (store) => {
     try {
       let corpus = '';
       const prePaths = Array.isArray(preDiscoveredPaths[store.id]) ? preDiscoveredPaths[store.id] : [];
@@ -69,7 +151,8 @@ export async function detectActiveCampaigns(stores, analyzedCatalog, prevMeta = 
       } else {
         const scanUrl = store.id === 'mi_oficial' ? 'https://www.mi.com/pe/store/' : store.baseUrl;
         const res = await fetchWithTimeout(scanUrl, {
-          timeoutMs: 8500,
+          timeoutMs: 6500,
+          retries: 0,
           headers: { Accept: 'text/html,application/xhtml+xml' }
         });
         if (!res.ok) return null;
@@ -136,23 +219,10 @@ export async function detectActiveCampaigns(stores, analyzedCatalog, prevMeta = 
         inflated: 0,
         droppedToday: 0
       };
-      const avgDiscountPct = st.total ? Math.round(st.discSum / st.total) : 0;
+      const { avgDiscountPct, authenticity, authenticityLabel } = computeStoreAuthenticity(st);
 
       // Skip stores with 0% average discount and 0 real deals (static menu link false positive)
       if (avgDiscountPct < 3 && st.realDeals === 0) return null;
-
-      const realDealsRatio = st.total ? st.realDeals / st.total : 0;
-      const inflatedRatio = st.total ? st.inflated / st.total : 0;
-
-      let authenticity = 'mixed';
-      let authenticityLabel = 'Ofertas selectivas';
-      if (inflatedRatio >= 0.32 || (st.total >= 10 && realDealsRatio < 0.14 && st.droppedToday < 3)) {
-        authenticity = 'hype';
-        authenticityLabel = 'Ojo: varias bases infladas';
-      } else if (realDealsRatio >= 0.42 || st.droppedToday >= 5) {
-        authenticity = 'real';
-        authenticityLabel = 'Rebajas reales';
-      }
 
       const prev = prevByStore.get(store.id);
       const isNewToday = !prev || prev.primaryId !== primary.id;
@@ -180,19 +250,15 @@ export async function detectActiveCampaigns(stores, analyzedCatalog, prevMeta = 
     }
   });
 
-  const campaigns = scanned
-    .filter(Boolean)
-    .sort((a, b) => {
-      if (b.priority !== a.priority) return b.priority - a.priority;
-      const authRank = (v) => (v === 'real' ? 2 : v === 'mixed' ? 1 : 0);
-      if (authRank(b.authenticity) !== authRank(a.authenticity)) {
-        return authRank(b.authenticity) - authRank(a.authenticity);
-      }
-      return b.avgDiscountPct - a.avgDiscountPct;
-    });
-
+  const campaigns = sortCampaigns(scanned.filter(Boolean));
   const byStore = Object.fromEntries(campaigns.map((c) => [c.storeId, c]));
   const newCampaigns = campaigns.filter((c) => c.isNewToday);
 
-  return { campaigns, byStore, newCampaigns };
+  return {
+    campaigns,
+    byStore,
+    newCampaigns,
+    fromCache: false,
+    campaignsScannedAt: new Date().toISOString()
+  };
 }

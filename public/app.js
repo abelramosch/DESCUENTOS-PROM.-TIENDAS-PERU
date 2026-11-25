@@ -644,7 +644,7 @@ async function loadInitialData() {
     footerMode.textContent =
       state.mode === 'server'
         ? `Servidor local activo · T.C. USD/PEN: S/ ${state.meta?.usdToPen || '3.75'}`
-        : `Actualización automática 3 veces al día (7:00 AM, 1:00 PM y 8:00 PM Lima) · @chapaaltoque_pe`;
+        : `Actualización automática cada ~2h (7:00 AM a 10:00 PM Lima) · Alertas en @chapaaltoque_pe`;
   }
 }
 
@@ -3280,7 +3280,7 @@ const TOUR_STEPS = [
     tab: 'deals',
     title: 'Alertas gratis en Telegram y actualización automática',
     body: `
-      <p>Los precios se actualizan solos <strong>3 veces al día</strong> (7:00 AM, 1:00 PM y 8:00 PM hora Lima).</p>
+      <p>Los precios y el stock se actualizan solos <strong>cada ~2 horas</strong> (de 7:00 AM a 10:00 PM hora Lima).</p>
       <p>Únete gratis al canal <strong>Telegram (@chapaaltoque_pe)</strong> desde este botón para recibir bugazos y mínimos históricos al instante. Siempre puedes repetir esta guía desde el ícono <strong>?</strong>.</p>
     `,
     nextLabel: '¡Listo, empezar!'

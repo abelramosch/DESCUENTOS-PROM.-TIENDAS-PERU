@@ -26,7 +26,7 @@ export async function searchVtexStore(store, query, limit = 10, category = 'tecn
   }
 
   const res = await fetchWithTimeout(url, {
-    timeoutMs: 10000,
+    timeoutMs: 7500,
     headers: { Accept: 'application/json' }
   });
 
@@ -60,7 +60,7 @@ export async function fetchVtexProductByUrl(store, productUrl) {
   const slug = encodeURIComponent(slugMatch[1]);
   const apiUrl = `${store.baseUrl}/api/catalog_system/pub/products/search/${slug}/p`;
   const res = await fetchWithTimeout(apiUrl, {
-    timeoutMs: 10000,
+    timeoutMs: 8000,
     headers: { Accept: 'application/json' }
   });
   if (!res.ok && res.status !== 206) return null;
@@ -82,7 +82,7 @@ export function isVtexOfferInStock(offer) {
  * Verifica en lote el stock y precio real en VTEX para productos previamente en catálogo
  * que no aparecieron en las búsquedas del día (por ejemplo, cuando se agotaron).
  */
-export async function verifyVtexStockBatch(store, products = [], batchSize = 25) {
+export async function verifyVtexStockBatch(store, products = [], batchSize = 40) {
   if (!store?.baseUrl || !products.length) return [];
   const updates = [];
 
@@ -96,7 +96,7 @@ export async function verifyVtexStockBatch(store, products = [], batchSize = 25)
 
     try {
       const res = await fetchWithTimeout(url, {
-        timeoutMs: 12000,
+        timeoutMs: 10000,
         headers: { Accept: 'application/json' }
       });
       if (!res.ok && res.status !== 206) continue;
