@@ -6174,7 +6174,7 @@
       "price": 369,
       "listPrice": 409,
       "cardPrice": null,
-      "inStock": false
+      "inStock": true
     }
   ],
   "falabella:139312681": [
@@ -8547,7 +8547,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 359,
+      "price": 349,
       "listPrice": 399,
       "cardPrice": null,
       "inStock": true
@@ -8750,10 +8750,10 @@
     },
     {
       "date": "2026-11-26",
-      "price": 379,
-      "listPrice": 379,
+      "price": 449,
+      "listPrice": 449,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "plazavea:101144422": [
@@ -10173,7 +10173,7 @@
       "date": "2026-11-26",
       "price": 119.4,
       "listPrice": 199,
-      "cardPrice": null,
+      "cardPrice": 107.46,
       "inStock": true
     }
   ],
@@ -11092,7 +11092,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 429,
+      "price": 459,
       "listPrice": 529,
       "cardPrice": null,
       "inStock": true
@@ -11823,7 +11823,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 439,
+      "price": 459,
       "listPrice": 529,
       "cardPrice": null,
       "inStock": true
@@ -12687,9 +12687,9 @@
     },
     {
       "date": "2026-11-26",
-      "price": 749,
+      "price": 799,
       "listPrice": 819,
-      "cardPrice": null,
+      "cardPrice": 749,
       "inStock": true
     }
   ],
@@ -12887,9 +12887,9 @@
     },
     {
       "date": "2026-11-26",
-      "price": 749,
+      "price": 799,
       "listPrice": 819,
-      "cardPrice": null,
+      "cardPrice": 749,
       "inStock": true
     }
   ],
@@ -15840,7 +15840,7 @@
       "price": 7399.9,
       "listPrice": 8999.9,
       "cardPrice": null,
-      "inStock": false
+      "inStock": true
     }
   ],
   "shopstar:1295578": [
@@ -26707,7 +26707,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 2155,
+      "price": 2159,
       "listPrice": 3299,
       "cardPrice": null,
       "inStock": true
@@ -29507,7 +29507,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 899,
+      "price": 849,
       "listPrice": 1799,
       "cardPrice": null,
       "inStock": true
@@ -30986,7 +30986,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 469,
+      "price": 459,
       "listPrice": 509,
       "cardPrice": null,
       "inStock": true
@@ -33521,7 +33521,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 3233,
+      "price": 3239,
       "listPrice": 4999,
       "cardPrice": 3199,
       "inStock": true
@@ -33634,7 +33634,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 1665,
+      "price": 1669,
       "listPrice": 2799,
       "cardPrice": 1599,
       "inStock": true
@@ -33664,7 +33664,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 1665,
+      "price": 1669,
       "listPrice": 3499,
       "cardPrice": 1599,
       "inStock": true
@@ -44353,7 +44353,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 359,
+      "price": 379,
       "listPrice": 469,
       "cardPrice": null,
       "inStock": true
@@ -44533,10 +44533,10 @@
     },
     {
       "date": "2026-11-26",
-      "price": 785.3,
-      "listPrice": 785.3,
+      "price": 1479,
+      "listPrice": 1479,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "falabella:154301461": [
@@ -45469,6 +45469,13 @@
   "tottus:114013042": [
     {
       "date": "2026-11-23",
+      "price": 349,
+      "listPrice": 349,
+      "cardPrice": null,
+      "inStock": true
+    },
+    {
+      "date": "2026-11-26",
       "price": 349,
       "listPrice": 349,
       "cardPrice": null,
@@ -60233,7 +60240,7 @@
       "price": 195,
       "listPrice": 210,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "shopstar:16834657": [
@@ -66932,7 +66939,7 @@
       "price": 31.9,
       "listPrice": 55,
       "cardPrice": null,
-      "inStock": false
+      "inStock": true
     }
   ],
   "shopstar:1047135": [
@@ -67352,7 +67359,7 @@
       "price": 369,
       "listPrice": 409,
       "cardPrice": null,
-      "inStock": false
+      "inStock": true
     }
   ],
   "sony:2469": [
@@ -68871,7 +68878,7 @@
       "date": "2026-11-26",
       "price": 59.9,
       "listPrice": 149,
-      "cardPrice": null,
+      "cardPrice": 54.9,
       "inStock": true
     }
   ],
@@ -69764,7 +69771,7 @@
       "price": 3299,
       "listPrice": 4900,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "plazavea:102432623": [
@@ -72535,7 +72542,7 @@
       "price": 2849,
       "listPrice": 3799,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "promart:156213": [
@@ -75888,7 +75895,7 @@
       "price": 5349,
       "listPrice": 7499,
       "cardPrice": null,
-      "inStock": false
+      "inStock": true
     }
   ],
   "shopstar:16717630": [
@@ -76845,7 +76852,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 609,
+      "price": 599,
       "listPrice": 999,
       "cardPrice": null,
       "inStock": true
@@ -78685,10 +78692,10 @@
     },
     {
       "date": "2026-11-26",
-      "price": 69,
+      "price": 199,
       "listPrice": 199,
       "cardPrice": null,
-      "inStock": false
+      "inStock": true
     }
   ],
   "plazavea:101091281": [
@@ -79075,10 +79082,10 @@
     },
     {
       "date": "2026-11-26",
-      "price": 214,
+      "price": 229,
       "listPrice": 229,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "plazavea:101496371": [
@@ -85434,7 +85441,7 @@
       "price": 50,
       "listPrice": 50,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "plazavea:101234283": [
@@ -92350,7 +92357,7 @@
       "price": 499,
       "listPrice": 739,
       "cardPrice": null,
-      "inStock": false
+      "inStock": true
     }
   ],
   "oster:860": [
@@ -92770,7 +92777,7 @@
       "price": 1149,
       "listPrice": 2099,
       "cardPrice": null,
-      "inStock": false
+      "inStock": true
     }
   ],
   "oster:459": [
@@ -99289,7 +99296,7 @@
       "price": 255,
       "listPrice": 510,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "renzocosta:109": [
@@ -101463,6 +101470,13 @@
     },
     {
       "date": "2026-11-25",
+      "price": 3299,
+      "listPrice": 3899,
+      "cardPrice": null,
+      "inStock": true
+    },
+    {
+      "date": "2026-11-26",
       "price": 3299,
       "listPrice": 3899,
       "cardPrice": null,
@@ -106126,7 +106140,7 @@
       "date": "2026-11-26",
       "price": 181.3,
       "listPrice": 259,
-      "cardPrice": null,
+      "cardPrice": 163.17,
       "inStock": true
     }
   ],
@@ -111508,7 +111522,7 @@
       "price": 499,
       "listPrice": 799,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "plazavea:102052829": [
@@ -111600,7 +111614,7 @@
       "price": 36,
       "listPrice": 46,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "oechsle:3115839": [
@@ -112014,7 +112028,7 @@
       "price": 499,
       "listPrice": 799,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "oechsle:1001241968": [
@@ -112060,7 +112074,7 @@
       "price": 36,
       "listPrice": 46,
       "cardPrice": null,
-      "inStock": false
+      "inStock": true
     }
   ],
   "oechsle:1001223381": [
@@ -112356,8 +112370,8 @@
     },
     {
       "date": "2026-11-26",
-      "price": 1229,
-      "listPrice": 1589,
+      "price": 1199,
+      "listPrice": 1559,
       "cardPrice": null,
       "inStock": true
     }
@@ -112379,8 +112393,8 @@
     },
     {
       "date": "2026-11-26",
-      "price": 3819,
-      "listPrice": 4969,
+      "price": 3909,
+      "listPrice": 5079,
       "cardPrice": null,
       "inStock": true
     }
@@ -112609,8 +112623,8 @@
     },
     {
       "date": "2026-11-26",
-      "price": 1499,
-      "listPrice": 1949,
+      "price": 1519,
+      "listPrice": 1979,
       "cardPrice": null,
       "inStock": true
     }
@@ -112678,8 +112692,8 @@
     },
     {
       "date": "2026-11-26",
-      "price": 989,
-      "listPrice": 1289,
+      "price": 1019,
+      "listPrice": 1319,
       "cardPrice": null,
       "inStock": true
     }
@@ -116251,6 +116265,13 @@
       "listPrice": 749,
       "cardPrice": null,
       "inStock": true
+    },
+    {
+      "date": "2026-11-26",
+      "price": 369,
+      "listPrice": 749,
+      "cardPrice": 339,
+      "inStock": true
     }
   ],
   "carsa:6569": [
@@ -117849,7 +117870,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 179.9,
+      "price": 179,
       "listPrice": 269,
       "cardPrice": null,
       "inStock": true
@@ -117872,7 +117893,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 299.9,
+      "price": 299,
       "listPrice": 499,
       "cardPrice": null,
       "inStock": true
@@ -119125,7 +119146,7 @@
       "price": 1599,
       "listPrice": 1999,
       "cardPrice": null,
-      "inStock": false
+      "inStock": true
     }
   ],
   "xiaomi:1572": [
@@ -119420,6 +119441,13 @@
     },
     {
       "date": "2026-11-25",
+      "price": 139.9,
+      "listPrice": 139.9,
+      "cardPrice": null,
+      "inStock": true
+    },
+    {
+      "date": "2026-11-26",
       "price": 139.9,
       "listPrice": 139.9,
       "cardPrice": null,
@@ -123712,7 +123740,7 @@
       "price": 199,
       "listPrice": 219,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "mi_oficial:spu1022160": [
@@ -124471,7 +124499,7 @@
       "price": 299,
       "listPrice": 379,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "mi_oficial:spu1021610": [
@@ -125213,6 +125241,13 @@
     },
     {
       "date": "2026-11-25",
+      "price": 1349,
+      "listPrice": 3299,
+      "cardPrice": null,
+      "inStock": true
+    },
+    {
+      "date": "2026-11-26",
       "price": 1349,
       "listPrice": 3299,
       "cardPrice": null,
@@ -132949,6 +132984,13 @@
       "listPrice": 2499,
       "cardPrice": null,
       "inStock": true
+    },
+    {
+      "date": "2026-11-26",
+      "price": 1799,
+      "listPrice": 2499,
+      "cardPrice": null,
+      "inStock": true
     }
   ],
   "falabella:154698936": [
@@ -132961,6 +133003,13 @@
     },
     {
       "date": "2026-11-25",
+      "price": 1649,
+      "listPrice": 2099,
+      "cardPrice": null,
+      "inStock": true
+    },
+    {
+      "date": "2026-11-26",
       "price": 1649,
       "listPrice": 2099,
       "cardPrice": null,
@@ -133039,10 +133088,10 @@
     },
     {
       "date": "2026-11-26",
-      "price": 1199,
+      "price": 1799,
       "listPrice": 1799,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "plazavea:102382254": [
@@ -133124,7 +133173,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 1789,
+      "price": 2149,
       "listPrice": 2799,
       "cardPrice": null,
       "inStock": true
@@ -135105,6 +135154,13 @@
       "listPrice": 99,
       "cardPrice": null,
       "inStock": true
+    },
+    {
+      "date": "2026-11-26",
+      "price": 47,
+      "listPrice": 99,
+      "cardPrice": null,
+      "inStock": true
     }
   ],
   "falabella:159137596": [
@@ -135488,7 +135544,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 299,
+      "price": 279,
       "listPrice": 499.9,
       "cardPrice": null,
       "inStock": true
@@ -135732,7 +135788,7 @@
       "date": "2026-11-26",
       "price": 98.9,
       "listPrice": 198.99,
-      "cardPrice": null,
+      "cardPrice": 92.9,
       "inStock": true
     }
   ],
@@ -135773,7 +135829,7 @@
       "date": "2026-11-26",
       "price": 119.4,
       "listPrice": 199,
-      "cardPrice": null,
+      "cardPrice": 107.46,
       "inStock": true
     }
   ],
@@ -136595,7 +136651,7 @@
       "price": 369,
       "listPrice": 759,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "oechsle:1002082390": [
@@ -136627,7 +136683,7 @@
       "price": 4699,
       "listPrice": 5999,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "oechsle:1000966571": [
@@ -136731,7 +136787,7 @@
       "date": "2026-11-26",
       "price": 165.9,
       "listPrice": 339,
-      "cardPrice": 159,
+      "cardPrice": null,
       "inStock": true
     }
   ],
@@ -137952,6 +138008,13 @@
       "listPrice": 239,
       "cardPrice": null,
       "inStock": true
+    },
+    {
+      "date": "2026-11-26",
+      "price": 191.2,
+      "listPrice": 239,
+      "cardPrice": null,
+      "inStock": true
     }
   ],
   "casaideas:22995": [
@@ -138908,8 +138971,8 @@
     },
     {
       "date": "2026-11-26",
-      "price": 1039,
-      "listPrice": 1349,
+      "price": 1059,
+      "listPrice": 1379,
       "cardPrice": null,
       "inStock": true
     }
@@ -141101,8 +141164,8 @@
     },
     {
       "date": "2026-11-26",
-      "price": 1039,
-      "listPrice": 1299,
+      "price": 1079,
+      "listPrice": 1349,
       "cardPrice": null,
       "inStock": true
     }
@@ -141942,6 +142005,13 @@
   "falabella:149854376": [
     {
       "date": "2026-11-25",
+      "price": 157,
+      "listPrice": 230,
+      "cardPrice": null,
+      "inStock": true
+    },
+    {
+      "date": "2026-11-26",
       "price": 157,
       "listPrice": 230,
       "cardPrice": null,
@@ -143503,9 +143573,9 @@
     },
     {
       "date": "2026-11-26",
-      "price": 1699,
+      "price": 1599,
       "listPrice": 2699,
-      "cardPrice": null,
+      "cardPrice": 1549,
       "inStock": true
     }
   ],
@@ -144575,7 +144645,7 @@
       "price": 1299,
       "listPrice": 1499,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "shopstar:16489038": [
@@ -144712,7 +144782,7 @@
       "price": 729,
       "listPrice": 799,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "coolbox:100446477": [
@@ -145031,7 +145101,7 @@
       "date": "2026-11-26",
       "price": 3999,
       "listPrice": 4899,
-      "cardPrice": null,
+      "cardPrice": 3769,
       "inStock": true
     }
   ],
@@ -149287,6 +149357,13 @@
       "listPrice": 6999,
       "cardPrice": null,
       "inStock": true
+    },
+    {
+      "date": "2026-11-26",
+      "price": 6099,
+      "listPrice": 6999,
+      "cardPrice": null,
+      "inStock": true
     }
   ],
   "tottus:125302676": [
@@ -149314,6 +149391,13 @@
       "listPrice": 249.9,
       "cardPrice": null,
       "inStock": true
+    },
+    {
+      "date": "2026-11-26",
+      "price": 269.9,
+      "listPrice": 269.9,
+      "cardPrice": null,
+      "inStock": true
     }
   ],
   "tottus:140743089": [
@@ -149323,6 +149407,13 @@
       "listPrice": 499.9,
       "cardPrice": null,
       "inStock": true
+    },
+    {
+      "date": "2026-11-26",
+      "price": 454.9,
+      "listPrice": 499.9,
+      "cardPrice": 399.9,
+      "inStock": true
     }
   ],
   "tottus:140456549": [
@@ -149331,6 +149422,13 @@
       "price": 229.9,
       "listPrice": 269.9,
       "cardPrice": null,
+      "inStock": true
+    },
+    {
+      "date": "2026-11-26",
+      "price": 229.9,
+      "listPrice": 269.9,
+      "cardPrice": 199.9,
       "inStock": true
     }
   ],
@@ -150570,7 +150668,7 @@
       "date": "2026-11-26",
       "price": 1629,
       "listPrice": 1979,
-      "cardPrice": 1509,
+      "cardPrice": 1499,
       "inStock": true
     }
   ],
@@ -152723,8 +152821,8 @@
     },
     {
       "date": "2026-11-26",
-      "price": 43.9,
-      "listPrice": 43.9,
+      "price": 46.9,
+      "listPrice": 46.9,
       "cardPrice": null,
       "inStock": true
     }
@@ -153958,7 +154056,7 @@
       "price": 269,
       "listPrice": 599,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "carsa:5543": [
@@ -156644,7 +156742,7 @@
       "date": "2026-11-26",
       "price": 135.5,
       "listPrice": 200,
-      "cardPrice": 129.9,
+      "cardPrice": 114.9,
       "inStock": true
     }
   ],
@@ -158633,7 +158731,7 @@
       "price": 39.95,
       "listPrice": 79.9,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "oechsle:2116596": [
@@ -159174,7 +159272,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 169,
+      "price": 118.3,
       "listPrice": 169,
       "cardPrice": null,
       "inStock": true
@@ -159190,7 +159288,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 269,
+      "price": 188.3,
       "listPrice": 269,
       "cardPrice": null,
       "inStock": true
@@ -162094,7 +162192,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 38.5,
+      "price": 25.9,
       "listPrice": 40.9,
       "cardPrice": null,
       "inStock": true
@@ -162253,6 +162351,13 @@
       "listPrice": 249.9,
       "cardPrice": null,
       "inStock": true
+    },
+    {
+      "date": "2026-11-26",
+      "price": 269.9,
+      "listPrice": 269.9,
+      "cardPrice": null,
+      "inStock": true
     }
   ],
   "falabella:140743089": [
@@ -162267,7 +162372,7 @@
       "date": "2026-11-26",
       "price": 454.9,
       "listPrice": 499.9,
-      "cardPrice": null,
+      "cardPrice": 399.9,
       "inStock": true
     }
   ],
@@ -162283,7 +162388,7 @@
       "date": "2026-11-26",
       "price": 229.9,
       "listPrice": 269.9,
-      "cardPrice": null,
+      "cardPrice": 199.9,
       "inStock": true
     }
   ],
@@ -162603,7 +162708,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 1175,
+      "price": 1179,
       "listPrice": 1799,
       "cardPrice": null,
       "inStock": true
@@ -164068,6 +164173,13 @@
       "listPrice": 529,
       "cardPrice": 169.9,
       "inStock": true
+    },
+    {
+      "date": "2026-11-26",
+      "price": 189,
+      "listPrice": 309,
+      "cardPrice": 169.9,
+      "inStock": true
     }
   ],
   "shopstar:16506605": [
@@ -165408,7 +165520,7 @@
       "date": "2026-11-26",
       "price": 135.5,
       "listPrice": 200,
-      "cardPrice": 129.9,
+      "cardPrice": 114.9,
       "inStock": true
     }
   ],
@@ -165572,7 +165684,7 @@
       "date": "2026-11-26",
       "price": 140,
       "listPrice": 300,
-      "cardPrice": null,
+      "cardPrice": 119.9,
       "inStock": true
     }
   ],
@@ -166110,9 +166222,9 @@
     },
     {
       "date": "2026-11-26",
-      "price": 379,
+      "price": 299,
       "listPrice": 399.9,
-      "cardPrice": 349,
+      "cardPrice": 279,
       "inStock": true
     }
   ],
@@ -167202,6 +167314,13 @@
       "listPrice": 120,
       "cardPrice": null,
       "inStock": true
+    },
+    {
+      "date": "2026-11-26",
+      "price": 59,
+      "listPrice": 120,
+      "cardPrice": null,
+      "inStock": true
     }
   ],
   "tottus:114559145": [
@@ -167218,6 +167337,13 @@
       "date": "2026-11-25",
       "price": 129.9,
       "listPrice": 129.9,
+      "cardPrice": null,
+      "inStock": true
+    },
+    {
+      "date": "2026-11-26",
+      "price": 169.9,
+      "listPrice": 169.9,
       "cardPrice": null,
       "inStock": true
     }
@@ -167501,7 +167627,7 @@
     },
     {
       "date": "2026-11-26",
-      "price": 24.9,
+      "price": 23.9,
       "listPrice": 30.9,
       "cardPrice": null,
       "inStock": true
@@ -168336,7 +168462,7 @@
       "date": "2026-11-26",
       "price": 107.4,
       "listPrice": 179,
-      "cardPrice": null,
+      "cardPrice": 96.66,
       "inStock": true
     }
   ],
@@ -168352,7 +168478,7 @@
       "date": "2026-11-26",
       "price": 319.9,
       "listPrice": 349.9,
-      "cardPrice": 309.9,
+      "cardPrice": null,
       "inStock": true
     }
   ],
@@ -168425,7 +168551,7 @@
       "date": "2026-11-26",
       "price": 112,
       "listPrice": 240,
-      "cardPrice": 104.9,
+      "cardPrice": 94.9,
       "inStock": true
     }
   ],
@@ -168750,6 +168876,13 @@
   "falabella:159852884": [
     {
       "date": "2026-11-25",
+      "price": 599,
+      "listPrice": 999,
+      "cardPrice": null,
+      "inStock": true
+    },
+    {
+      "date": "2026-11-26",
       "price": 599,
       "listPrice": 999,
       "cardPrice": null,
@@ -170133,7 +170266,7 @@
   "estilos:316102": [
     {
       "date": "2026-11-26",
-      "price": 149.9,
+      "price": 104.93,
       "listPrice": 149.9,
       "cardPrice": null,
       "inStock": true
@@ -170792,7 +170925,7 @@
       "date": "2026-11-26",
       "price": 45,
       "listPrice": 120,
-      "cardPrice": null,
+      "cardPrice": 39.9,
       "inStock": true
     }
   ],
@@ -170801,7 +170934,7 @@
       "date": "2026-11-26",
       "price": 82,
       "listPrice": 120,
-      "cardPrice": 74.9,
+      "cardPrice": 69.9,
       "inStock": true
     }
   ],
@@ -171105,7 +171238,7 @@
   "tottus:132784585": [
     {
       "date": "2026-11-26",
-      "price": 36.5,
+      "price": 29.9,
       "listPrice": 41.9,
       "cardPrice": null,
       "inStock": true
@@ -171404,7 +171537,7 @@
       "date": "2026-11-26",
       "price": 94.5,
       "listPrice": 189,
-      "cardPrice": null,
+      "cardPrice": 85.05,
       "inStock": true
     }
   ],
@@ -171521,7 +171654,7 @@
       "date": "2026-11-26",
       "price": 45,
       "listPrice": 120,
-      "cardPrice": null,
+      "cardPrice": 39.9,
       "inStock": true
     }
   ],
@@ -171530,7 +171663,7 @@
       "date": "2026-11-26",
       "price": 82,
       "listPrice": 120,
-      "cardPrice": 74.9,
+      "cardPrice": 69.9,
       "inStock": true
     }
   ],
@@ -172491,7 +172624,7 @@
   "falabella:155491612": [
     {
       "date": "2026-11-26",
-      "price": 391,
+      "price": 399,
       "listPrice": 899,
       "cardPrice": null,
       "inStock": true
@@ -172671,7 +172804,7 @@
   "oechsle:3214756": [
     {
       "date": "2026-11-26",
-      "price": 579,
+      "price": 469,
       "listPrice": 669,
       "cardPrice": null,
       "inStock": true
@@ -173061,7 +173194,7 @@
       "price": 229,
       "listPrice": 379,
       "cardPrice": null,
-      "inStock": true
+      "inStock": false
     }
   ],
   "oechsle:2816640": [
@@ -174806,7 +174939,7 @@
       "date": "2026-11-26",
       "price": 149.9,
       "listPrice": 379,
-      "cardPrice": 139,
+      "cardPrice": null,
       "inStock": true
     }
   ],
@@ -174842,7 +174975,7 @@
       "date": "2026-11-26",
       "price": 119.4,
       "listPrice": 199,
-      "cardPrice": null,
+      "cardPrice": 107.46,
       "inStock": true
     }
   ],
@@ -175049,6 +175182,771 @@
       "date": "2026-11-26",
       "price": 279,
       "listPrice": 379,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:159270825": [
+    {
+      "date": "2026-11-26",
+      "price": 2899,
+      "listPrice": 4999,
+      "cardPrice": 2599,
+      "inStock": true
+    }
+  ],
+  "falabella:154942409": [
+    {
+      "date": "2026-11-26",
+      "price": 1079,
+      "listPrice": 1259,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:c591410261123": [
+    {
+      "date": "2026-11-26",
+      "price": 369,
+      "listPrice": 1199.8,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:135876": [
+    {
+      "date": "2026-11-26",
+      "price": 899,
+      "listPrice": 2499,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:138605": [
+    {
+      "date": "2026-11-26",
+      "price": 199,
+      "listPrice": 599,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:135875": [
+    {
+      "date": "2026-11-26",
+      "price": 849,
+      "listPrice": 2299,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:139543": [
+    {
+      "date": "2026-11-26",
+      "price": 2899,
+      "listPrice": 3499,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:138396": [
+    {
+      "date": "2026-11-26",
+      "price": 1299,
+      "listPrice": 1599,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:129631": [
+    {
+      "date": "2026-11-26",
+      "price": 139,
+      "listPrice": 329,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:139333": [
+    {
+      "date": "2026-11-26",
+      "price": 6999,
+      "listPrice": 8799,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:129866": [
+    {
+      "date": "2026-11-26",
+      "price": 169,
+      "listPrice": 399,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:138194": [
+    {
+      "date": "2026-11-26",
+      "price": 1599,
+      "listPrice": 1999,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:139336": [
+    {
+      "date": "2026-11-26",
+      "price": 1199,
+      "listPrice": 1499,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:135377": [
+    {
+      "date": "2026-11-26",
+      "price": 1799,
+      "listPrice": 2129,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "topitop:3284111": [
+    {
+      "date": "2026-11-26",
+      "price": 44.95,
+      "listPrice": 89.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:141083": [
+    {
+      "date": "2026-11-26",
+      "price": 1999,
+      "listPrice": 1999,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "aruma:1025976": [
+    {
+      "date": "2026-11-26",
+      "price": 109,
+      "listPrice": 109,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "plazavea:102325876": [
+    {
+      "date": "2026-11-26",
+      "price": 1099,
+      "listPrice": 1200,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:140877": [
+    {
+      "date": "2026-11-26",
+      "price": 6999,
+      "listPrice": 7499,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16451841": [
+    {
+      "date": "2026-11-26",
+      "price": 109,
+      "listPrice": 150,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "triathlon:11677": [
+    {
+      "date": "2026-11-26",
+      "price": 283.9,
+      "listPrice": 709.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "hiraoka:140575": [
+    {
+      "date": "2026-11-26",
+      "price": 619,
+      "listPrice": 669,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:157105802": [
+    {
+      "date": "2026-11-26",
+      "price": 157,
+      "listPrice": 360,
+      "cardPrice": 148.9,
+      "inStock": true
+    }
+  ],
+  "hiraoka:140655": [
+    {
+      "date": "2026-11-26",
+      "price": 1269,
+      "listPrice": 1269,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:156968728": [
+    {
+      "date": "2026-11-26",
+      "price": 106,
+      "listPrice": 319,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:160296517": [
+    {
+      "date": "2026-11-26",
+      "price": 79.9,
+      "listPrice": 200,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "infotec:32629": [
+    {
+      "date": "2026-11-26",
+      "price": 85,
+      "listPrice": 106,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "makro:99922600": [
+    {
+      "date": "2026-11-26",
+      "price": 90.9,
+      "listPrice": 99.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "coolbox:100446519": [
+    {
+      "date": "2026-11-26",
+      "price": 1499,
+      "listPrice": 1799,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "estilos:316108": [
+    {
+      "date": "2026-11-26",
+      "price": 132.93,
+      "listPrice": 189.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16857552": [
+    {
+      "date": "2026-11-26",
+      "price": 1139,
+      "listPrice": 1708,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "estilos:239541": [
+    {
+      "date": "2026-11-26",
+      "price": 199.9,
+      "listPrice": 269,
+      "cardPrice": 179.91,
+      "inStock": true
+    }
+  ],
+  "estilos:236792": [
+    {
+      "date": "2026-11-26",
+      "price": 369.9,
+      "listPrice": 649.9,
+      "cardPrice": 332.91,
+      "inStock": true
+    }
+  ],
+  "estilos:236787": [
+    {
+      "date": "2026-11-26",
+      "price": 724.9,
+      "listPrice": 879.9,
+      "cardPrice": 652.41,
+      "inStock": true
+    }
+  ],
+  "estilos:236785": [
+    {
+      "date": "2026-11-26",
+      "price": 573.9,
+      "listPrice": 999.9,
+      "cardPrice": 516.51,
+      "inStock": true
+    }
+  ],
+  "estilos:235184": [
+    {
+      "date": "2026-11-26",
+      "price": 679.9,
+      "listPrice": 1129.9,
+      "cardPrice": 611.91,
+      "inStock": true
+    }
+  ],
+  "plazavea:102401170": [
+    {
+      "date": "2026-11-26",
+      "price": 1397,
+      "listPrice": 1509,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "makro:40761": [
+    {
+      "date": "2026-11-26",
+      "price": 124.9,
+      "listPrice": 149.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "tottus:160457577": [
+    {
+      "date": "2026-11-26",
+      "price": 489,
+      "listPrice": 999,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "wong:1081803": [
+    {
+      "date": "2026-11-26",
+      "price": 149,
+      "listPrice": 149,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "tottus:154504133": [
+    {
+      "date": "2026-11-26",
+      "price": 42.9,
+      "listPrice": 42.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16768832": [
+    {
+      "date": "2026-11-26",
+      "price": 2299,
+      "listPrice": 2299,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "plazavea:100930084": [
+    {
+      "date": "2026-11-26",
+      "price": 999,
+      "listPrice": 999,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "plazavea:102471756": [
+    {
+      "date": "2026-11-26",
+      "price": 3319,
+      "listPrice": 4999,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "plazavea:102467780": [
+    {
+      "date": "2026-11-26",
+      "price": 3799,
+      "listPrice": 5999,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16644944": [
+    {
+      "date": "2026-11-26",
+      "price": 171.6,
+      "listPrice": 429,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16597970": [
+    {
+      "date": "2026-11-26",
+      "price": 189.9,
+      "listPrice": 189.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16597968": [
+    {
+      "date": "2026-11-26",
+      "price": 189.9,
+      "listPrice": 189.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:1499879": [
+    {
+      "date": "2026-11-26",
+      "price": 199.9,
+      "listPrice": 199.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "plazavea:102178638": [
+    {
+      "date": "2026-11-26",
+      "price": 49,
+      "listPrice": 65,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "plazavea:102178564": [
+    {
+      "date": "2026-11-26",
+      "price": 49,
+      "listPrice": 65,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:152331170": [
+    {
+      "date": "2026-11-26",
+      "price": 379,
+      "listPrice": 429,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "plazavea:101575601": [
+    {
+      "date": "2026-11-26",
+      "price": 92.9,
+      "listPrice": 134.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "plazavea:83188": [
+    {
+      "date": "2026-11-26",
+      "price": 89.9,
+      "listPrice": 125.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16864691": [
+    {
+      "date": "2026-11-26",
+      "price": 99,
+      "listPrice": 99,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16864675": [
+    {
+      "date": "2026-11-26",
+      "price": 99,
+      "listPrice": 129,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16864665": [
+    {
+      "date": "2026-11-26",
+      "price": 89,
+      "listPrice": 89,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:160134102": [
+    {
+      "date": "2026-11-26",
+      "price": 515,
+      "listPrice": 1299,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:152298920": [
+    {
+      "date": "2026-11-26",
+      "price": 1499,
+      "listPrice": 1799,
+      "cardPrice": 1449,
+      "inStock": true
+    }
+  ],
+  "falabella:157591108": [
+    {
+      "date": "2026-11-26",
+      "price": 1399,
+      "listPrice": 2099,
+      "cardPrice": 1299,
+      "inStock": true
+    }
+  ],
+  "tottus:20455989": [
+    {
+      "date": "2026-11-26",
+      "price": 7899,
+      "listPrice": 12999,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16463252": [
+    {
+      "date": "2026-11-26",
+      "price": 39,
+      "listPrice": 149,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16463250": [
+    {
+      "date": "2026-11-26",
+      "price": 39,
+      "listPrice": 149,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16463248": [
+    {
+      "date": "2026-11-26",
+      "price": 39,
+      "listPrice": 149,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "shopstar:16866298": [
+    {
+      "date": "2026-11-26",
+      "price": 189,
+      "listPrice": 189,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:152516949": [
+    {
+      "date": "2026-11-26",
+      "price": 479,
+      "listPrice": 559,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:16751200": [
+    {
+      "date": "2026-11-26",
+      "price": 2699,
+      "listPrice": 5189,
+      "cardPrice": 2599,
+      "inStock": true
+    }
+  ],
+  "falabella:20013402": [
+    {
+      "date": "2026-11-26",
+      "price": 879,
+      "listPrice": 1199,
+      "cardPrice": 819,
+      "inStock": true
+    }
+  ],
+  "falabella:140221500": [
+    {
+      "date": "2026-11-26",
+      "price": 411,
+      "listPrice": 599,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:128843805": [
+    {
+      "date": "2026-11-26",
+      "price": 345,
+      "listPrice": 599,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:21087121": [
+    {
+      "date": "2026-11-26",
+      "price": 349.93,
+      "listPrice": 499.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:20455989": [
+    {
+      "date": "2026-11-26",
+      "price": 7899,
+      "listPrice": 12999,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:160138527": [
+    {
+      "date": "2026-11-26",
+      "price": 279.93,
+      "listPrice": 399.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:135642026": [
+    {
+      "date": "2026-11-26",
+      "price": 114,
+      "listPrice": 229,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:155426154": [
+    {
+      "date": "2026-11-26",
+      "price": 269,
+      "listPrice": 269,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:153632802": [
+    {
+      "date": "2026-11-26",
+      "price": 99.9,
+      "listPrice": 209,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:153753417": [
+    {
+      "date": "2026-11-26",
+      "price": 107.4,
+      "listPrice": 179,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:149925971": [
+    {
+      "date": "2026-11-26",
+      "price": 4751.5,
+      "listPrice": 5590,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:149926019": [
+    {
+      "date": "2026-11-26",
+      "price": 3050.9,
+      "listPrice": 3390,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:149926023": [
+    {
+      "date": "2026-11-26",
+      "price": 3050.9,
+      "listPrice": 3390,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:159029113": [
+    {
+      "date": "2026-11-26",
+      "price": 129.9,
+      "listPrice": 199.9,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:157168556": [
+    {
+      "date": "2026-11-26",
+      "price": 77,
+      "listPrice": 129,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:19788455": [
+    {
+      "date": "2026-11-26",
+      "price": 664,
+      "listPrice": 830,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:158656485": [
+    {
+      "date": "2026-11-26",
+      "price": 299,
+      "listPrice": 999,
+      "cardPrice": null,
+      "inStock": true
+    }
+  ],
+  "falabella:1100001701": [
+    {
+      "date": "2026-11-26",
+      "price": 149,
+      "listPrice": 292.3,
       "cardPrice": null,
       "inStock": true
     }
