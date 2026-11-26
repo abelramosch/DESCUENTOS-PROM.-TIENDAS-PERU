@@ -6,19 +6,27 @@ on:
     paths:
       - 'public/**'
   schedule:
-    # 1) Horarios principales (7:00 AM, 1:00 PM y 8:00 PM Lima, UTC-5):
-    #    actualiza catálogo/stock en la web Y envía el resumen de ofertas a Telegram.
-    #    Programado al minuto :53 de la hora previa para evitar la congestión :00 de GitHub Actions.
-    - cron: '53 11,17,0 * * *'
-    # 2) Refrescos intermedios cada ~2h (9:00 AM, 11:00 AM, 3:00 PM, 5:00 PM y 10:00 PM Lima):
-    #    actualiza precios y stock en la web (caché de campañas activo) sin enviar spam a Telegram.
-    - cron: '53 13,15,19,21,2 * * *'
+    # Compensamos el retraso real medido en la cola gratuita de GitHub Actions (+40 a +75 min):
+    # 1) Horarios principales con alerta en Telegram (objetivo Lima, UTC-5):
+    #    - 10:58 UTC (5:58 AM Lima) + ~60 min cola ≈ ~7:00 AM Lima
+    #    - 17:16 UTC (12:16 PM Lima) + ~42 min cola ≈ ~1:00 PM Lima
+    #    - 23:47 UTC (6:47 PM Lima, antes del pico 00:00 UTC) + ~65 min cola ≈ ~7:55-8:00 PM Lima
+    - cron: '58 10 * * *'
+    - cron: '16 17 * * *'
+    - cron: '47 23 * * *'
+    # 2) Refrescos web intermedios cada ~2h sin spam en Telegram (+ ~50 min cola ≈ 9 AM, 11 AM, 3 PM, 5 PM, 10 PM Lima):
+    - cron: '8 13,15,19,21,2 * * *'
   workflow_dispatch:
     inputs:
       quick:
         description: 'Modo rápido (1 consulta por categoría)'
         required: false
         default: 'false'
+        type: boolean
+      notify:
+        description: 'Enviar resumen de ofertas a Telegram'
+        required: false
+        default: 'true'
         type: boolean
 
 permissions:
@@ -75,7 +83,13 @@ jobs:
           fi
 
       - name: Enviar alertas de ofertas a Telegram (@Chapaaltoque_pe_bot)
-        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '53 11,17,0 * * *')
+        if: >-
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.notify != 'false') ||
+          (github.event_name == 'schedule' && (
+            github.event.schedule == '58 10 * * *' ||
+            github.event.schedule == '16 17 * * *' ||
+            github.event.schedule == '47 23 * * *'
+          ))
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
