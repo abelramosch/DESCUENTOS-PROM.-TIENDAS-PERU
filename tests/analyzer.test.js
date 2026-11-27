@@ -437,3 +437,49 @@ test('runJobsWithStoreLimit caps per-store concurrency and trips circuit breaker
   assert.equal(results.filter((r) => r?.ok).length, 6);
 });
 
+test('analyzeProduct never flags flat, penny-drop, or inflated items as isAllTimeLow', () => {
+  // 1. Penny drop (S/ 4799 -> S/ 4798.99 = 0.0002%)
+  const pennyProd = {
+    id: 'sony:ps5pro',
+    storeId: 'sony',
+    storeName: 'Sony Store PE',
+    title: 'Consola PlayStation 5 Pro 2TB',
+    price: 4798.99,
+    listPrice: 4799,
+    inStock: true
+  };
+  const pennyHist = [
+    { date: '2026-11-23', price: 4799, listPrice: 4799, inStock: true },
+    { date: '2026-11-24', price: 4798.99, listPrice: 4799, inStock: true },
+    { date: '2026-11-25', price: 4798.99, listPrice: 4799, inStock: true }
+  ];
+  const pennyAnalyzed = analyzeProduct(pennyProd, pennyHist);
+  assert.equal(pennyAnalyzed.stats.isAllTimeLow, false);
+  assert.notEqual(pennyAnalyzed.stats.verdict, 'all_time_low');
+
+  // 2. Flat history (zero price variation)
+  const flatAnalyzed = analyzeProduct(
+    { id: 'falabella:flat1', storeId: 'falabella', title: 'TV Test', price: 1499, listPrice: 1999, inStock: true },
+    [
+      { date: '2026-11-23', price: 1499, listPrice: 1999, inStock: true },
+      { date: '2026-11-24', price: 1499, listPrice: 1999, inStock: true },
+      { date: '2026-11-25', price: 1499, listPrice: 1999, inStock: true }
+    ]
+  );
+  assert.equal(flatAnalyzed.stats.isAllTimeLow, false);
+  assert.notEqual(flatAnalyzed.stats.verdict, 'all_time_low');
+
+  // 3. Inflated base/fake discount even if price moved slightly
+  const inflatedAnalyzed = analyzeProduct(
+    { id: 'oechsle:inf1', storeId: 'oechsle', title: 'Set Belleza', price: 79, listPrice: 250, inStock: true },
+    [
+      { date: '2026-11-23', price: 199, listPrice: 250, inStock: true },
+      { date: '2026-11-24', price: 79, listPrice: 250, inStock: true },
+      { date: '2026-11-25', price: 79, listPrice: 250, inStock: true }
+    ]
+  );
+  assert.equal(inflatedAnalyzed.stats.isFakeDiscount, true);
+  assert.equal(inflatedAnalyzed.stats.isAllTimeLow, false);
+});
+
+

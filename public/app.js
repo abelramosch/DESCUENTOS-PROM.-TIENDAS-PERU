@@ -869,7 +869,7 @@ function getFilteredProducts() {
     if (state.activeTab === 'bugazos') {
       if (!p.stats.isBugazo) return false;
     } else if (state.activeTab === 'anticyber') {
-      const isReal = p.stats.cyberStatus === 'real_drop' || p.stats.isAllTimeLow;
+      const isReal = p.stats.cyberStatus === 'real_drop' || p.stats.verdict === 'all_time_low';
       const isTrap = p.stats.cyberStatus === 'cyber_trap' || p.stats.isFakeDiscount || p.stats.listPriceInflated;
       if (cyber === 'real_drop' && !isReal) return false;
       if (cyber === 'cyber_trap' && !isTrap) return false;
@@ -1002,8 +1002,12 @@ function renderKpis() {
   const worthBuying = state.catalog.filter((p) =>
     ['all_time_low', 'great_deal'].includes(p.stats.verdict)
   ).length;
-  const droppedToday = state.catalog.filter((p) => p.stats.delta24h < 0 || p.stats.isAllTimeLow).length;
-  const realDrops = state.catalog.filter((p) => p.stats.cyberStatus === 'real_drop' || p.stats.isAllTimeLow).length;
+  const droppedToday = state.catalog.filter(
+    (p) => (p.stats.delta24hPct || 0) <= -3 || p.stats.verdict === 'all_time_low'
+  ).length;
+  const realDrops = state.catalog.filter(
+    (p) => p.stats.cyberStatus === 'real_drop' || p.stats.verdict === 'all_time_low'
+  ).length;
   const inflated = state.catalog.filter((p) => p.stats.cyberStatus === 'cyber_trap' || p.stats.isFakeDiscount || p.stats.listPriceInflated).length;
   const bugazos = state.catalog.filter((p) => p.stats.isBugazo).length;
   const antiCyberTotal = realDrops + inflated;
@@ -1773,7 +1777,7 @@ function shareSelectedProductWhatsApp() {
   const link = getShareableProductUrl(p.id);
   const tag = p.stats?.isBugazo
     ? '⚡ Posible Bugazo'
-    : p.stats?.isAllTimeLow
+    : p.stats?.verdict === 'all_time_low'
       ? '🔥 Mínimo histórico'
       : '🏷️ Oferta en Perú';
   const cardNote = p.cardPrice ? ` (${p.cardName || 'Tarjeta'}: ${formatPen(p.cardPrice)})` : '';
@@ -2045,21 +2049,42 @@ function renderDrawer(p, history, related, group = state.selectedGroup) {
   );
 
   // Stats Grid
+  const noVariation = s.daysTracked < 2 || Math.abs((s.maxPrice || 0) - (s.minPrice || 0)) < 0.01;
   setText('stat-min', formatPen(s.minPrice));
-  setText('stat-min-date', s.minDate ? `Registrado: ${s.minDate}` : 'Hoy');
+  setText(
+    'stat-min-date',
+    s.daysTracked < 2
+      ? 'Día 1 (sin historial previo)'
+      : noVariation
+        ? `Sin cambios en ${s.daysTracked} días`
+        : s.minDate
+          ? `Registrado: ${s.minDate}`
+          : 'Hoy'
+  );
   setText('stat-median', formatPen(s.medianPrice));
   setText(
     'stat-real-diff',
     s.daysTracked >= 2
-      ? s.realDiscountPct >= 0
-        ? `Hoy ${s.realDiscountPct}% más barato`
-        : `Hoy ${Math.abs(s.realDiscountPct)}% más caro`
+      ? noVariation
+        ? 'Sin variación registrada'
+        : s.realDiscountPct >= 0
+          ? `Hoy ${s.realDiscountPct}% más barato`
+          : `Hoy ${Math.abs(s.realDiscountPct)}% más caro`
       : 'Se afina con historial'
   );
   setText('stat-avg30', formatPen(s.avgPrice30d));
-  setText('stat-days', `${s.daysTracked} días monitoreados`);
+  setText('stat-days', `${s.daysTracked} ${s.daysTracked === 1 ? 'día monitoreado' : 'días monitoreados'}`);
   setText('stat-max', formatPen(s.maxPrice));
-  setText('stat-max-date', s.maxDate ? `Registrado: ${s.maxDate}` : 'Hoy');
+  setText(
+    'stat-max-date',
+    s.daysTracked < 2
+      ? 'Día 1 (sin historial previo)'
+      : noVariation
+        ? `Sin cambios en ${s.daysTracked} días`
+        : s.maxDate
+          ? `Registrado: ${s.maxDate}`
+          : 'Hoy'
+  );
 
   // Related in other stores
   const relSection = document.getElementById('drawer-related-section');

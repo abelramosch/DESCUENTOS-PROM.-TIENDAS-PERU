@@ -197,8 +197,17 @@ export function analyzeProduct(product, historyEntries = [], groupMeta = null) {
     }
   }
 
+  const dropFromMaxPct =
+    maxPrice > 0 && currentPrice < maxPrice ? round1(((maxPrice - currentPrice) / maxPrice) * 100) : 0;
+  const dropFromMaxPen = round2(maxPrice - currentPrice);
+
   const isAllTimeLow =
-    daysTracked >= 2 && currentPrice <= minPrice && (currentPrice < maxPrice || realDiscountPct >= 3);
+    !isFakeDiscount &&
+    daysTracked >= 2 &&
+    currentPrice <= minPrice &&
+    dropFromMaxPct >= 5 &&
+    dropFromMaxPen >= 1 &&
+    (realDiscountPct >= 5 || delta24hPct <= -5);
 
   // Compute Deal Score (0-100) and human verdict
   let verdict = 'normal';

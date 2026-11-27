@@ -29,6 +29,7 @@ export function renderSparkline(values = [], width = 88, height = 26) {
 
   const min = Math.min(...pts);
   const max = Math.max(...pts);
+  const isFlat = max - min < 0.01;
   const span = max - min || 1;
   const padX = 4;
   const padY = 4;
@@ -37,7 +38,7 @@ export function renderSparkline(values = [], width = 88, height = 26) {
 
   const coords = pts.map((val, i) => {
     const x = padX + (i / (pts.length - 1)) * innerW;
-    const y = padY + innerH - ((val - min) / span) * innerH;
+    const y = isFlat ? height / 2 : padY + innerH - ((val - min) / span) * innerH;
     return [x, y];
   });
 
@@ -80,21 +81,43 @@ export function renderHistoryChart(container, history = [], stats = {}, rangeDay
   const plotW = W - pad.left - pad.right;
   const plotH = H - pad.top - pad.bottom;
 
-  const allVals = [];
+  const realVals = [];
+  const listVals = [];
   for (const d of data) {
-    allVals.push(Number(d.price));
-    if (d.listPrice && Number(d.listPrice) > 0) allVals.push(Number(d.listPrice));
-    if (d.cardPrice && Number(d.cardPrice) > 0) allVals.push(Number(d.cardPrice));
+    realVals.push(Number(d.price));
+    if (d.cardPrice && Number(d.cardPrice) > 0) realVals.push(Number(d.cardPrice));
+    if (d.listPrice && Number(d.listPrice) > 0) listVals.push(Number(d.listPrice));
   }
-  if (stats?.minPrice) allVals.push(Number(stats.minPrice));
 
-  let yMin = Math.min(...allVals);
-  let yMax = Math.max(...allVals);
+  const realMin = Math.min(...realVals);
+  const realMax = Math.max(...realVals);
+  const maxList = listVals.length ? Math.max(...listVals) : realMax;
+  const hasRealVariation = realMax - realMin >= 0.01;
+
+  // Include listPrice in Y scale ONLY if it does not squash real price variation (< 30% of chart height)
+  const listSquashesChart =
+    data.length > 1 &&
+    hasRealVariation &&
+    maxList > realMax &&
+    (realMax - realMin) / (maxList - realMin) < 0.3;
+
+  const scaleVals = [...realVals];
+  if (!listSquashesChart && data.length === 1 && maxList > realMax) {
+    scaleVals.push(maxList);
+  } else if (!listSquashesChart && hasRealVariation && maxList > realMax) {
+    scaleVals.push(maxList);
+  } else if (!hasRealVariation && maxList > realMax && maxList <= realMax * 1.5) {
+    scaleVals.push(maxList);
+  }
+  if (stats?.minPrice && hasRealVariation) scaleVals.push(Number(stats.minPrice));
+
+  let yMin = Math.min(...scaleVals);
+  let yMax = Math.max(...scaleVals);
   if (yMin === yMax) {
-    yMin = Math.max(0, yMin * 0.85);
-    yMax = yMax * 1.15;
+    yMin = Math.max(0, yMin * 0.9);
+    yMax = yMax * 1.1;
   } else {
-    const margin = (yMax - yMin) * 0.14;
+    const margin = (yMax - yMin) * 0.16;
     yMin = Math.max(0, yMin - margin);
     yMax = yMax + margin;
   }
@@ -115,6 +138,7 @@ export function renderHistoryChart(container, history = [], stats = {}, rangeDay
 
   // Horizontal grid + Y labels (4 ticks)
   const ticks = 4;
+  const useDecimals = yMax - yMin < 20;
   for (let i = 0; i <= ticks; i++) {
     const frac = i / ticks;
     const val = yMin + (yMax - yMin) * (1 - frac);
@@ -136,12 +160,14 @@ export function renderHistoryChart(container, history = [], stats = {}, rangeDay
     lbl.setAttribute('fill', 'var(--ink-muted)');
     lbl.setAttribute('font-size', '10');
     lbl.setAttribute('font-family', 'var(--font-mono)');
-    lbl.textContent = `S/${Math.round(val).toLocaleString('es-PE')}`;
+    lbl.textContent = useDecimals
+      ? `S/${val.toFixed(2)}`
+      : `S/${Math.round(val).toLocaleString('es-PE')}`;
     svg.appendChild(lbl);
   }
 
-  // Min price reference line
-  if (stats?.minPrice) {
+  // Min price reference line (only when real price actually varied)
+  if (stats?.minPrice && data.length > 1 && hasRealVariation) {
     const minY = yAt(Number(stats.minPrice));
     const minLine = document.createElementNS(ns, 'line');
     minLine.setAttribute('x1', pad.left);
@@ -161,7 +187,7 @@ export function renderHistoryChart(container, history = [], stats = {}, rangeDay
     const cx = xAt(0);
     const py = yAt(d.price);
 
-    if (d.listPrice > d.price) {
+    if (d.listPrice > d.price && d.listPrice <= yMax) {
       const ly = yAt(d.listPrice);
       const dropLine = document.createElementNS(ns, 'line');
       dropLine.setAttribute('x1', cx);
@@ -223,18 +249,30 @@ export function renderHistoryChart(container, history = [], stats = {}, rangeDay
     return;
   }
 
-  // Multi-day paths: List price (dashed) + Internet price (step/line + subtle area)
-  const listPathD = data
-    .map((d, i) => `${i === 0 ? 'M' : 'L'}${xAt(i).toFixed(1)},${yAt(d.listPrice || d.price).toFixed(1)}`)
-    .join(' ');
-  const listPath = document.createElementNS(ns, 'path');
-  listPath.setAttribute('d', listPathD);
-  listPath.setAttribute('fill', 'none');
-  listPath.setAttribute('stroke', 'var(--ink-muted)');
-  listPath.setAttribute('stroke-width', '1.3');
-  listPath.setAttribute('stroke-dasharray', '4 3');
-  listPath.setAttribute('opacity', '0.65');
-  svg.appendChild(listPath);
+  // Multi-day paths: List price (dashed) only when within Y scale; otherwise show clean note
+  if (!listSquashesChart && maxList <= yMax && maxList > realMin) {
+    const listPathD = data
+      .map((d, i) => `${i === 0 ? 'M' : 'L'}${xAt(i).toFixed(1)},${yAt(d.listPrice || d.price).toFixed(1)}`)
+      .join(' ');
+    const listPath = document.createElementNS(ns, 'path');
+    listPath.setAttribute('d', listPathD);
+    listPath.setAttribute('fill', 'none');
+    listPath.setAttribute('stroke', 'var(--ink-muted)');
+    listPath.setAttribute('stroke-width', '1.3');
+    listPath.setAttribute('stroke-dasharray', '4 3');
+    listPath.setAttribute('opacity', '0.65');
+    svg.appendChild(listPath);
+  } else if (maxList > yMax) {
+    const note = document.createElementNS(ns, 'text');
+    note.setAttribute('x', W - pad.right);
+    note.setAttribute('y', pad.top - 5);
+    note.setAttribute('text-anchor', 'end');
+    note.setAttribute('fill', 'var(--ink-muted)');
+    note.setAttribute('font-size', '9.5');
+    note.setAttribute('font-family', 'var(--font-mono)');
+    note.textContent = `Precio lista tienda: ${formatPen(maxList)} (fuera de escala)`;
+    svg.appendChild(note);
+  }
 
   // Subtle fill under internet price
   const pricePoints = data.map((d, i) => [xAt(i), yAt(d.price)]);
@@ -257,6 +295,34 @@ export function renderHistoryChart(container, history = [], stats = {}, rangeDay
   pricePath.setAttribute('stroke-linejoin', 'round');
   pricePath.setAttribute('stroke-linecap', 'round');
   svg.appendChild(pricePath);
+
+  // Visible markers per day (highlights real changes at a glance)
+  if (data.length <= 31) {
+    data.forEach((d, i) => {
+      const [cx, cy] = pricePoints[i];
+      const isMinPt = hasRealVariation && Number(d.price) <= realMin;
+      const pt = document.createElementNS(ns, 'circle');
+      pt.setAttribute('cx', cx.toFixed(1));
+      pt.setAttribute('cy', cy.toFixed(1));
+      pt.setAttribute('r', isMinPt ? '4' : '3');
+      pt.setAttribute('fill', isMinPt ? 'var(--emerald)' : 'var(--accent)');
+      pt.setAttribute('stroke', 'var(--bg-surface)');
+      pt.setAttribute('stroke-width', '1.5');
+      svg.appendChild(pt);
+    });
+  }
+
+  if (!hasRealVariation) {
+    const flatTxt = document.createElementNS(ns, 'text');
+    flatTxt.setAttribute('x', pad.left + plotW / 2);
+    flatTxt.setAttribute('y', pad.top + 16);
+    flatTxt.setAttribute('text-anchor', 'middle');
+    flatTxt.setAttribute('fill', 'var(--ink-muted)');
+    flatTxt.setAttribute('font-size', '10.5');
+    flatTxt.setAttribute('font-family', 'var(--font-mono)');
+    flatTxt.textContent = `Sin variación de precio en ${data.length} días registrados`;
+    svg.appendChild(flatTxt);
+  }
 
   // X-axis labels (first, middle, last)
   const xLabelIndices = [...new Set([0, Math.floor((data.length - 1) / 2), data.length - 1])];
