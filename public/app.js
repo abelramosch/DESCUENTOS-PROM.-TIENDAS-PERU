@@ -1,4 +1,4 @@
-import { formatPen, renderHistoryChart, renderSparkline } from './chart.js';
+import { formatPen, renderHistoryChart, renderSparkline } from './chart.js?v=20261127';
 
 const LOCAL_WATCHLIST_KEY = 'chapaaltoque_pe_watchlist_v1';
 const LEGACY_WATCHLIST_KEYS = ['nadamenos_pe_watchlist_v1', 'precioreal_pe_watchlist_v1'];
@@ -2057,9 +2057,11 @@ function renderDrawer(p, history, related, group = state.selectedGroup) {
       ? 'Día 1 (sin historial previo)'
       : noVariation
         ? `Sin cambios en ${s.daysTracked} días`
-        : s.minDate
-          ? `Registrado: ${s.minDate}`
-          : 'Hoy'
+        : s.verdict === 'all_time_low' && s.maxPrice > s.minPrice
+          ? `Bajó ${formatPen(s.maxPrice - s.minPrice)} desde ${formatPen(s.maxPrice)}`
+          : s.minDate
+            ? `Registrado: ${s.minDate}`
+            : 'Hoy'
   );
   setText('stat-median', formatPen(s.medianPrice));
   setText(

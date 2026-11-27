@@ -312,6 +312,39 @@ export function renderHistoryChart(container, history = [], stats = {}, rangeDay
     });
   }
 
+  // Direct value labels on first and last points when price changed (immediately readable on mobile/desktop)
+  if (hasRealVariation && data.length >= 2) {
+    const first = data[0];
+    const last = data[data.length - 1];
+    const [fx, fy] = pricePoints[0];
+    const [lx, ly] = pricePoints[pricePoints.length - 1];
+
+    const addValTag = (x, y, text, anchor, color, above) => {
+      const ty = above ? Math.max(pad.top + 11, y - 9) : Math.min(pad.top + plotH - 4, y + 15);
+      const t = document.createElementNS(ns, 'text');
+      t.setAttribute('x', x.toFixed(1));
+      t.setAttribute('y', ty.toFixed(1));
+      t.setAttribute('text-anchor', anchor);
+      t.setAttribute('fill', color);
+      t.setAttribute('font-size', '10.5');
+      t.setAttribute('font-weight', '700');
+      t.setAttribute('font-family', 'var(--font-mono)');
+      t.textContent = text;
+      svg.appendChild(t);
+    };
+
+    const lastLower = Number(last.price) < Number(first.price);
+    addValTag(fx + 4, fy, formatPen(first.price), 'start', 'var(--ink-secondary)', lastLower);
+    addValTag(
+      lx - 4,
+      ly,
+      formatPen(last.price),
+      'end',
+      lastLower ? 'var(--emerald)' : 'var(--accent)',
+      !lastLower
+    );
+  }
+
   if (!hasRealVariation) {
     const flatTxt = document.createElementNS(ns, 'text');
     flatTxt.setAttribute('x', pad.left + plotW / 2);
@@ -324,8 +357,11 @@ export function renderHistoryChart(container, history = [], stats = {}, rangeDay
     svg.appendChild(flatTxt);
   }
 
-  // X-axis labels (first, middle, last)
-  const xLabelIndices = [...new Set([0, Math.floor((data.length - 1) / 2), data.length - 1])];
+  // X-axis labels (show every date when <= 6 days so drop day is never hidden)
+  const xLabelIndices =
+    data.length <= 6
+      ? data.map((_, i) => i)
+      : [...new Set([0, Math.floor((data.length - 1) / 2), data.length - 1])];
   for (const idx of xLabelIndices) {
     const t = document.createElementNS(ns, 'text');
     t.setAttribute('x', xAt(idx));
@@ -338,7 +374,7 @@ export function renderHistoryChart(container, history = [], stats = {}, rangeDay
     svg.appendChild(t);
   }
 
-  // Interactive hover crosshair + tooltip
+  // Interactive hover & touch crosshair + tooltip
   const hoverLine = document.createElementNS(ns, 'line');
   hoverLine.setAttribute('y1', pad.top);
   hoverLine.setAttribute('y2', pad.top + plotH);
@@ -370,9 +406,9 @@ export function renderHistoryChart(container, history = [], stats = {}, rangeDay
   overlay.style.cursor = 'crosshair';
   svg.appendChild(overlay);
 
-  overlay.addEventListener('mousemove', (e) => {
+  const showTooltipAtClientX = (clientX) => {
     const rect = svg.getBoundingClientRect();
-    const relX = ((e.clientX - rect.left) / rect.width) * W;
+    const relX = ((clientX - rect.left) / rect.width) * W;
     const frac = Math.max(0, Math.min(1, (relX - pad.left) / plotW));
     const idx = Math.round(frac * (data.length - 1));
     const d = data[idx];
@@ -400,7 +436,23 @@ export function renderHistoryChart(container, history = [], stats = {}, rangeDay
     const clampedLeft = Math.min(rect.width - tipWidth - 8, Math.max(8, leftPx - tipWidth / 2));
     tooltip.style.left = `${clampedLeft}px`;
     tooltip.style.top = '8px';
-  });
+  };
+
+  overlay.addEventListener('mousemove', (e) => showTooltipAtClientX(e.clientX));
+  overlay.addEventListener(
+    'touchstart',
+    (e) => {
+      if (e.touches?.[0]) showTooltipAtClientX(e.touches[0].clientX);
+    },
+    { passive: true }
+  );
+  overlay.addEventListener(
+    'touchmove',
+    (e) => {
+      if (e.touches?.[0]) showTooltipAtClientX(e.touches[0].clientX);
+    },
+    { passive: true }
+  );
 
   overlay.addEventListener('mouseleave', () => {
     hoverLine.style.display = 'none';
